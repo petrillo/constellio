@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.constellio.data.utils.ImpossibleRuntimeException;
 
 public class FoldersLocator {
@@ -36,8 +38,13 @@ public class FoldersLocator {
 		} else {
 			File classFolder = new File(fullPath);
 
-			finalPath = classFolder.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile()
-					.getParentFile().getParentFile().getParentFile().getAbsoluteFile();
+			String packageName = FoldersLocator.class.getPackage().getName();
+			int dotCount = StringUtils.countMatches(packageName, ".");
+			File currentFolder = classFolder;
+			for (int i = 0; i <= dotCount; i++) {
+				currentFolder = currentFolder.getParentFile();
+			}
+			finalPath = currentFolder.getParentFile().getParentFile().getAbsoluteFile();
 		}
 
 		return finalPath;
