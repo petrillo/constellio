@@ -137,6 +137,13 @@ public class SearchFieldsPopulator extends SeparatedFieldsPopulator implements F
 			String copiedMetadataCodePrefix) {
 
 //		String valueLanguage = collectionLanguages.get(0);
+		//FIXME: this approach should also be added to other methods.
+		//My suggestion is to create a class that converts a metadata to a text and
+		//then to use LangDetector to detect the language of the text.
+		//Note that according to https://cwiki.apache.org/confluence/display/solr/Detecting+Languages+During+Indexing
+		//LangDetector is better option for detecting the language of a text than Tikz library.
+		//therefore, we can simple ignore the detected language in the ParsedContent class.
+
 		String valueLanguage = null;
 		try {
 			valueLanguage = LangDetector.getInstance().detect(value);
