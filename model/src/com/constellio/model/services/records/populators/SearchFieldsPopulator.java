@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.cybozu.labs.langdetect.LangDetectException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -135,7 +136,13 @@ public class SearchFieldsPopulator extends SeparatedFieldsPopulator implements F
 	private Map<String, Object> populateCopyFieldsOfSinglevalueSearchableTextMetadata(String value,
 			String copiedMetadataCodePrefix) {
 
-		String valueLanguage = collectionLanguages.get(0);
+//		String valueLanguage = collectionLanguages.get(0);
+		String valueLanguage = null;
+		try {
+			valueLanguage = LangDetector.getInstance().detect(value);
+		} catch (LangDetectException e) {
+			valueLanguage = collectionLanguages.get(0);
+		}
 
 		Map<String, Object> copyfields = new HashMap<>();
 		for (String collectionLanguage : collectionLanguages) {
