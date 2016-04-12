@@ -44,7 +44,4 @@
 
     <inherits name="com.lexaden.breadcrumb.gwt.BreadcrumbWidgetset" />
 
-    
-
-    <inherits name="org.vaadin.addons.maskedtextfield.MaskedTextFieldWidgetset" />
 </module>
