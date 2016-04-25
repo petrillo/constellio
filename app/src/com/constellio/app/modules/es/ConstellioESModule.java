@@ -6,6 +6,7 @@ import static com.constellio.app.modules.es.model.connectors.ConnectorType.CODE_
 import static com.constellio.model.services.records.cache.CacheConfig.permanentCache;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,7 @@ import com.constellio.app.modules.es.extensions.ESTaxonomyPageExtension;
 import com.constellio.app.modules.es.extensions.api.ESModuleExtensions;
 import com.constellio.app.modules.es.migrations.ESMigrationTo5_1_6;
 import com.constellio.app.modules.es.migrations.ESMigrationTo6_1;
+import com.constellio.app.modules.es.migrations.ESMigrationTo6_2;
 import com.constellio.app.modules.es.model.connectors.http.ConnectorHttpInstance;
 import com.constellio.app.modules.es.model.connectors.ldap.ConnectorLDAPInstance;
 import com.constellio.app.modules.es.model.connectors.smb.ConnectorSmbFolder;
@@ -60,10 +62,11 @@ public class ConstellioESModule implements InstallableModule {
 
 	@Override
 	public List<MigrationScript> getMigrationScripts() {
-		List<MigrationScript> migrationScripts = new ArrayList<>();
-		migrationScripts.add(new ESMigrationTo5_1_6());
-		migrationScripts.add(new ESMigrationTo6_1());
-		return migrationScripts;
+		return Arrays.asList(
+				new ESMigrationTo5_1_6(),
+				new ESMigrationTo6_1(),
+				new ESMigrationTo6_2()
+		);
 	}
 
 	@Override
@@ -104,7 +107,6 @@ public class ConstellioESModule implements InstallableModule {
 		setupModelLayerExtensions(collection, appLayerFactory);
 		setupAppLayerExtensions(collection, appLayerFactory);
 
-
 	}
 
 	private void registerManagers(String collection, AppLayerFactory appLayerFactory) {
@@ -134,10 +136,9 @@ public class ConstellioESModule implements InstallableModule {
 				.forCollection(collection);
 		extensions.moduleExtensionsMap.put(ID, new ESModuleExtensions());
 		extensions.taxonomyAccessExtensions.add(new ESTaxonomyPageExtension(collection));
-		extensions.recordAppExtensions.add(new ESRecordAppExtension());
+		extensions.recordAppExtensions.add(new ESRecordAppExtension(collection, appLayerFactory));
 		extensions.recordNavigationExtensions.add(new ESRecordNavigationExtension(collection, appLayerFactory));
 		extensions.searchPageExtensions.add(new ESSearchPageExtension());
-
 	}
 
 	private void setupModelLayerExtensions(String collection, AppLayerFactory appLayerFactory) {
