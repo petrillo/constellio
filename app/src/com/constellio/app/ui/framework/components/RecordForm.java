@@ -54,9 +54,9 @@ public abstract class RecordForm extends BaseForm<RecordVO> {
 		return getViewObject().getMetadatas();
 	}
 
-	public Field<?> getField(String metadataCode) {
+	public <T extends Field<?>> T getField(String metadataCode) {
 		MetadataVO metadata = getViewObject().getMetadataOrNull(metadataCode);
-		return metadata != null ? getField(metadata) : null;
+		return metadata != null ? (T) getField(metadata) : null;
 	}
 
 	protected Field<?> getField(MetadataVO metadata) {

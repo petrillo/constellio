@@ -250,10 +250,10 @@ public abstract class BaseForm<T> extends CustomComponent {
 		return fields;
 	}
 
-	public Field<?> getField(String id) {
+	public <T extends Field<?>> T getField(String id) {
 		for (Field<?> field : fields) {
 			if (id.equals(field.getId())) {
-				return field;
+				return (T) field;
 			}
 		}
 		return null;

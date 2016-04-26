@@ -30,8 +30,8 @@ import com.constellio.app.modules.rm.ui.pages.decommissioning.EditDecommissionin
 import com.constellio.app.modules.rm.ui.pages.document.AddEditDocumentViewImpl;
 import com.constellio.app.modules.rm.ui.pages.document.DisplayDocumentViewImpl;
 import com.constellio.app.modules.rm.ui.pages.email.AddEmailAttachmentsToFolderViewImpl;
-import com.constellio.app.modules.rm.ui.pages.folder.AddEditFolderViewImpl;
 import com.constellio.app.modules.rm.ui.pages.folder.DisplayFolderViewImpl;
+import com.constellio.app.modules.rm.ui.pages.folder2.AddEditFolderViewImpl2;
 import com.constellio.app.modules.rm.ui.pages.management.ArchiveManagementViewImpl;
 import com.constellio.app.modules.rm.ui.pages.reports.RMReportsViewImpl;
 import com.constellio.app.modules.rm.ui.pages.retentionRule.AddEditRetentionRuleViewImpl;
@@ -341,8 +341,8 @@ public class NavigatorConfigurationService implements Serializable {
 		viewProviders.add(new ClassBasedViewProvider(LIST_ONGLET, ListMetadataGroupSchemaTypeViewImpl.class));
 
 		viewProviders.add(new ClassBasedViewProvider(RECORDS_MANAGEMENT, HomeViewImpl.class));
-		viewProviders.add(new ClassBasedViewProvider(ADD_FOLDER, AddEditFolderViewImpl.class));
-		viewProviders.add(new ClassBasedViewProvider(EDIT_FOLDER, AddEditFolderViewImpl.class));
+		viewProviders.add(new ClassBasedViewProvider(ADD_FOLDER, AddEditFolderViewImpl2.class));
+		viewProviders.add(new ClassBasedViewProvider(EDIT_FOLDER, AddEditFolderViewImpl2.class));
 		viewProviders.add(new ClassBasedViewProvider(DISPLAY_FOLDER, DisplayFolderViewImpl.class));
 		viewProviders.add(new ClassBasedViewProvider(ADD_DOCUMENT, AddEditDocumentViewImpl.class));
 		viewProviders.add(new ClassBasedViewProvider(EDIT_DOCUMENT, AddEditDocumentViewImpl.class));
