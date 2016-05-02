@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.assertj.core.api.Condition;
 import org.assertj.core.api.ListAssert;
@@ -26,6 +27,8 @@ import org.assertj.core.api.ObjectAssert;
 import org.assertj.core.groups.Tuple;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import com.constellio.app.modules.rm.wrappers.DecommissioningList;
 import com.constellio.data.dao.dto.records.RecordDTO;
@@ -494,5 +497,27 @@ public class TestUtils {
 			//				}
 			//			});
 		}
+	}
+
+	public static Answer setBoolean(final AtomicBoolean atomicBoolean) {
+		return new Answer() {
+			@Override
+			public Object answer(InvocationOnMock invocation)
+					throws Throwable {
+				atomicBoolean.set((Boolean) invocation.getArguments()[0]);
+
+				return null;
+			}
+		};
+	}
+
+	public static Answer getBoolean(final AtomicBoolean atomicBoolean) {
+		return new Answer() {
+			@Override
+			public Object answer(InvocationOnMock invocation)
+					throws Throwable {
+				return atomicBoolean.get();
+			}
+		};
 	}
 }

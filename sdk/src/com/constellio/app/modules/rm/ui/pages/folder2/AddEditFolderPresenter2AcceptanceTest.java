@@ -1,18 +1,41 @@
 package com.constellio.app.modules.rm.ui.pages.folder2;
 
+import static com.constellio.app.modules.rm.wrappers.Folder.ADMINISTRATIVE_UNIT_ENTERED;
+import static com.constellio.app.modules.rm.wrappers.Folder.CATEGORY_ENTERED;
+import static com.constellio.app.modules.rm.wrappers.Folder.COPY_STATUS_ENTERED;
+import static com.constellio.app.modules.rm.wrappers.Folder.MAIN_COPY_RULE_ID_ENTERED;
+import static com.constellio.app.modules.rm.wrappers.Folder.PARENT_FOLDER;
+import static com.constellio.app.modules.rm.wrappers.Folder.RETENTION_RULE_ENTERED;
+import static com.constellio.app.modules.rm.wrappers.Folder.UNIFORM_SUBDIVISION_ENTERED;
+import static com.constellio.sdk.tests.TestUtils.getBoolean;
+import static com.constellio.sdk.tests.TestUtils.setBoolean;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.endsWith;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import com.constellio.app.modules.rm.RMConfigs;
 import com.constellio.app.modules.rm.RMTestRecords;
 import com.constellio.app.modules.rm.services.RMSchemasRecordsServices;
-import com.constellio.app.modules.rm.wrappers.Folder;
+import com.constellio.app.modules.rm.ui.components.folder.FolderForm;
+import com.constellio.app.modules.rm.ui.components.folder.fields.CustomFolderField;
+import com.constellio.app.modules.rm.ui.components.folder.fields.FolderAdministrativeUnitField;
+import com.constellio.app.modules.rm.ui.components.folder.fields.FolderCategoryField;
+import com.constellio.app.modules.rm.ui.components.folder.fields.FolderCopyRuleField;
+import com.constellio.app.modules.rm.ui.components.folder.fields.FolderCopyStatusEnteredField;
+import com.constellio.app.modules.rm.ui.components.folder.fields.FolderParentFolderField;
+import com.constellio.app.modules.rm.ui.components.folder.fields.FolderRetentionRuleField;
+import com.constellio.app.modules.rm.ui.components.folder.fields.FolderUniformSubdivisionField;
 import com.constellio.app.ui.pages.base.SessionContext;
 import com.constellio.sdk.tests.ConstellioTest;
 import com.constellio.sdk.tests.FakeSessionContext;
@@ -27,6 +50,15 @@ public class AddEditFolderPresenter2AcceptanceTest extends ConstellioTest {
 	RMTestRecords records = new RMTestRecords(zeCollection);
 	RMSchemasRecordsServices rm;
 	SDKViewNavigation viewNavigation;
+
+	@Mock FolderForm folderForm;
+	@Mock FolderCategoryField categoryField;
+	@Mock FolderRetentionRuleField retentionRuleField;
+	@Mock FolderCopyRuleField copyRuleField;
+	@Mock FolderCopyStatusEnteredField copyStatusField;
+	@Mock FolderAdministrativeUnitField administrativeUnitField;
+	@Mock FolderParentFolderField parentFolderField;
+	@Mock FolderUniformSubdivisionField uniformSubdivisionField;
 
 	@Before
 	public void setUp()
@@ -47,6 +79,27 @@ public class AddEditFolderPresenter2AcceptanceTest extends ConstellioTest {
 		assertThat(presenter.getFolder()).isNull();
 
 		rm = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
+
+		doReturn(folderForm).when(view).getForm();
+
+		configure(categoryField, retentionRuleField, copyRuleField, copyStatusField, administrativeUnitField, parentFolderField,
+				uniformSubdivisionField);
+		doReturn(categoryField).when(folderForm).getCustomField(endsWith(CATEGORY_ENTERED));
+		doReturn(retentionRuleField).when(folderForm).getCustomField(endsWith(RETENTION_RULE_ENTERED));
+		doReturn(copyRuleField).when(folderForm).getCustomField(endsWith(MAIN_COPY_RULE_ID_ENTERED));
+		doReturn(copyStatusField).when(folderForm).getCustomField(endsWith(COPY_STATUS_ENTERED));
+		doReturn(administrativeUnitField).when(folderForm).getCustomField(endsWith(ADMINISTRATIVE_UNIT_ENTERED));
+		doReturn(parentFolderField).when(folderForm).getCustomField(endsWith(PARENT_FOLDER));
+		doReturn(uniformSubdivisionField).when(folderForm).getCustomField(endsWith(UNIFORM_SUBDIVISION_ENTERED));
+	}
+
+	private void configure(CustomFolderField... fields) {
+		for (CustomFolderField field : fields) {
+
+			final AtomicBoolean visible = new AtomicBoolean();
+			doAnswer(setBoolean(visible)).when(field).setVisible(anyBoolean());
+			doAnswer(getBoolean(visible)).when(field).isVisible();
+		}
 	}
 
 	@Test
@@ -85,7 +138,7 @@ public class AddEditFolderPresenter2AcceptanceTest extends ConstellioTest {
 		assertThat(presenter.isEditMode()).isFalse();
 		assertThat(presenter.getFolder()).isNotNull();
 		assertThat(presenter.getFolder().getId()).isNotEqualTo("A16");
-		assertThat(presenter.getFolder().get(Folder.PARENT_FOLDER)).isEqualTo("A16");
+		assertThat(presenter.getFolder().get(PARENT_FOLDER)).isEqualTo("A16");
 
 	}
 
@@ -120,5 +173,271 @@ public class AddEditFolderPresenter2AcceptanceTest extends ConstellioTest {
 		presenter.backButtonClicked();
 
 		verify(viewNavigation.rmViews).displayFolder("A15");
+	}
+
+	@Test
+	public void whenCreateNewFolderThenValidFieldVisibility()
+			throws Exception {
+
+		presenter.forParams("");
+
+		assertThat(administrativeUnitField.isVisible()).isTrue();
+		assertThat(categoryField.isVisible()).isTrue();
+		assertThat(retentionRuleField.isVisible()).isFalse();
+		assertThat(parentFolderField.isVisible()).isTrue();
+		assertThat(copyRuleField.isVisible()).isFalse();
+		assertThat(copyStatusField.isVisible()).isFalse();
+		assertThat(uniformSubdivisionField.isVisible()).isFalse();
+
+	}
+
+	@Test
+	public void givenCustomisableCopyTypeWhenCreateNewFolderThenFieldInvisible()
+			throws Exception {
+
+		givenConfig(RMConfigs.COPY_RULE_TYPE_ALWAYS_MODIFIABLE, true);
+
+		presenter.forParams("");
+
+		assertThat(administrativeUnitField.isVisible()).isTrue();
+		assertThat(categoryField.isVisible()).isTrue();
+		assertThat(retentionRuleField.isVisible()).isFalse();
+		assertThat(parentFolderField.isVisible()).isTrue();
+		assertThat(copyRuleField.isVisible()).isFalse();
+		assertThat(copyStatusField.isVisible()).isFalse();
+		assertThat(uniformSubdivisionField.isVisible()).isFalse();
+
+	}
+
+	@Test
+	public void whenCreateNewFolderWithParentFolderThenValidFieldVisibility()
+			throws Exception {
+
+		presenter.forParams("parentId=A15");
+
+		assertThat(administrativeUnitField.isVisible()).isFalse();
+		assertThat(categoryField.isVisible()).isFalse();
+		assertThat(retentionRuleField.isVisible()).isFalse();
+		assertThat(parentFolderField.isVisible()).isTrue();
+		assertThat(copyRuleField.isVisible()).isFalse();
+		assertThat(copyStatusField.isVisible()).isFalse();
+		assertThat(uniformSubdivisionField.isVisible()).isFalse();
+
+	}
+
+	@Test
+	public void givenRootFolderWithEveryFieldsDeducedWhenModifyThenValidFieldVisibility()
+			throws Exception {
+
+		//TODO
+		presenter.forParams("");
+
+		assertThat(administrativeUnitField.isVisible()).isTrue();
+		assertThat(categoryField.isVisible()).isTrue();
+		assertThat(retentionRuleField.isVisible()).isFalse();
+		assertThat(parentFolderField.isVisible()).isTrue();
+		assertThat(copyRuleField.isVisible()).isFalse();
+		assertThat(copyStatusField.isVisible()).isFalse();
+		assertThat(uniformSubdivisionField.isVisible()).isFalse();
+
+	}
+
+	@Test
+	public void givenCopyAlwaysCustomisableAndRootFolderWhenModifyThenValidFieldVisibility()
+			throws Exception {
+
+		givenConfig(RMConfigs.COPY_RULE_TYPE_ALWAYS_MODIFIABLE, true);
+
+		//TODO
+		presenter.forParams("");
+
+		assertThat(administrativeUnitField.isVisible()).isTrue();
+		assertThat(categoryField.isVisible()).isTrue();
+		assertThat(retentionRuleField.isVisible()).isFalse();
+		assertThat(parentFolderField.isVisible()).isTrue();
+		assertThat(copyRuleField.isVisible()).isTrue();
+		assertThat(copyStatusField.isVisible()).isTrue();
+		assertThat(uniformSubdivisionField.isVisible()).isFalse();
+
+	}
+
+	@Test
+	public void givenRootFolderWithoutDeducableFieldsWhenModifyThenValidFieldVisibility()
+			throws Exception {
+
+		//TODO
+		presenter.forParams("");
+
+		assertThat(administrativeUnitField.isVisible()).isTrue();
+		assertThat(categoryField.isVisible()).isTrue();
+		assertThat(retentionRuleField.isVisible()).isTrue();
+		assertThat(parentFolderField.isVisible()).isTrue();
+		assertThat(copyRuleField.isVisible()).isTrue();
+		assertThat(copyStatusField.isVisible()).isTrue();
+		assertThat(uniformSubdivisionField.isVisible()).isFalse();
+
+	}
+
+	@Test
+	public void givenRootFolderWithUndeducableCopyTypeWhenModifyThenCopyVisible()
+			throws Exception {
+
+		//TODO
+		presenter.forParams("");
+
+		assertThat(administrativeUnitField.isVisible()).isTrue();
+		assertThat(categoryField.isVisible()).isTrue();
+		assertThat(retentionRuleField.isVisible()).isFalse();
+		assertThat(parentFolderField.isVisible()).isTrue();
+		assertThat(copyRuleField.isVisible()).isTrue();
+		assertThat(copyStatusField.isVisible()).isFalse();
+		assertThat(uniformSubdivisionField.isVisible()).isFalse();
+
+	}
+
+	@Test
+	public void givenRootFolderWithUndeducableCopyStatusWhenModifyThenCopyVisible()
+			throws Exception {
+
+		//TODO
+		presenter.forParams("");
+
+		assertThat(administrativeUnitField.isVisible()).isTrue();
+		assertThat(categoryField.isVisible()).isTrue();
+		assertThat(retentionRuleField.isVisible()).isFalse();
+		assertThat(parentFolderField.isVisible()).isTrue();
+		assertThat(copyRuleField.isVisible()).isFalse();
+		assertThat(copyStatusField.isVisible()).isTrue();
+		assertThat(uniformSubdivisionField.isVisible()).isFalse();
+
+	}
+
+	@Test
+	public void givenRootFolderWithUndeducableRuleWhenModifyThenRuleVisible()
+			throws Exception {
+
+		//TODO
+		presenter.forParams("");
+
+		assertThat(administrativeUnitField.isVisible()).isTrue();
+		assertThat(categoryField.isVisible()).isTrue();
+		assertThat(retentionRuleField.isVisible()).isTrue();
+		assertThat(parentFolderField.isVisible()).isTrue();
+		assertThat(copyRuleField.isVisible()).isFalse();
+		assertThat(copyStatusField.isVisible()).isFalse();
+		assertThat(uniformSubdivisionField.isVisible()).isFalse();
+
+	}
+
+	@Test
+	public void whenModifySubFolderThenValidFieldVisibility()
+			throws Exception {
+
+		//TODO
+		presenter.forParams("");
+
+		assertThat(administrativeUnitField.isVisible()).isFalse();
+		assertThat(categoryField.isVisible()).isFalse();
+		assertThat(retentionRuleField.isVisible()).isFalse();
+		assertThat(parentFolderField.isVisible()).isTrue();
+		assertThat(copyRuleField.isVisible()).isFalse();
+		assertThat(copyStatusField.isVisible()).isFalse();
+		assertThat(uniformSubdivisionField.isVisible()).isFalse();
+
+	}
+
+	@Test
+	public void givenCustomisableCopyTypeWhenModifySubFolderThenCopyTypeStillInvisible()
+			throws Exception {
+
+		givenConfig(RMConfigs.COPY_RULE_TYPE_ALWAYS_MODIFIABLE, true);
+
+		//TODO
+		presenter.forParams("");
+
+		assertThat(administrativeUnitField.isVisible()).isFalse();
+		assertThat(categoryField.isVisible()).isFalse();
+		assertThat(retentionRuleField.isVisible()).isFalse();
+		assertThat(parentFolderField.isVisible()).isTrue();
+		assertThat(copyRuleField.isVisible()).isFalse();
+		assertThat(copyStatusField.isVisible()).isFalse();
+		assertThat(uniformSubdivisionField.isVisible()).isFalse();
+
+	}
+
+	@Test
+	public void givenEnableUniformSubdivisionWhenCreateRootFolderThenFieldVisible()
+			throws Exception {
+		givenUniformSubdivisionEnabled();
+
+		//TODO
+		presenter.forParams("");
+
+		assertThat(administrativeUnitField.isVisible()).isTrue();
+		assertThat(categoryField.isVisible()).isTrue();
+		assertThat(retentionRuleField.isVisible()).isFalse();
+		assertThat(parentFolderField.isVisible()).isTrue();
+		assertThat(copyRuleField.isVisible()).isFalse();
+		assertThat(copyStatusField.isVisible()).isFalse();
+		assertThat(uniformSubdivisionField.isVisible()).isTrue();
+
+	}
+
+	@Test
+	public void givenEnableUniformSubdivisionWhenCreateSubFolderThenFieldVisible()
+			throws Exception {
+		givenUniformSubdivisionEnabled();
+
+		//TODO
+		presenter.forParams("");
+
+		assertThat(administrativeUnitField.isVisible()).isFalse();
+		assertThat(categoryField.isVisible()).isFalse();
+		assertThat(retentionRuleField.isVisible()).isFalse();
+		assertThat(parentFolderField.isVisible()).isTrue();
+		assertThat(copyRuleField.isVisible()).isFalse();
+		assertThat(copyStatusField.isVisible()).isFalse();
+		assertThat(uniformSubdivisionField.isVisible()).isTrue();
+
+	}
+
+	@Test
+	public void givenEnableUniformSubdivisionWhenModifyRootFolderWithDeducedCopyAndRuleThenFieldVisible()
+			throws Exception {
+		givenUniformSubdivisionEnabled();
+
+		//TODO
+		presenter.forParams("");
+
+		assertThat(administrativeUnitField.isVisible()).isTrue();
+		assertThat(categoryField.isVisible()).isTrue();
+		assertThat(retentionRuleField.isVisible()).isFalse();
+		assertThat(parentFolderField.isVisible()).isTrue();
+		assertThat(copyRuleField.isVisible()).isFalse();
+		assertThat(copyStatusField.isVisible()).isFalse();
+		assertThat(uniformSubdivisionField.isVisible()).isTrue();
+
+	}
+
+	@Test
+	public void givenEnableUniformSubdivisionWhenModifySubFolderThenFieldVisible()
+			throws Exception {
+		givenUniformSubdivisionEnabled();
+
+		//TODO
+		presenter.forParams("");
+
+		assertThat(administrativeUnitField.isVisible()).isFalse();
+		assertThat(categoryField.isVisible()).isFalse();
+		assertThat(retentionRuleField.isVisible()).isFalse();
+		assertThat(parentFolderField.isVisible()).isTrue();
+		assertThat(copyRuleField.isVisible()).isFalse();
+		assertThat(copyStatusField.isVisible()).isFalse();
+		assertThat(uniformSubdivisionField.isVisible()).isTrue();
+
+	}
+
+	private void givenUniformSubdivisionEnabled() {
+
 	}
 }

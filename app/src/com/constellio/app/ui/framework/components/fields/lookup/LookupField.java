@@ -237,12 +237,14 @@ public abstract class LookupField<T extends Serializable> extends CustomField<T>
 	@Override
 	public void validate()
 			throws InvalidValueException {
-		try {
-			autoCompleteField.validate();
-			super.validate();
-			removeStyleName(ERROR_STYLE_NAME);
-		} catch (InvalidValueException e) {
-			throw e;
+		if (autoCompleteField != null) {
+			try {
+				autoCompleteField.validate();
+				super.validate();
+				removeStyleName(ERROR_STYLE_NAME);
+			} catch (InvalidValueException e) {
+				throw e;
+			}
 		}
 	}
 
@@ -284,7 +286,7 @@ public abstract class LookupField<T extends Serializable> extends CustomField<T>
 		@SuppressWarnings("unchecked")
 		public LookupWindowContent(Window window) {
 			super();
-			
+
 			setSizeFull();
 
 			window.setWidth("80%");
@@ -340,7 +342,7 @@ public abstract class LookupField<T extends Serializable> extends CustomField<T>
 					Panel lazyTreePanel = new Panel(lazyTree);
 					lazyTreePanel.setWidth("100%");
 					lazyTreePanel.setHeight("100%");
-					
+
 					if (lookupTreeComponent == null) {
 						lookupTreeComponent = lazyTreePanel;
 					} else {

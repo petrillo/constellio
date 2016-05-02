@@ -129,15 +129,17 @@ public abstract class ListAddRemoveField<T extends Serializable, F extends Abstr
 	@Override
 	public void validate()
 			throws InvalidValueException {
-		try {
-			addEditField.validate();
-			super.validate();
-			if (isRequiredValueMissing()) {
-				throw new InvalidValueException($("requiredField"));
+		if (addEditField != null) {
+			try {
+				addEditField.validate();
+				super.validate();
+				if (isRequiredValueMissing()) {
+					throw new InvalidValueException($("requiredField"));
+				}
+				removeStyleName(ERROR_STYLE_NAME);
+			} catch (InvalidValueException e) {
+				throw e;
 			}
-			removeStyleName(ERROR_STYLE_NAME);
-		} catch (InvalidValueException e) {
-			throw e;
 		}
 	}
 
@@ -477,8 +479,10 @@ public abstract class ListAddRemoveField<T extends Serializable, F extends Abstr
 		if (internalValue != null && internalValue.isEmpty()) {
 			setInternalValue(null);
 		}
-		tryAdd();
-		super.commit();
+		if (addEditField != null) {
+			tryAdd();
+			super.commit();
+		}
 	}
 
 	protected abstract F newAddEditField();
@@ -492,7 +496,7 @@ public abstract class ListAddRemoveField<T extends Serializable, F extends Abstr
 		captionLabel.setContentMode(ContentMode.HTML);
 		return captionLabel;
 	}
-	
+
 	protected String getItemCaption(Object itemId) {
 		String caption;
 		if (itemConverter != null) {

@@ -82,11 +82,19 @@ public class AddEditFolderPresenter2 extends SingleSchemaBasePresenter<AddEditFo
 		LookupRecordField categoryField = view.getForm().getField(Folder.CATEGORY_ENTERED);
 		LookupRecordField uniformSubdivisionField = view.getForm().getField(Folder.UNIFORM_SUBDIVISION_ENTERED);
 
+		commitForm();
+		Folder folder = rm.wrapFolder(toRecord(getFolder()));
+		System.out.println(folder.getCategoryEntered());
+
 		String currentValue = retentionRuleField.getFieldValue();
 		// Discover what options are available
 		List<String> availableOptions = decommissioningService().getRetentionRulesForCategory(
-				categoryField.getValue(), uniformSubdivisionField.getValue(), StatusFilter.ACTIVES);
+				folder.getCategoryEntered(), uniformSubdivisionField.getValue(), StatusFilter.ACTIVES);
 		retentionRuleField.setOptions(availableOptions);
+	}
+
+	private void commitForm() {
+		view.getForm().commit();
 	}
 
 	private RecordVO loadFolder(String folderId) {
