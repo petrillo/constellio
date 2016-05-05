@@ -83,5 +83,6 @@ public class MetadataPopulateConfigs implements Serializable {
     public boolean isConfigured() {
         return !styles.isEmpty() || !properties.isEmpty() || !regexes.isEmpty() || !metadataPopulators.isEmpty();
     }
+
 }
 

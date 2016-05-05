@@ -1,19 +1,22 @@
 package com.constellio.app.ui.entities;
 
+import com.constellio.app.ui.pages.management.extractors.builders.RegexConfigToVOBuilder;
+import com.constellio.app.ui.pages.management.extractors.entities.RegexConfigVO;
+import com.constellio.app.ui.pages.management.extractors.fields.MetadataPopulatorVO;
+import com.constellio.model.entities.schemas.MetadataPopulateConfigs;
+import com.constellio.model.entities.schemas.RegexConfig;
+import com.constellio.model.services.records.extractions.MetadataPopulator;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.constellio.app.ui.pages.management.extractors.builders.RegexConfigToVOBuilder;
-import com.constellio.app.ui.pages.management.extractors.entities.RegexConfigVO;
-import com.constellio.model.entities.schemas.MetadataPopulateConfigs;
-import com.constellio.model.entities.schemas.RegexConfig;
 
 public class MetadataExtractorVO implements Serializable {
 
 	private MetadataVO metadataVO;
 
 	private RegexConfigToVOBuilder regexConfigToVOBuilder = new RegexConfigToVOBuilder();
+	private MetadataPopulatorToVOBuilder metadataPopulatorToVOBuilder = new MetadataPopulatorToVOBuilder();
 
 	private List<String> styles = new ArrayList<>();
 
@@ -21,12 +24,18 @@ public class MetadataExtractorVO implements Serializable {
 
 	private List<RegexConfigVO> regexes = new ArrayList<>();
 
+	private List<MetadataPopulatorVO> metadataPopulators = new ArrayList<>();
+
 	public MetadataExtractorVO(MetadataVO metadataVO, MetadataPopulateConfigs metadataPopulateConfigs) {
 		this.metadataVO = metadataVO;
 		this.styles.addAll(metadataPopulateConfigs.getStyles());
 		this.properties.addAll(metadataPopulateConfigs.getProperties());
 		for (RegexConfig regexConfig : metadataPopulateConfigs.getRegexes()) {
 			this.regexes.add(regexConfigToVOBuilder.build(regexConfig));
+		}
+
+		for (MetadataPopulator populator: metadataPopulateConfigs.getMetadataPopulators()){
+			this.metadataPopulators.add(metadataPopulatorToVOBuilder.build(populator));
 		}
 	}
 
@@ -62,4 +71,11 @@ public class MetadataExtractorVO implements Serializable {
 		this.regexes = regexes;
 	}
 
+	public List<MetadataPopulatorVO> getMetadataPopulators() {
+		return metadataPopulators;
+	}
+
+	public void setMetadataPopulators(List<MetadataPopulatorVO> metadataPopulators) {
+		this.metadataPopulators = metadataPopulators;
+	}
 }
