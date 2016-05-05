@@ -1,16 +1,12 @@
 package com.constellio.model.entities.records.wrappers;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import com.constellio.app.ui.pages.search.criteria.Criterion;
 import com.constellio.app.ui.pages.search.criteria.FacetSelections;
 import com.constellio.model.entities.EnumWithSmallCode;
 import com.constellio.model.entities.records.Record;
 import com.constellio.model.entities.schemas.MetadataSchemaTypes;
+
+import java.util.*;
 
 public class SavedSearch extends RecordWrapper {
 	public static final String SCHEMA_TYPE = "savedSearch";
@@ -27,6 +23,8 @@ public class SavedSearch extends RecordWrapper {
 	public static final String SORT_ORDER = "sortOrder";
 	public static final String TEMPORARY = "temporary";
 	public static final String PAGE_NUMBER = "pageNumber";
+	public static final String RETURN_SIMILAR_DOCS = "returnSimilarDocs";
+	public static final String SIMILARITY_SEARCH = "similaritySearch";
 	public static final String RESULTS_VIEW_MODE = "resultsViewMode";
 	public static final String PAGE_LENGTH = "pageLength";
 
@@ -183,4 +181,23 @@ public class SavedSearch extends RecordWrapper {
 			return code;
 		}
 	}
+
+	public Boolean isReturnSimilarDocs(){
+		return get(RETURN_SIMILAR_DOCS);
+	}
+
+	public SavedSearch setReturnSimilarDocs(Boolean returnSimilarDocs){
+		set(RETURN_SIMILAR_DOCS, returnSimilarDocs);
+		return this;
+	}
+
+	public List<Criterion> getSimilaritySearch() {
+		return getList(SIMILARITY_SEARCH);
+	}
+
+	public SavedSearch setSimilaritySearch(List<Criterion> similaritySearch) {
+		set(SIMILARITY_SEARCH, similaritySearch);
+		return this;
+	}
+
 }
