@@ -1,19 +1,5 @@
 package com.constellio.app.ui.pages.search;
 
-import static com.constellio.app.ui.i18n.i18n.$;
-import static com.constellio.model.entities.schemas.Schemas.IDENTIFIER;
-import static com.constellio.model.services.search.query.logical.LogicalSearchQueryOperators.from;
-import static com.constellio.model.services.search.query.logical.LogicalSearchQueryOperators.fromAllSchemasIn;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.constellio.app.entities.schemasDisplay.MetadataDisplayConfig;
 import com.constellio.app.entities.schemasDisplay.enums.MetadataInputType;
 import com.constellio.app.modules.rm.model.labelTemplate.LabelTemplate;
@@ -32,6 +18,7 @@ import com.constellio.app.ui.pages.search.criteria.ConditionException;
 import com.constellio.app.ui.pages.search.criteria.ConditionException.ConditionException_EmptyCondition;
 import com.constellio.app.ui.pages.search.criteria.ConditionException.ConditionException_TooManyClosedParentheses;
 import com.constellio.app.ui.pages.search.criteria.ConditionException.ConditionException_UnclosedParentheses;
+import com.constellio.app.ui.pages.search.criteria.Criterion;
 import com.constellio.model.entities.Language;
 import com.constellio.model.entities.batchprocess.BatchProcess;
 import com.constellio.model.entities.batchprocess.BatchProcessAction;
@@ -48,6 +35,19 @@ import com.constellio.model.services.batch.manager.BatchProcessesManager;
 import com.constellio.model.services.records.RecordServicesException;
 import com.constellio.model.services.reports.ReportServices;
 import com.constellio.model.services.search.query.logical.condition.LogicalSearchCondition;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static com.constellio.app.ui.i18n.i18n.$;
+import static com.constellio.model.entities.schemas.Schemas.IDENTIFIER;
+import static com.constellio.model.services.search.query.logical.LogicalSearchQueryOperators.from;
+import static com.constellio.model.services.search.query.logical.LogicalSearchQueryOperators.fromAllSchemasIn;
 
 public class AdvancedSearchPresenter extends SearchPresenter<AdvancedSearchView> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(AdvancedSearchPresenter.class);
@@ -55,8 +55,11 @@ public class AdvancedSearchPresenter extends SearchPresenter<AdvancedSearchView>
 	String searchExpression;
 	String schemaTypeCode;
 	private int pageNumber;
+	private boolean returnSimilarDocuments;
+	private List<Criterion> similarityCriteria;
 
 	private transient LogicalSearchCondition condition;
+	private transient LogicalSearchCondition queryCondition;
 
 	public AdvancedSearchPresenter(AdvancedSearchView view) {
 		super(view);
@@ -83,6 +86,11 @@ public class AdvancedSearchPresenter extends SearchPresenter<AdvancedSearchView>
 		return this;
 	}
 
+	@Override
+	protected boolean isReturnSimilarDocuments() {
+		return returnSimilarDocuments;
+	}
+
 	private void setSavedSearch(SavedSearch search) {
 		searchExpression = search.getFreeTextSearch();
 		facetSelections.putAll(search.getSelectedFacets());
@@ -90,6 +98,8 @@ public class AdvancedSearchPresenter extends SearchPresenter<AdvancedSearchView>
 		sortOrder = SortOrder.valueOf(search.getSortOrder().name());
 		schemaTypeCode = search.getSchemaFilter();
 		pageNumber = search.getPageNumber();
+		returnSimilarDocuments = search.isReturnSimilarDocs();
+		similarityCriteria = search.getSimilaritySearch();
 
 		view.setSchemaType(schemaTypeCode);
 		view.setSearchExpression(searchExpression);
@@ -186,6 +196,20 @@ public class AdvancedSearchPresenter extends SearchPresenter<AdvancedSearchView>
 				from(type).returnAll() :
 				new ConditionBuilder(type).build(view.getSearchCriteria());
 	}
+
+	@Override
+	protected LogicalSearchCondition getSimilarityQuery() {
+		if (similarityCriteria != null) {
+			MetadataSchemaType type = schemaType(schemaTypeCode);
+			try {
+				return new ConditionBuilder(type).build(view.getSearchCriteria());
+			} catch (ConditionException e) {
+				throw new RuntimeException("Unexpected exception (should be unreachable)", e);
+			}
+		}
+		return super.getSimilarityQuery();
+	}
+
 
 	private boolean isBatchEditable(Metadata metadata) {
 		return !metadata.isSystemReserved()

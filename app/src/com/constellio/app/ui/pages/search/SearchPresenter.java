@@ -1,22 +1,5 @@
 package com.constellio.app.ui.pages.search;
 
-import static com.constellio.app.ui.i18n.i18n.$;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.constellio.app.entities.schemasDisplay.MetadataDisplayConfig;
 import com.constellio.app.modules.rm.model.labelTemplate.LabelTemplate;
 import com.constellio.app.modules.rm.reports.builders.search.stats.StatsReportBuilderFactory;
@@ -55,6 +38,18 @@ import com.constellio.model.services.search.query.logical.condition.LogicalSearc
 import com.constellio.model.services.search.zipContents.ZipContentsService;
 import com.constellio.model.services.search.zipContents.ZipContentsService.NoContentToZipRuntimeException;
 import com.vaadin.server.StreamResource.StreamSource;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+import java.util.Map.Entry;
+
+import static com.constellio.app.ui.i18n.i18n.$;
 
 public abstract class SearchPresenter<T extends SearchView> extends BasePresenter<T> implements ReportPresenter {
 	private static final String ZIP_CONTENT_RESOURCE = "zipContentsFolder";
@@ -258,6 +253,12 @@ public abstract class SearchPresenter<T extends SearchView> extends BasePresente
 	public abstract List<MetadataVO> getMetadataAllowedInSort();
 
 	protected abstract LogicalSearchCondition getSearchCondition();
+	protected LogicalSearchCondition getSimilarityQuery(){
+		return null;
+	}
+	protected boolean isReturnSimilarDocuments(){
+		return false;
+	}
 
 	protected LogicalSearchQuery getSearchQuery() {
 		LogicalSearchQuery query = new LogicalSearchQuery(getSearchCondition())
@@ -266,6 +267,11 @@ public abstract class SearchPresenter<T extends SearchView> extends BasePresente
 				.filteredWithUser(getCurrentUser())
 				.filteredByStatus(StatusFilter.ACTIVES)
 				.setPreferAnalyzedFields(true);
+
+		if (isReturnSimilarDocuments()){
+			query.setMoreLikeThis(true);
+			query.setQueryCondition(getSimilarityQuery());
+		}
 
 		query.setReturnedMetadatas(ReturnedMetadatasFilter.onlyFields(
 				schemasDisplayManager.getReturnedFieldsForSearch(collection)));

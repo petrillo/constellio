@@ -1,13 +1,9 @@
 package com.constellio.model.services.search;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.constellio.data.dao.dto.records.FacetValue;
 import com.constellio.model.entities.records.Record;
+
+import java.util.*;
 
 public class SPEQueryResponse {
 
@@ -40,6 +36,12 @@ public class SPEQueryResponse {
 		this.correctlySpelt = true;
 		this.spellcheckerSuggestions = new ArrayList<>();
 		this.recordsWithMoreLikeThis = recordsWithMoreLikeThis;
+
+		//FIXME this is temporary. what it does is that when the more like this is on, only the similar documents of
+		//the first search results are stored in the records. This functionally is needed when similar documents of
+		//a specific document is requested. By this, it seems the user searches for similar documents of a document
+		if (records.size() == recordsWithMoreLikeThis.size() && recordsWithMoreLikeThis.size() != 0)
+			records = new ArrayList<>(recordsWithMoreLikeThis.entrySet().iterator().next().getValue().keySet());
 	}
 
 	public SPEQueryResponse(
