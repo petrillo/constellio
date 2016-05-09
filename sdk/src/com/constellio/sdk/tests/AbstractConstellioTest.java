@@ -115,7 +115,7 @@ public abstract class AbstractConstellioTest implements FailureDetectionTestWatc
 
 	@Rule public FailureDetectionTestWatcher failureDetectionTestWatcher = new FailureDetectionTestWatcher(this);
 
-	protected Map<String, String> sdkProperties = new HashMap<String, String>();
+	protected Map<String, String> sdkProperties = new HashMap<>();
 
 	protected String zeCollection = "zeCollection";
 	protected String businessCollection = "LaCollectionDeRida";
@@ -453,7 +453,7 @@ public abstract class AbstractConstellioTest implements FailureDetectionTestWatc
 
 	@SuppressWarnings("unchecked")
 	protected <I> List<I> newArrayList(I... items) {
-		return new ArrayList<I>(asList(items));
+		return new ArrayList<>(asList(items));
 	}
 
 	protected void configure(DataLayerConfigurationAlteration dataLayerConfigurationAlteration) {
@@ -579,10 +579,18 @@ public abstract class AbstractConstellioTest implements FailureDetectionTestWatc
 	}
 
 	protected ConstellioWebDriver newWebDriver() {
-		return newWebDriver(null);
+		return newWebDriver(null, false);
+	}
+
+	protected ConstellioWebDriver newWebDriverSSL() {
+		return newWebDriver(null, true);
 	}
 
 	protected ConstellioWebDriver newWebDriver(SessionContext sessionContext) {
+		return newWebDriver(sessionContext, false);
+	}
+
+	protected ConstellioWebDriver newWebDriver(SessionContext sessionContext, boolean useSSL) {
 		ensureNotUnitTest();
 		ensureUITest();
 		if (sessionContext instanceof FakeSessionContext) {
@@ -599,7 +607,7 @@ public abstract class AbstractConstellioTest implements FailureDetectionTestWatc
 		ServerThrowableContext.LAST_THROWABLE.set(null);
 
 		return getCurrentTestSession().getSeleniumTestFeatures()
-				.newWebDriver(skipTestRule.isInDevelopmentTest() || skipTestRule.isMainTest());
+				.newWebDriver(skipTestRule.isInDevelopmentTest() || skipTestRule.isMainTest(), useSSL);
 	}
 
 	private void ensureUITest() {
@@ -710,7 +718,7 @@ public abstract class AbstractConstellioTest implements FailureDetectionTestWatc
 	}
 
 	protected ModulesAndMigrationsTestFeatures givenCollection(String collection) {
-		return givenCollection(collection, asList("fr"));
+		return givenCollection(collection, asList("fr", "en"));
 	}
 
 	protected ModulesAndMigrationsTestFeatures givenSpecialCollection(String collection, List<String> languages) {

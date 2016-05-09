@@ -102,7 +102,7 @@ public class TaskManagementPresenter extends SingleSchemaBasePresenter<TaskManag
 
 	@Override
 	public void editButtonClicked(RecordVO record) {
-		view.navigateTo().editTask(record.getId());
+		view.navigate().to().editTask(record.getId());
 	}
 
 	@Override
@@ -113,7 +113,7 @@ public class TaskManagementPresenter extends SingleSchemaBasePresenter<TaskManag
 
 	@Override
 	public void completeButtonClicked(RecordVO record) {
-		view.navigateTo().editTask(record.getId(), true);
+		view.navigate().to().editTask(record.getId(), true);
 	}
 
 	@Override
@@ -165,7 +165,7 @@ public class TaskManagementPresenter extends SingleSchemaBasePresenter<TaskManag
 
 	@Override
 	public void displayWorkflowInstanceRequested(RecordVO recordVO) {
-		view.navigateTo().displayWorkflowInstance(recordVO.getId());
+		view.navigate().to(TaskViews.class).displayWorkflowInstance(recordVO.getId());
 	}
 
 	@Override

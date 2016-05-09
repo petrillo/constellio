@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.constellio.app.entities.modules.InstallableModule;
+import com.constellio.app.entities.modules.InstallableSystemModule;
 import com.constellio.app.entities.modules.MigrationScript;
 import com.constellio.app.entities.navigation.NavigationConfig;
 import com.constellio.app.extensions.AppLayerCollectionExtensions;
@@ -28,6 +29,7 @@ import com.constellio.app.modules.es.extensions.api.ESModuleExtensions;
 import com.constellio.app.modules.es.migrations.ESMigrationTo5_1_6;
 import com.constellio.app.modules.es.migrations.ESMigrationTo6_1;
 import com.constellio.app.modules.es.migrations.ESMigrationTo6_2;
+import com.constellio.app.modules.es.migrations.ESMigrationTo6_3;
 import com.constellio.app.modules.es.model.connectors.http.ConnectorHttpInstance;
 import com.constellio.app.modules.es.model.connectors.ldap.ConnectorLDAPInstance;
 import com.constellio.app.modules.es.model.connectors.smb.ConnectorSmbFolder;
@@ -35,13 +37,14 @@ import com.constellio.app.modules.es.model.connectors.smb.ConnectorSmbInstance;
 import com.constellio.app.modules.es.navigation.ESNavigationConfiguration;
 import com.constellio.app.modules.es.services.ConnectorManager;
 import com.constellio.app.modules.es.services.ESSchemasRecordsServices;
+import com.constellio.app.modules.rm.navigation.RMNavigationConfiguration;
 import com.constellio.app.services.factories.AppLayerFactory;
 import com.constellio.model.entities.configs.SystemConfiguration;
 import com.constellio.model.extensions.ModelLayerCollectionExtensions;
 import com.constellio.model.services.factories.ModelLayerFactory;
 import com.constellio.model.services.records.cache.RecordsCache;
 
-public class ConstellioESModule implements InstallableModule {
+public class ConstellioESModule implements InstallableSystemModule {
 	public static final String ID = "es";
 	public static final String NAME = "Constellio Enterprise Search (beta)";
 
@@ -65,7 +68,8 @@ public class ConstellioESModule implements InstallableModule {
 		return Arrays.asList(
 				new ESMigrationTo5_1_6(),
 				new ESMigrationTo6_1(),
-				new ESMigrationTo6_2()
+				new ESMigrationTo6_2(),
+				new ESMigrationTo6_3()
 		);
 	}
 
@@ -96,7 +100,7 @@ public class ConstellioESModule implements InstallableModule {
 
 	@Override
 	public void configureNavigation(NavigationConfig config) {
-		new ESNavigationConfiguration().configureNavigation(config);
+		ESNavigationConfiguration.configureNavigation(config);
 	}
 
 	@Override
@@ -156,4 +160,14 @@ public class ConstellioESModule implements InstallableModule {
 		extensions.recordExtensions.add(new ESRecordExtension(es));
 	}
 
+	@Override
+	public void start(AppLayerFactory appLayerFactory) {
+		ESNavigationConfiguration.configureNavigation(appLayerFactory.getNavigatorConfigurationService());
+
+	}
+
+	@Override
+	public void stop(AppLayerFactory appLayerFactory) {
+
+	}
 }
