@@ -180,7 +180,7 @@ public abstract class ListAddRemoveField<T extends Serializable, F extends Abstr
 	@SuppressWarnings("unchecked")
 	protected void tryAdd() {
 		addEditField.commit();
-		T value = (T) addEditField.getPropertyDataSource().getValue();
+		T value = (T) addEditField.getValue();
 		addValue(value);
 		removeStyleName(ERROR_STYLE_NAME);
 	}
@@ -188,9 +188,9 @@ public abstract class ListAddRemoveField<T extends Serializable, F extends Abstr
 	protected void addValue(T value) {
 		if (value != null) {
 			valuesAndButtonsContainer.addItem(value);
-			addEditField.setValue(null);
-			notifyValueChange();
 		}
+		addEditField.setValue(null);
+		notifyValueChange();
 	}
 
 	protected void removeValue(T value) {
@@ -261,7 +261,6 @@ public abstract class ListAddRemoveField<T extends Serializable, F extends Abstr
 			addEditField.focus();
 		}
 
-		addEditField.setPropertyDataSource(new ObjectProperty(null, Object.class));
 		addEditField.addStyleName(ADD_EDIT_FIELD_STYLE_NAME);
 
 		OnEnterKeyHandler onEnterKeyHandler = new OnEnterKeyHandler() {
@@ -493,6 +492,7 @@ public abstract class ListAddRemoveField<T extends Serializable, F extends Abstr
 		return captionLabel;
 	}
 	
+	@SuppressWarnings("unchecked")
 	protected String getItemCaption(Object itemId) {
 		String caption;
 		if (itemConverter != null) {

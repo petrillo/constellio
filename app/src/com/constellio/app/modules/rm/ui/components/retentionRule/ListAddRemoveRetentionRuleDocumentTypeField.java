@@ -51,8 +51,6 @@ public class ListAddRemoveRetentionRuleDocumentTypeField extends ListAddRemoveFi
 	protected void addValue(RetentionRuleDocumentType value) {
 		if (value != null && value.getDocumentTypeId() != null) {
 			super.addValue(value);
-			RetentionRuleDocumentTypeField addEditField = getAddEditField();
-			addEditField.setPropertyDataSource(new ObjectProperty<>(new RetentionRuleDocumentType()));
 		}
 	}
 

@@ -80,7 +80,7 @@ public class GenericMetadataPopulatorField extends CustomField<TypedMetadataPopu
             }
 
             @Override
-            public Class getType() {
+            public Class<TypedMetadataPopulatorVO> getType() {
                 return TypedMetadataPopulatorVO.class;
             }
         });

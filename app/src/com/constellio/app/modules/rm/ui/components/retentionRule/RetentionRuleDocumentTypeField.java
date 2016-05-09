@@ -4,17 +4,15 @@ import com.constellio.app.modules.rm.model.enums.DisposalType;
 import com.constellio.app.modules.rm.wrappers.structures.RetentionRuleDocumentType;
 import com.constellio.app.modules.rm.wrappers.type.DocumentType;
 import com.constellio.app.ui.framework.components.fields.enumWithSmallCode.EnumWithSmallCodeComboBox;
+import com.constellio.app.ui.framework.components.fields.list.ListAddEditCustomField;
 import com.constellio.app.ui.framework.components.fields.record.RecordComboBox;
-import com.vaadin.data.Property;
-import com.vaadin.data.Validator.InvalidValueException;
-import com.vaadin.data.util.AbstractProperty;
-import com.vaadin.server.ErrorMessage;
+import com.vaadin.data.fieldgroup.FieldGroup;
+import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomField;
 import com.vaadin.ui.HorizontalLayout;
 
-public class RetentionRuleDocumentTypeField extends CustomField<RetentionRuleDocumentType> {
+public class RetentionRuleDocumentTypeField extends ListAddEditCustomField<RetentionRuleDocumentType> {
 	
 	private HorizontalLayout layout;
 	
@@ -22,56 +20,18 @@ public class RetentionRuleDocumentTypeField extends CustomField<RetentionRuleDoc
 	
 	private EnumWithSmallCodeComboBox<DisposalType> disposalTypeField;
 	
-	public RetentionRuleDocumentTypeField() {
+	protected void bindFields(FieldGroup fieldGroup) {
+		fieldGroup.bind(documentTypeField, "documentTypeId");
+		fieldGroup.bind(disposalTypeField, "disposalType");
+	}
+
+	@Override
+	protected Component buildContent() {
 		setSizeFull();
 		
 		layout = new HorizontalLayout();
 		layout.setWidth("100%");
 		layout.setSpacing(true);
-		
-		Property<String> documentTypeProperty = new AbstractProperty<String>() {
-			@Override
-			public String getValue() {
-				RetentionRuleDocumentType retentionRuleDocumentType = getRetentionRuleDocumentType();
-				return retentionRuleDocumentType != null ? retentionRuleDocumentType.getDocumentTypeId() : null;
-			}
-
-			@Override
-			public void setValue(String newValue)
-					throws com.vaadin.data.Property.ReadOnlyException {
-				RetentionRuleDocumentType retentionRuleDocumentType = getRetentionRuleDocumentType();
-				if (retentionRuleDocumentType != null) {
-					retentionRuleDocumentType.setDocumentTypeId(newValue);
-				}
-			}
-
-			@Override
-			public Class<? extends String> getType() {
-				return String.class;
-			}
-		};
-		
-		Property<DisposalType> disposalTypeProperty = new AbstractProperty<DisposalType>() {
-			@Override
-			public DisposalType getValue() {
-				RetentionRuleDocumentType retentionRuleDocumentType = getRetentionRuleDocumentType();
-				return retentionRuleDocumentType != null ? retentionRuleDocumentType.getDisposalType() : null;
-			}
-
-			@Override
-			public void setValue(DisposalType newValue)
-					throws com.vaadin.data.Property.ReadOnlyException {
-				RetentionRuleDocumentType retentionRuleDocumentType = getRetentionRuleDocumentType();
-				if (retentionRuleDocumentType != null) {
-					retentionRuleDocumentType.setDisposalType(newValue);
-				}
-			}
-
-			@Override
-			public Class<? extends DisposalType> getType() {
-				return DisposalType.class;
-			}
-		};
 		
 		documentTypeField = new RecordComboBox(DocumentType.DEFAULT_SCHEMA);
 		disposalTypeField = new EnumWithSmallCodeComboBox<DisposalType>(DisposalType.class) {
@@ -81,23 +41,7 @@ public class RetentionRuleDocumentTypeField extends CustomField<RetentionRuleDoc
 			}
 		};
 		
-		documentTypeField.setImmediate(true);
-		disposalTypeField.setImmediate(true);
-		
-		documentTypeField.setPropertyDataSource(documentTypeProperty);
-		disposalTypeField.setPropertyDataSource(disposalTypeProperty);
-		
 		layout.addComponents(documentTypeField, disposalTypeField);
-		
-		setValue(new RetentionRuleDocumentType());
-	}
-	
-	private RetentionRuleDocumentType getRetentionRuleDocumentType() {
-		return getValue();
-	}
-
-	@Override
-	protected Component initContent() {
 		return layout;
 	}
 	
@@ -110,81 +54,14 @@ public class RetentionRuleDocumentTypeField extends CustomField<RetentionRuleDoc
 		return RetentionRuleDocumentType.class;
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public void setPropertyDataSource(Property newDataSource) {
-		if (newDataSource != null) {
-			if (newDataSource.getValue() == null) {
-				newDataSource.setValue(new RetentionRuleDocumentType());
-			}
-			super.setPropertyDataSource(newDataSource);
-		}
-	}
-
-	public void setValue(RetentionRuleDocumentType newValue)
-			throws com.vaadin.data.Property.ReadOnlyException {
-		if (newValue == null) {
-			newValue = new RetentionRuleDocumentType();
-		}
-		super.setValue(newValue);
-		documentTypeField.setValue(newValue.getDocumentTypeId());
-		disposalTypeField.setValue(newValue.getDisposalType());
-	}
-
-	public void focus() {
-		documentTypeField.focus();
-	}
-
-	public String getRequiredError() {
-		return documentTypeField.getRequiredError();
+	protected RetentionRuleDocumentType newBean() {
+		return new RetentionRuleDocumentType();
 	}
 
 	@Override
-	public void setRequiredError(String requiredMessage) {
-		documentTypeField.setRequiredError(requiredMessage);
-	}
-
-	@Override
-	public String getConversionError() {
-		return documentTypeField.getConversionError();
-	}
-
-	@Override
-	public void setConversionError(String valueConversionError) {
-		documentTypeField.setConversionError(valueConversionError);
-	}
-
-	@Override
-	public ErrorMessage getComponentError() {
-		return documentTypeField.getComponentError();
-	}
-
-	@Override
-	public void setComponentError(ErrorMessage componentError) {
-		documentTypeField.setComponentError(componentError);
-	}
-
-	public void commit()
-			throws SourceException, InvalidValueException {
-		documentTypeField.commit();
-		disposalTypeField.commit();
-	}
-
-	public void discard()
-			throws SourceException {
-		documentTypeField.discard();
-		disposalTypeField.discard();
-	}
-
-	public boolean isValid() {
-		// TODO
-		return true;
-	}
-
-	public void validate()
-			throws InvalidValueException {
-		// TODO
-		super.validate();
+	protected AbstractField<?> getDefaultField() {
+		return documentTypeField;
 	}
 	
 }
