@@ -18,7 +18,6 @@ import com.constellio.app.ui.pages.search.criteria.ConditionException;
 import com.constellio.app.ui.pages.search.criteria.ConditionException.ConditionException_EmptyCondition;
 import com.constellio.app.ui.pages.search.criteria.ConditionException.ConditionException_TooManyClosedParentheses;
 import com.constellio.app.ui.pages.search.criteria.ConditionException.ConditionException_UnclosedParentheses;
-import com.constellio.app.ui.pages.search.criteria.Criterion;
 import com.constellio.model.entities.Language;
 import com.constellio.model.entities.batchprocess.BatchProcess;
 import com.constellio.model.entities.batchprocess.BatchProcessAction;
@@ -55,8 +54,6 @@ public class AdvancedSearchPresenter extends SearchPresenter<AdvancedSearchView>
 	String searchExpression;
 	String schemaTypeCode;
 	private int pageNumber;
-	private boolean returnSimilarDocuments;
-	private List<Criterion> similarityCriteria;
 
 	private transient LogicalSearchCondition condition;
 	private transient LogicalSearchCondition queryCondition;
@@ -86,10 +83,6 @@ public class AdvancedSearchPresenter extends SearchPresenter<AdvancedSearchView>
 		return this;
 	}
 
-	@Override
-	protected boolean isReturnSimilarDocuments() {
-		return returnSimilarDocuments;
-	}
 
 	private void setSavedSearch(SavedSearch search) {
 		searchExpression = search.getFreeTextSearch();
@@ -98,8 +91,6 @@ public class AdvancedSearchPresenter extends SearchPresenter<AdvancedSearchView>
 		sortOrder = SortOrder.valueOf(search.getSortOrder().name());
 		schemaTypeCode = search.getSchemaFilter();
 		pageNumber = search.getPageNumber();
-		returnSimilarDocuments = search.isReturnSimilarDocs();
-		similarityCriteria = search.getSimilaritySearch();
 
 		view.setSchemaType(schemaTypeCode);
 		view.setSearchExpression(searchExpression);
@@ -195,19 +186,6 @@ public class AdvancedSearchPresenter extends SearchPresenter<AdvancedSearchView>
 		condition = (view.getSearchCriteria().isEmpty()) ?
 				from(type).returnAll() :
 				new ConditionBuilder(type).build(view.getSearchCriteria());
-	}
-
-	@Override
-	protected LogicalSearchCondition getSimilarityQuery() {
-		if (similarityCriteria != null) {
-			MetadataSchemaType type = schemaType(schemaTypeCode);
-			try {
-				return new ConditionBuilder(type).build(view.getSearchCriteria());
-			} catch (ConditionException e) {
-				throw new RuntimeException("Unexpected exception (should be unreachable)", e);
-			}
-		}
-		return super.getSimilarityQuery();
 	}
 
 

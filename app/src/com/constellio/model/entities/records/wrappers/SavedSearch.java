@@ -23,8 +23,6 @@ public class SavedSearch extends RecordWrapper {
 	public static final String SORT_ORDER = "sortOrder";
 	public static final String TEMPORARY = "temporary";
 	public static final String PAGE_NUMBER = "pageNumber";
-	public static final String RETURN_SIMILAR_DOCS = "returnSimilarDocs";
-	public static final String SIMILARITY_SEARCH = "similaritySearch";
 
 	//testing only
 	public static final String CRITERION = "criterions";
@@ -159,24 +157,6 @@ public class SavedSearch extends RecordWrapper {
 		public String getCode() {
 			return code;
 		}
-	}
-
-	public Boolean isReturnSimilarDocs(){
-		return get(RETURN_SIMILAR_DOCS);
-	}
-
-	public SavedSearch setReturnSimilarDocs(Boolean returnSimilarDocs){
-		set(RETURN_SIMILAR_DOCS, returnSimilarDocs);
-		return this;
-	}
-
-	public List<Criterion> getSimilaritySearch() {
-		return getList(SIMILARITY_SEARCH);
-	}
-
-	public SavedSearch setSimilaritySearch(List<Criterion> similaritySearch) {
-		set(SIMILARITY_SEARCH, similaritySearch);
-		return this;
 	}
 
 }
