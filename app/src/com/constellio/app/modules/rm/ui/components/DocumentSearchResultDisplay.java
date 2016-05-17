@@ -1,7 +1,5 @@
 package com.constellio.app.modules.rm.ui.components;
 
-import static com.constellio.app.ui.i18n.i18n.$;
-
 import com.constellio.app.modules.rm.navigation.RMViews;
 import com.constellio.app.modules.rm.ui.components.content.ConstellioAgentLink;
 import com.constellio.app.modules.rm.ui.util.ConstellioAgentUtils;
@@ -25,6 +23,8 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
+
+import static com.constellio.app.ui.i18n.i18n.$;
 
 public class DocumentSearchResultDisplay extends SearchResultDisplay {
 
@@ -77,11 +77,20 @@ public class DocumentSearchResultDisplay extends SearchResultDisplay {
 			}
 		};
 
-		HorizontalLayout layout = new HorizontalLayout(titleComponent, edit, download, open);
+		Button search = new IconButton(new ThemeResource("images/icons/actions/view.png"),
+				$("DisplayFolderView.search")){
+			@Override
+			protected void buttonClick(ClickEvent event) {
+				ConstellioUI.getCurrent().navigateTo().searchSimilarDocuments(record.getId());
+			}
+		};
+
+		HorizontalLayout layout = new HorizontalLayout(titleComponent, edit, download, open, search);
 		layout.setExpandRatio(titleComponent, 1);
 		layout.setComponentAlignment(edit, Alignment.TOP_RIGHT);
 		layout.setComponentAlignment(download, Alignment.TOP_RIGHT);
 		layout.setComponentAlignment(open, Alignment.TOP_RIGHT);
+		layout.setComponentAlignment(search, Alignment.TOP_RIGHT);
 		layout.setWidth("100%");
 
 		return layout;

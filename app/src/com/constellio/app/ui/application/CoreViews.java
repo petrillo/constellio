@@ -1,13 +1,9 @@
 package com.constellio.app.ui.application;
 
-import java.util.Map;
-
 import com.constellio.app.modules.es.navigation.ESNavigationConfiguration;
+import com.constellio.app.modules.es.ui.pages.ConnectorReportView;
 import com.constellio.app.modules.rm.navigation.RMNavigationConfiguration;
 import com.constellio.app.modules.tasks.navigation.TasksNavigationConfiguration;
-import org.apache.commons.lang3.StringUtils;
-
-import com.constellio.app.modules.es.ui.pages.ConnectorReportView;
 import com.constellio.app.ui.pages.events.EventCategory;
 import com.constellio.app.ui.pages.management.taxonomy.AddEditTaxonomyConceptPresenter;
 import com.constellio.app.ui.pages.management.taxonomy.TaxonomyManagementPresenter;
@@ -15,6 +11,9 @@ import com.constellio.app.ui.params.ParamUtils;
 import com.google.gwt.dev.util.collect.HashMap;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.ui.JavaScript;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Map;
 
 public class CoreViews {
 	protected Navigator navigator;
@@ -469,5 +468,11 @@ public class CoreViews {
 		params.put("userDocumentId", userDocumentId);
 		String viewPath = ParamUtils.addParams(RMNavigationConfiguration.ADD_EMAIL_ATTACHMENTS_TO_FOLDER, params);
 		navigator.navigateTo(viewPath);
+	}
+
+	public void searchSimilarDocuments(String documentId) {
+		Map<String, String> params = new HashMap<>();
+		params.put("documentId", documentId);
+		navigator.navigateTo(NavigatorConfigurationService.SEARCH_SIMILAR_DOCUMENTS + "/" + documentId);
 	}
 }

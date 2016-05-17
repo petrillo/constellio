@@ -26,22 +26,10 @@ public class SPEQueryResponse {
 	private final List<String> spellcheckerSuggestions;
 
 	public SPEQueryResponse(List<Record> records, Map<Record, Map<Record, Double>> recordsWithMoreLikeThis) {
-		this.fieldFacetValues = new HashMap<>();
-		this.statisticsValues = new HashMap<>();
-		this.queryFacetsValues = new HashMap<>();
-		this.qtime = -1;
-		this.numFound = records.size();
-		this.records = records;
-		this.highlights = new HashMap<>();
-		this.correctlySpelt = true;
-		this.spellcheckerSuggestions = new ArrayList<>();
-		this.recordsWithMoreLikeThis = recordsWithMoreLikeThis;
-
-		//FIXME this is temporary. what it does is that when the more like this is on, only the similar documents of
-		//the first search results are stored in the records. This functionally is needed when similar documents of
-		//a specific document is requested. By this, it seems the user searches for similar documents of a document
-		if (records.size() == recordsWithMoreLikeThis.size() && recordsWithMoreLikeThis.size() != 0)
-			records = new ArrayList<>(recordsWithMoreLikeThis.entrySet().iterator().next().getValue().keySet());
+		this(new HashMap<String, List<FacetValue>>(), new HashMap<String, Map<String, Object>>(),
+				new HashMap<String, Integer>(), -1, records.size(),
+				records, new HashMap<String, Map<String, List<String>>>(), true, new ArrayList<String>(),
+				recordsWithMoreLikeThis);
 	}
 
 	public SPEQueryResponse(
@@ -53,12 +41,24 @@ public class SPEQueryResponse {
 		this.statisticsValues = statisticsValues;
 		this.queryFacetsValues = queryFacetsValues;
 		this.qtime = qtime;
-		this.numFound = numFound;
-		this.records = records;
+
+
 		this.highlights = highlights;
 		this.correctlySpelt = correctlySpelt;
 		this.spellcheckerSuggestions = spellcheckerSuggestions;
 		this.recordsWithMoreLikeThis = recordsWithMoreLikeThis;
+
+		//FIXME this is temporary. what it does is that when the more like this is on, only the similar documents of
+		//the first search results are stored in the records. This functionally is needed when similar documents of
+		//a specific document is requested. By this, it seems the user searches for similar documents of a document
+		if (records.size() == recordsWithMoreLikeThis.size() && recordsWithMoreLikeThis.size() != 0) {
+			this.records = new ArrayList<>(recordsWithMoreLikeThis.entrySet().iterator().next().getValue().keySet());
+			this.numFound = this.records.size();
+		}
+		else {
+			this.records = records;
+			this.numFound = numFound;
+		}
 	}
 
 	public List<FacetValue> getFieldFacetValues(String metadata) {

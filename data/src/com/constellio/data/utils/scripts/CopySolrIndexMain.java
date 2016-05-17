@@ -1,16 +1,15 @@
 package com.constellio.data.utils.scripts;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
-
+import com.constellio.data.utils.ThreadList;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.ModifiableSolrParams;
 
-import com.constellio.data.utils.ThreadList;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class CopySolrIndexMain {
 
@@ -36,7 +35,6 @@ public class CopySolrIndexMain {
 		outputClient.commit();
 		LinkedBlockingQueue<ReindexSolrIndexesMainTask> queue = new LinkedBlockingQueue<>(NUMBER_OF_THREADS);
 		startAddThreads(outputClient, queue);
-
 		String lastId = null;
 		if (argv.length == 3) {
 			lastId = argv[2];

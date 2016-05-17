@@ -1,56 +1,5 @@
 package com.constellio.app.ui.application;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.constellio.app.modules.es.ui.pages.ConnectorReportViewImpl;
-import com.constellio.app.modules.es.ui.pages.DisplayConnectorInstanceViewImpl;
-import com.constellio.app.modules.es.ui.pages.EditConnectorInstanceViewImpl;
-import com.constellio.app.modules.es.ui.pages.ListConnectorInstancesViewImpl;
-import com.constellio.app.modules.es.ui.pages.WizardConnectorInstanceViewImpl;
-import com.constellio.app.modules.es.ui.pages.mapping.AddEditMappingViewImpl;
-import com.constellio.app.modules.es.ui.pages.mapping.DisplayConnectorMappingsViewImpl;
-import com.constellio.app.modules.rm.ui.pages.agent.AgentRequestViewImpl;
-import com.constellio.app.modules.rm.ui.pages.agent.AgentSetupViewImpl;
-import com.constellio.app.modules.rm.ui.pages.agent.ListAgentLogsViewImpl;
-import com.constellio.app.modules.rm.ui.pages.cart.CartViewImpl;
-import com.constellio.app.modules.rm.ui.pages.containers.ContainersByAdministrativeUnitsViewImpl;
-import com.constellio.app.modules.rm.ui.pages.containers.ContainersInAdministrativeUnitViewImpl;
-import com.constellio.app.modules.rm.ui.pages.containers.ContainersInFilingSpaceViewImpl;
-import com.constellio.app.modules.rm.ui.pages.containers.DisplayContainerViewImpl;
-import com.constellio.app.modules.rm.ui.pages.containers.edit.AddEditContainerViewImpl;
-import com.constellio.app.modules.rm.ui.pages.decommissioning.AddExistingContainerViewImpl;
-import com.constellio.app.modules.rm.ui.pages.decommissioning.AddNewContainerViewImpl;
-import com.constellio.app.modules.rm.ui.pages.decommissioning.DecommissioningBuilderViewImpl;
-import com.constellio.app.modules.rm.ui.pages.decommissioning.DecommissioningListViewImpl;
-import com.constellio.app.modules.rm.ui.pages.decommissioning.DecommissioningMainViewImpl;
-import com.constellio.app.modules.rm.ui.pages.decommissioning.DocumentDecommissioningListViewImpl;
-import com.constellio.app.modules.rm.ui.pages.decommissioning.EditDecommissioningListViewImpl;
-import com.constellio.app.modules.rm.ui.pages.document.AddEditDocumentViewImpl;
-import com.constellio.app.modules.rm.ui.pages.document.DisplayDocumentViewImpl;
-import com.constellio.app.modules.rm.ui.pages.email.AddEmailAttachmentsToFolderViewImpl;
-import com.constellio.app.modules.rm.ui.pages.folder.AddEditFolderViewImpl;
-import com.constellio.app.modules.rm.ui.pages.folder.DisplayFolderViewImpl;
-import com.constellio.app.modules.rm.ui.pages.management.ArchiveManagementViewImpl;
-import com.constellio.app.modules.rm.ui.pages.reports.RMReportsViewImpl;
-import com.constellio.app.modules.rm.ui.pages.retentionRule.AddEditRetentionRuleViewImpl;
-import com.constellio.app.modules.rm.ui.pages.retentionRule.DisplayRetentionRuleViewImpl;
-import com.constellio.app.modules.rm.ui.pages.retentionRule.ListRetentionRulesViewImpl;
-import com.constellio.app.modules.rm.ui.pages.retentionRule.SearchRetentionRulesViewImpl;
-import com.constellio.app.modules.rm.ui.pages.userDocuments.ListUserDocumentsViewImpl;
-import com.constellio.app.modules.robots.ui.pages.AddEditRobotViewImpl;
-import com.constellio.app.modules.robots.ui.pages.ListRootRobotsViewImpl;
-import com.constellio.app.modules.robots.ui.pages.RobotConfigurationViewImpl;
-import com.constellio.app.modules.robots.ui.pages.RobotLogsViewImpl;
-import com.constellio.app.modules.tasks.ui.pages.TaskManagementViewImpl;
-import com.constellio.app.modules.tasks.ui.pages.TasksLogsViewImpl;
-import com.constellio.app.modules.tasks.ui.pages.tasks.AddEditTaskViewImpl;
-import com.constellio.app.modules.tasks.ui.pages.tasks.DisplayTaskViewImpl;
-import com.constellio.app.modules.tasks.ui.pages.workflow.AddEditWorkflowViewImpl;
-import com.constellio.app.modules.tasks.ui.pages.workflow.DisplayWorkflowViewImpl;
-import com.constellio.app.modules.tasks.ui.pages.workflow.ListWorkflowsViewImpl;
-import com.constellio.app.modules.tasks.ui.pages.workflowInstance.DisplayWorkflowInstanceViewImpl;
 import com.constellio.app.ui.pages.base.BaseViewImpl;
 import com.constellio.app.ui.pages.collection.*;
 import com.constellio.app.ui.pages.events.BaseEventCategoryViewImpl;
@@ -101,10 +50,7 @@ import com.constellio.app.ui.pages.management.taxonomy.*;
 import com.constellio.app.ui.pages.management.updates.UpdateManagerViewImpl;
 import com.constellio.app.ui.pages.management.valueDomains.ListValueDomainViewImpl;
 import com.constellio.app.ui.pages.profile.ModifyProfileViewImpl;
-import com.constellio.app.ui.pages.search.AdvancedSearchViewImpl;
-import com.constellio.app.ui.pages.search.SearchBoostByMetadataViewImpl;
-import com.constellio.app.ui.pages.search.SearchBoostByQueryViewImpl;
-import com.constellio.app.ui.pages.search.SimpleSearchViewImpl;
+import com.constellio.app.ui.pages.search.*;
 import com.constellio.app.ui.pages.search.savedSearch.SavedSearchViewImpl;
 import com.constellio.app.ui.pages.user.AddEditUserCredentialViewImpl;
 import com.constellio.app.ui.pages.user.DisplayUserCredentialViewImpl;
@@ -194,6 +140,7 @@ public class NavigatorConfigurationService implements Serializable {
 	public static final String EDIT_METADATA_EXTRACTOR = "editMetadataExtractor";
 
 	public static final String TAXONOMY_SEARCH = "taxonomySearch";
+	public static final String SEARCH_SIMILAR_DOCUMENTS = "searchForSimilarDocument";
 
 	private List<ViewProvider> viewProviders = new ArrayList<>();
 
@@ -283,6 +230,8 @@ public class NavigatorConfigurationService implements Serializable {
 		viewProviders.add(new ClassBasedViewProvider(EDIT_METADATA_EXTRACTOR, AddEditMetadataExtractorViewImpl.class));
 		viewProviders.add(new ClassBasedViewProvider(SEARCH_BOOST_BY_METADATAS, SearchBoostByMetadataViewImpl.class));
 		viewProviders.add(new ClassBasedViewProvider(SEARCH_BOOST_BY_QUERYS, SearchBoostByQueryViewImpl.class));
+
+		viewProviders.add(new ClassBasedViewProvider(SEARCH_SIMILAR_DOCUMENTS, SearchSimilarDocumentViewImpl.class));
 
 	}
 
