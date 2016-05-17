@@ -1,13 +1,5 @@
 package com.constellio.model.services.search.query.logical;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-
 import com.constellio.data.utils.KeySetMap;
 import com.constellio.model.entities.records.wrappers.User;
 import com.constellio.model.entities.schemas.DataStoreField;
@@ -23,6 +15,13 @@ import com.constellio.model.services.search.query.SearchQuery;
 import com.constellio.model.services.search.query.logical.condition.LogicalSearchCondition;
 import com.constellio.model.services.search.query.logical.condition.SchemaFilters;
 import com.constellio.model.services.search.query.logical.condition.SolrQueryBuilderParams;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 //TODO Remove inheritance, rename to LogicalQuery
 public class LogicalSearchQuery implements SearchQuery {
@@ -100,6 +99,9 @@ public class LogicalSearchQuery implements SearchQuery {
 
 		fieldBoosts = new ArrayList<>(query.fieldBoosts);
 		queryBoosts = new ArrayList<>(query.queryBoosts);
+
+		moreLikeThis = query.moreLikeThis;
+
 	}
 
 	// The following methods are attribute accessors

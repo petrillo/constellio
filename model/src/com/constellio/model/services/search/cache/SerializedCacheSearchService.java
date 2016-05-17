@@ -1,18 +1,17 @@
 package com.constellio.model.services.search.cache;
 
-import static java.util.Collections.unmodifiableMap;
+import com.constellio.data.dao.dto.records.FacetValue;
+import com.constellio.model.entities.records.Record;
+import com.constellio.model.services.factories.ModelLayerFactory;
+import com.constellio.model.services.search.SPEQueryResponse;
+import com.constellio.model.services.search.query.logical.LogicalSearchQuery;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.constellio.data.dao.dto.records.FacetValue;
-import com.constellio.model.entities.records.Record;
-import com.constellio.model.services.factories.ModelLayerFactory;
-import com.constellio.model.services.search.SPEQueryResponse;
-import com.constellio.model.services.search.SearchServices;
-import com.constellio.model.services.search.query.logical.LogicalSearchQuery;
+import static java.util.Collections.unmodifiableMap;
 
 public class SerializedCacheSearchService {
 	private static Map<String, List<FacetValue>> emptyFieldFacetValues = Collections.emptyMap();
@@ -28,12 +27,12 @@ public class SerializedCacheSearchService {
 
 	ModelLayerFactory modelLayerFactory;
 
-	SearchServices searchServices;
+//	SearchServices searchServices;
 
 	public SerializedCacheSearchService(ModelLayerFactory modelLayerFactory,
 			SerializableSearchCache cache, boolean serializeRecords) {
 		this.modelLayerFactory = modelLayerFactory;
-		this.searchServices = modelLayerFactory.newSearchServices();
+//		this.searchServices = modelLayerFactory.newSearchServices();
 		this.cache = cache;
 		this.serializeRecords = serializeRecords;
 		this.highlights = new HashMap<>();

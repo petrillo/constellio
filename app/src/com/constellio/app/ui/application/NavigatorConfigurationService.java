@@ -66,10 +66,7 @@ import com.constellio.app.ui.pages.management.taxonomy.TaxonomyManagementViewImp
 import com.constellio.app.ui.pages.management.updates.UpdateManagerViewImpl;
 import com.constellio.app.ui.pages.management.valueDomains.ListValueDomainViewImpl;
 import com.constellio.app.ui.pages.profile.ModifyProfileViewImpl;
-import com.constellio.app.ui.pages.search.AdvancedSearchViewImpl;
-import com.constellio.app.ui.pages.search.SearchBoostByMetadataViewImpl;
-import com.constellio.app.ui.pages.search.SearchBoostByQueryViewImpl;
-import com.constellio.app.ui.pages.search.SimpleSearchViewImpl;
+import com.constellio.app.ui.pages.search.*;
 import com.constellio.app.ui.pages.search.savedSearch.SavedSearchViewImpl;
 import com.constellio.app.ui.pages.trash.TrashViewImpl;
 import com.constellio.app.ui.pages.user.AddEditUserCredentialViewImpl;
@@ -157,6 +154,7 @@ public class NavigatorConfigurationService implements Serializable {
 	public static final String EDIT_METADATA_EXTRACTOR = "editMetadataExtractor";
 
 	public static final String TAXONOMY_SEARCH = "taxonomySearch";
+	public static final String SEARCH_SIMILAR_DOCUMENTS = "searchForSimilarDocument";
 
 	private List<ViewProvider> viewProviders = new ArrayList<>();
 
@@ -247,6 +245,8 @@ public class NavigatorConfigurationService implements Serializable {
 		viewProviders.add(new ClassBasedViewProvider(EDIT_METADATA_EXTRACTOR, AddEditMetadataExtractorViewImpl.class));
 		viewProviders.add(new ClassBasedViewProvider(SEARCH_BOOST_BY_METADATAS, SearchBoostByMetadataViewImpl.class));
 		viewProviders.add(new ClassBasedViewProvider(SEARCH_BOOST_BY_QUERYS, SearchBoostByQueryViewImpl.class));
+
+		viewProviders.add(new ClassBasedViewProvider(SEARCH_SIMILAR_DOCUMENTS, SearchSimilarDocumentViewImpl.class));
 
 	}
 

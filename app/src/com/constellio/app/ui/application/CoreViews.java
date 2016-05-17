@@ -15,6 +15,9 @@ import com.constellio.app.ui.pages.management.taxonomy.TaxonomyManagementPresent
 import com.constellio.app.ui.params.ParamUtils;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.ui.JavaScript;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Map;
 
 public class CoreViews {
 	protected Navigator navigator;
@@ -471,5 +474,11 @@ public class CoreViews {
 		params.put("userDocumentId", userDocumentId);
 		String viewPath = ParamUtils.addParams(RMNavigationConfiguration.ADD_EMAIL_ATTACHMENTS_TO_FOLDER, params);
 		navigator.navigateTo(viewPath);
+	}
+
+	public void searchSimilarDocuments(String documentId) {
+		Map<String, String> params = new HashMap<>();
+		params.put("documentId", documentId);
+		navigator.navigateTo(NavigatorConfigurationService.SEARCH_SIMILAR_DOCUMENTS + "/" + documentId);
 	}
 }
