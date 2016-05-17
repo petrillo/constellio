@@ -182,22 +182,4 @@ public class SavedSearch extends RecordWrapper {
 		}
 	}
 
-	public Boolean isReturnSimilarDocs(){
-		return get(RETURN_SIMILAR_DOCS);
-	}
-
-	public SavedSearch setReturnSimilarDocs(Boolean returnSimilarDocs){
-		set(RETURN_SIMILAR_DOCS, returnSimilarDocs);
-		return this;
-	}
-
-	public List<Criterion> getSimilaritySearch() {
-		return getList(SIMILARITY_SEARCH);
-	}
-
-	public SavedSearch setSimilaritySearch(List<Criterion> similaritySearch) {
-		set(SIMILARITY_SEARCH, similaritySearch);
-		return this;
-	}
-
 }
