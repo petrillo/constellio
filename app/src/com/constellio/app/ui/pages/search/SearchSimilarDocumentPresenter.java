@@ -17,9 +17,6 @@ import java.util.List;
 import static com.constellio.model.services.search.query.logical.LogicalSearchQueryOperators.from;
 import static com.constellio.model.services.search.query.logical.LogicalSearchQueryOperators.fromAllSchemasIn;
 
-/**
- * Created by Majid on 2016-05-16.
- */
 public class SearchSimilarDocumentPresenter extends SearchPresenter<SearchSimilarDocumentView> {
     private Record document;
     private MetadataSchemaType schemaType;
@@ -126,11 +123,6 @@ public class SearchSimilarDocumentPresenter extends SearchPresenter<SearchSimila
     }
 
     @Override
-    protected void saveTemporarySearch() {
-
-    }
-
-    @Override
     protected boolean hasPageAccess(String params, User user) {
         return true;
     }
@@ -138,6 +130,11 @@ public class SearchSimilarDocumentPresenter extends SearchPresenter<SearchSimila
     @Override
     protected boolean isReturnSimilarDocuments() {
         return true;
+    }
+
+    @Override
+    protected void saveTemporarySearch(boolean refreshPage) {
+
     }
 
     @Override

@@ -19,6 +19,7 @@ public class SPEQueryResponse {
 	private final long numFound;
 
 	private final List<Record> records;
+	private final List<Double> scores;
 
 	private final Map<Record, Map<Record, Double>> recordsWithMoreLikeThis;
 
@@ -48,16 +49,26 @@ public class SPEQueryResponse {
 		this.spellcheckerSuggestions = spellcheckerSuggestions;
 		this.recordsWithMoreLikeThis = recordsWithMoreLikeThis;
 
+
 		//FIXME this is temporary. what it does is that when the more like this is on, only the similar documents of
 		//the first search results are stored in the records. This functionally is needed when similar documents of
 		//a specific document is requested. By this, it seems the user searches for similar documents of a document
 		if (records.size() == recordsWithMoreLikeThis.size() && recordsWithMoreLikeThis.size() != 0) {
-			this.records = new ArrayList<>(recordsWithMoreLikeThis.entrySet().iterator().next().getValue().keySet());
+			Map<Record, Double> firstItemSimilarDocuemtns =
+					recordsWithMoreLikeThis.entrySet().iterator().next().getValue();
+			this.records = new ArrayList<>();
+			this.scores = new ArrayList<>(firstItemSimilarDocuemtns.size());
+			for (Map.Entry<Record, Double> aResult: firstItemSimilarDocuemtns.entrySet()){
+				this.records.add(aResult.getKey());
+				this.scores.add(aResult.getValue());
+			}
 			this.numFound = this.records.size();
 		}
 		else {
 			this.records = records;
 			this.numFound = numFound;
+			this.scores = new ArrayList<>(Collections.nCopies((int)this.numFound, 1.0)); //FIXME: update score (1.0) with the real one.
+
 		}
 	}
 

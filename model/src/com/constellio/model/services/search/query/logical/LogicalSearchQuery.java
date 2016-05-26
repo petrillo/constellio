@@ -1,10 +1,12 @@
 package com.constellio.model.services.search.query.logical;
 
 import com.constellio.data.utils.KeySetMap;
+import com.constellio.model.entities.records.Record;
 import com.constellio.model.entities.records.wrappers.User;
 import com.constellio.model.entities.schemas.DataStoreField;
 import com.constellio.model.entities.schemas.MetadataSchema;
 import com.constellio.model.entities.schemas.MetadataValueType;
+import com.constellio.model.entities.schemas.Schemas;
 import com.constellio.model.entities.security.Role;
 import com.constellio.model.services.search.StatusFilter;
 import com.constellio.model.services.search.entities.SearchBoost;
@@ -15,6 +17,7 @@ import com.constellio.model.services.search.query.SearchQuery;
 import com.constellio.model.services.search.query.logical.condition.LogicalSearchCondition;
 import com.constellio.model.services.search.query.logical.condition.SchemaFilters;
 import com.constellio.model.services.search.query.logical.condition.SolrQueryBuilderParams;
+import com.constellio.model.services.search.query.logical.ongoing.OngoingLogicalSearchCondition;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -27,9 +30,9 @@ import java.util.Map;
 public class LogicalSearchQuery implements SearchQuery {
 	private static final String HIGHLIGHTING_FIELDS = "search_*";
 
-	//This condition will be inserted in Filter Query
+	//This is the filter condition and it will be inserted in Filter Query
 	LogicalSearchCondition condition;
-	//This condition will be inserted in Query
+	//This is the query condition and it will be inserted in Query
 	private LogicalSearchCondition queryCondition;
 	private LogicalSearchQueryFacetFilters facetFilters = new LogicalSearchQueryFacetFilters();
 	private String freeTextQuery;
@@ -455,5 +458,16 @@ public class LogicalSearchQuery implements SearchQuery {
 		public String getAccess() {
 			return access;
 		}
+	}
+
+	public LogicalSearchQuery returnSimilarDocuments(Record toThisDocument, OngoingLogicalSearchCondition schemaTypeCondition){
+		setMoreLikeThis(true);
+		setQueryCondition(schemaTypeCondition.where(Schemas.IDENTIFIER).isEqualTo(toThisDocument));
+		return this;
+	}
+
+	public LogicalSearchQuery addSimilarityFields(DataStoreField... fields){
+		addMoreLikeThisField(fields);
+		return this;
 	}
 }
