@@ -115,25 +115,14 @@ public class SearchServiceAcceptanceTest extends ConstellioTest {
 
 		recordServices.execute(transaction);
 
-		condition = fromAllSchemasIn(zeCollection).where(Schemas.IDENTIFIER).isEqualTo(documentCNewVersion);
-
 		//when
 		LogicalSearchQuery query = new LogicalSearchQuery(fromAllSchemasIn(zeCollection).returnAll());
-		query.setQueryCondition(condition);
-		query.setMoreLikeThis(true);
-		query.addMoreLikeThisField(zeSchema.stringMetadata());
+		query.returnSimilarDocuments(documentCNewVersion, fromAllSchemasIn(zeCollection));
+		query.addSimilarityFields(zeSchema.stringMetadata());
 
-		Map<Record, Map<Record, Double>> resutls = searchServices.searchWithMoreLikeThis(query);
+		List<Record> results = searchServices.search(query);
 
-		assertThat(resutls).hasSize(1);
-		Map<Record, Double> similarDocs = resutls.entrySet().iterator().next().getValue();
-
-		List<Record> docsInOrder = new ArrayList<>();
-		for (Entry<Record, Double> record : similarDocs.entrySet()) {
-			docsInOrder.add(record.getKey());
-		}
-
-		assertThat(docsInOrder).containsExactly(documentC, documentB, documentA);
+		assertThat(results).containsExactly(documentC, documentB, documentA);
 	}
 
 	public String createAContentWithWords(Random random, String[] words) {

@@ -30,11 +30,14 @@ import com.constellio.model.services.search.query.logical.condition.SolrQueryBui
 import com.constellio.model.services.security.SecurityTokenManager;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.common.params.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.Map.Entry;
 
 public class SearchServices {
+	private final static Logger LOGGER = LoggerFactory.getLogger(SearchServices.class);
 	RecordDao recordDao;
 	RecordServices recordServices;
 	SecurityTokenManager securityTokenManager;
