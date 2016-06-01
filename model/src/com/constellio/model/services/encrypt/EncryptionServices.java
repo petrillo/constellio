@@ -20,11 +20,22 @@ public class EncryptionServices {
 	private static final String DEFAULT_ENCRYPTION_ALGORITHM = "AES/CBC/PKCS5Padding";
 	byte[] key = new byte[16];
 	byte[] iv = new byte[16];
+	boolean initialized = false;
+	boolean lostPreviousKey;
 
-	public EncryptionServices(Key key)
+	public EncryptionServices(boolean lostPreviousKey) {
+		this.lostPreviousKey = lostPreviousKey;
+	}
+
+	public EncryptionServices withKey(Key key)
 			throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
+		if (initialized) {
+			throw new RuntimeException("Already intialized");
+		}
 		System.arraycopy(key.getEncoded(), 0, this.iv, 0, 16);
 		System.arraycopy(key.getEncoded(), 16, this.key, 0, 16);
+		initialized = true;
+		return this;
 	}
 
 	public String encrypt(String toEncrypt, String algorithm) {
@@ -54,6 +65,9 @@ public class EncryptionServices {
 			byte[] decryptedText = cipher.doFinal(Base64.decodeBase64(encryptedBase64));
 			return new String(decryptedText);
 		} catch (Exception e) {
+			if (lostPreviousKey) {
+				return encryptedBase64;
+			}
 			throw new RuntimeException("Cannot decrypt '" + encryptedBase64 + "'", e);
 		}
 	}
@@ -102,14 +116,19 @@ public class EncryptionServices {
 		return decrypt(encryptedText, DEFAULT_ENCRYPTION_ALGORITHM);
 	}
 
-	public static EncryptionServices create(Key key) {
+	public static EncryptionServices create(boolean lostPreviousKey, Key key) {
 		try {
-			return new EncryptionServices(key);
+
+			return new EncryptionServices(lostPreviousKey).withKey(key);
 
 		} catch (InvalidKeySpecException e) {
 			throw new EncryptionServicesRuntimeException_InvalidKey(e);
 		} catch (NoSuchAlgorithmException | IOException e) {
 			throw new ImpossibleRuntimeException(e);
 		}
+	}
+
+	public boolean isInitialized() {
+		return initialized;
 	}
 }

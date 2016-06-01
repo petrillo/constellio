@@ -83,10 +83,8 @@ public class LDAPServices {
 					/* for each entry print out name + all attrs and values */
 				while (results != null && results.hasMore()) {
 					SearchResult entry = (SearchResult) results.next();
-					Attribute attribute = entry.getAttributes().get("cn");
 
-					Attributes attrs = entry.getAttributes();
-					LDAPGroup group = buildLDAPGroup(attrs);
+					LDAPGroup group = buildLDAPGroup(entry);
 					groups.add(group);
 				}
 
@@ -179,44 +177,52 @@ public class LDAPServices {
 		return usersIds;*/
 	}
 
-	private LDAPGroup buildLDAPGroup(Attributes attrs)
+	private LDAPGroup buildLDAPGroup(SearchResult entry)
 			throws NamingException {
+		Attributes attrs = entry.getAttributes();
 		Attribute groupNameAttribute = attrs.get(LDAPGroup.COMMON_NAME);
 		Attribute groupDNameAttribute = attrs.get(LDAPGroup.DISTINGUISHED_NAME);
 
+		String groupName;
 		if (groupNameAttribute != null && groupNameAttribute.size() > 0) {
-			String groupName = (String) groupNameAttribute.get(0);
-			String distinguishedName = (String) groupDNameAttribute.get(0);
-			LDAPGroup returnGroup = new LDAPGroup(groupName, distinguishedName);
-			//String groupName = (String) groupNameAttribute.get(0);
-			//TODO parent
-			Attribute members = attrs.get(LDAPGroup.MEMBER);
-			if (members != null) {
-				for (int i = 0; i < members.size(); i++) {
-					String userId = (String) members.get(i);
-					returnGroup.addUser(userId);
-				}
-			}
-			return returnGroup;
+			groupName = (String) groupNameAttribute.get(0);
+		} else {
+			groupName = entry.getNameInNamespace();
 		}
-		return null;
+		String distinguishedName;
+		if (groupDNameAttribute != null && groupDNameAttribute.size() > 0) {
+			distinguishedName = (String) groupDNameAttribute.get(0);
+		} else {
+			distinguishedName = entry.getNameInNamespace();
+		}
+
+		LDAPGroup returnGroup = new LDAPGroup(groupName, distinguishedName);
+		//String groupName = (String) groupNameAttribute.get(0);
+		//TODO parent
+		Attribute members = attrs.get(LDAPGroup.MEMBER);
+		if (members != null) {
+			for (int i = 0; i < members.size(); i++) {
+				String userId = (String) members.get(i);
+				returnGroup.addUser(userId);
+			}
+		}
+		return returnGroup;
 	}
 
 	public LdapContext connectToLDAP(List<String> domains, String url, String user, String password, Boolean followReferences,
 			boolean activeDirectory) {
 		LDAPFastBind ldapFastBind = new LDAPFastBind(url, followReferences, activeDirectory);
-		boolean authenticated = false;
-		for (String domain : domains) {
-			String username = user + "@" + domain;
-			authenticated = ldapFastBind.authenticate(username, password);
-			if (authenticated) {
-				break;
+		boolean authenticated = ldapFastBind.authenticate(user, password);
+		if(!authenticated){
+			for (String domain : domains) {
+				String username = user + "@" + domain;
+				authenticated = ldapFastBind.authenticate(username, password);
+				if (authenticated) {
+					break;
+				}
 			}
 		}
-		if (authenticated) {
-			return ldapFastBind.ctx;
-		}
-		authenticated = ldapFastBind.authenticate(user, password);
+
 		if (!authenticated) {
 			throw new LDAPConnectionFailure(domains.toArray(), url, user);
 		}
@@ -281,6 +287,10 @@ public class LDAPServices {
 	}
 
 	public boolean isUser(LDAPDirectoryType directoryType, String groupMemberId, LdapContext ctx) {
+		if(directoryType == LDAPDirectoryType.E_DIRECTORY){
+			//FIXME
+			return true;
+		}
 		try {
 			LDAPUserBuilder userBuilder = LDAPUserBuilderFactory.getUserBuilder(directoryType);
 			if (groupMemberId.contains("\\")) {
@@ -318,5 +328,47 @@ public class LDAPServices {
 			}
 		});
 		return users;
+	}
+
+	public String dnForUser(LdapContext dirContext, String username, List<String> baseSearch) {
+		if(baseSearch == null || baseSearch.isEmpty()){
+			return null;
+		}
+		try {
+			String[] returnAttribute = { "dn" };
+			SearchControls srchControls = new SearchControls();
+			srchControls.setReturningAttributes(returnAttribute);
+			srchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+			String searchFilter = "(&(objectClass=user)(sAMAccountName=" + username + "))";
+			//ceci ne fonctionne pas toujours ex : LDAPServicesAcceptanceTest#whenDnForUserThenOk
+			//String searchFilter = "(&(objectClass=inetOrgPerson)(|(uid=" + cnORuid + ")(cn=" + cnORuid + ")))";
+
+			//FIXME search in all baseSearch elements
+			NamingEnumeration<SearchResult> srchResponse = dirContext.search(baseSearch.get(0), searchFilter, srchControls);
+			if (srchResponse.hasMore()) {
+				return srchResponse.next().getNameInNamespace();
+			}
+		} catch (NamingException namEx) {
+			namEx.printStackTrace();
+		}
+		return null;
+	}
+
+	public String dnForEdirectoryUser(LdapContext dirContext, String searchBase, String cnORuid) {
+		try {
+			String[] returnAttribute = { "dn" };
+			SearchControls srchControls = new SearchControls();
+			srchControls.setReturningAttributes(returnAttribute);
+			srchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+			String searchFilter = "(&(objectClass=inetOrgPerson)(|(uid=" + cnORuid + ")(cn=" + cnORuid + ")))";
+
+			NamingEnumeration<SearchResult> srchResponse = dirContext.search(searchBase, searchFilter, srchControls);
+			if (srchResponse.hasMore()) {
+				return srchResponse.next().getNameInNamespace();
+			}
+		} catch (NamingException namEx) {
+			namEx.printStackTrace();
+		}
+		return null;
 	}
 }
