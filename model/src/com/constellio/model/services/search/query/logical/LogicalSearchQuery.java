@@ -17,7 +17,6 @@ import com.constellio.model.services.search.query.SearchQuery;
 import com.constellio.model.services.search.query.logical.condition.LogicalSearchCondition;
 import com.constellio.model.services.search.query.logical.condition.SchemaFilters;
 import com.constellio.model.services.search.query.logical.condition.SolrQueryBuilderParams;
-import com.constellio.model.services.search.query.logical.ongoing.OngoingLogicalSearchCondition;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -25,6 +24,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.constellio.model.services.search.query.logical.LogicalSearchQueryOperators.fromAllSchemasIn;
 
 //TODO Remove inheritance, rename to LogicalQuery
 public class LogicalSearchQuery implements SearchQuery {
@@ -460,9 +461,17 @@ public class LogicalSearchQuery implements SearchQuery {
 		}
 	}
 
-	public LogicalSearchQuery returnSimilarDocuments(Record toThisDocument, OngoingLogicalSearchCondition schemaTypeCondition){
+
+	public LogicalSearchQuery returnSimilarDocuments(Record toThisDocument){
+
+		returnSimilarDocuments(toThisDocument.getId(), toThisDocument.getCollection());
+		return this;
+	}
+
+	public LogicalSearchQuery returnSimilarDocuments(String recordId, String collection){
 		setMoreLikeThis(true);
-		setQueryCondition(schemaTypeCondition.where(Schemas.IDENTIFIER).isEqualTo(toThisDocument));
+		//It should not impose any filtering here! All the filtering should be added to the #condition
+		setQueryCondition(fromAllSchemasIn(collection).where(Schemas.IDENTIFIER).isEqualTo(recordId));
 		return this;
 	}
 

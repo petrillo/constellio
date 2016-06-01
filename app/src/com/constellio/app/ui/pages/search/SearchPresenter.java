@@ -365,11 +365,7 @@ public abstract class SearchPresenter<T extends SearchView> extends BasePresente
 	public abstract List<MetadataVO> getMetadataAllowedInSort();
 
 	protected abstract LogicalSearchCondition getSearchCondition();
-	protected LogicalSearchCondition getSimilarityQuery(){
-		return null;
-	}
-	protected boolean isReturnSimilarDocuments(){
-		return false;
+	protected void customizeQuery(LogicalSearchQuery query){
 	}
 
 	protected LogicalSearchQuery getSearchQuery() {
@@ -379,11 +375,6 @@ public abstract class SearchPresenter<T extends SearchView> extends BasePresente
 				.filteredWithUser(getCurrentUser())
 				.filteredByStatus(StatusFilter.ACTIVES)
 				.setPreferAnalyzedFields(true);
-
-		if (isReturnSimilarDocuments()){
-			query.setMoreLikeThis(true);
-			query.setQueryCondition(getSimilarityQuery());
-		}
 
 		query.setReturnedMetadatas(ReturnedMetadatasFilter.onlyFields(
 				schemasDisplayManager.getReturnedFieldsForSearch(collection)));
@@ -405,6 +396,8 @@ public abstract class SearchPresenter<T extends SearchView> extends BasePresente
 				LOGGER.warn("Facet '" + id + "' has been deleted");
 			}
 		}
+
+		customizeQuery(query);
 		return query;
 	}
 
