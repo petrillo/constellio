@@ -8,7 +8,9 @@ import com.constellio.model.entities.records.wrappers.User;
 import com.constellio.model.entities.schemas.MetadataSchemaType;
 import com.constellio.model.entities.schemas.MetadataSchemasRuntimeException;
 import com.constellio.model.entities.schemas.Schemas;
+import com.constellio.model.services.search.query.logical.LogicalSearchQuery;
 import com.constellio.model.services.search.query.logical.condition.LogicalSearchCondition;
+import com.constellio.model.services.search.query.logical.ongoing.OngoingLogicalSearchCondition;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -103,11 +105,15 @@ public class SearchSimilarDocumentPresenter extends SearchPresenter<SearchSimila
 
     @Override
     protected LogicalSearchCondition getSearchCondition() {
+        OngoingLogicalSearchCondition ongoingLogicalSearchCondition;
+
         if (allowedSchemaTypes().isEmpty()) {
-            return fromAllSchemasIn(view.getCollection()).returnAll();
+            ongoingLogicalSearchCondition = fromAllSchemasIn(view.getCollection());
         } else {
-            return from(allowedSchemaTypes()).returnAll();
+            ongoingLogicalSearchCondition = from(allowedSchemaTypes());
         }
+
+        return ongoingLogicalSearchCondition.where(Schemas.COLLECTION).isEqualTo(collection);
     }
 
     private List<MetadataSchemaType> allowedSchemaTypes() {
@@ -127,10 +133,6 @@ public class SearchSimilarDocumentPresenter extends SearchPresenter<SearchSimila
         return true;
     }
 
-    @Override
-    protected boolean isReturnSimilarDocuments() {
-        return true;
-    }
 
     @Override
     protected void saveTemporarySearch(boolean refreshPage) {
@@ -138,10 +140,8 @@ public class SearchSimilarDocumentPresenter extends SearchPresenter<SearchSimila
     }
 
     @Override
-    protected LogicalSearchCondition getSimilarityQuery() {
-        LogicalSearchCondition condition = from(schemaType)
-                .where(Schemas.IDENTIFIER).isEqualTo(document.getId())
-                .andWhere(Schemas.COLLECTION).isEqualTo(collection);
-        return condition;
+    protected void customizeQuery(LogicalSearchQuery query) {
+        super.customizeQuery(query);
+        query.returnSimilarDocuments(document);
     }
 }

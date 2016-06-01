@@ -117,7 +117,7 @@ public class SearchServiceAcceptanceTest extends ConstellioTest {
 
 		//when
 		LogicalSearchQuery query = new LogicalSearchQuery(fromAllSchemasIn(zeCollection).returnAll());
-		query.returnSimilarDocuments(documentCNewVersion, fromAllSchemasIn(zeCollection));
+		query.returnSimilarDocuments(documentCNewVersion);
 		query.addSimilarityFields(zeSchema.stringMetadata());
 
 		List<Record> results = searchServices.search(query);
@@ -169,7 +169,7 @@ public class SearchServiceAcceptanceTest extends ConstellioTest {
 		condition = fromAllSchemasIn(zeCollection).where(Schemas.IDENTIFIER).isEqualTo(docToBeClassified);
 
 		LogicalSearchQuery query = new LogicalSearchQuery(fromAllSchemasIn(zeCollection).returnAll());
-		query.returnSimilarDocuments(docToBeClassified, fromAllSchemasIn(zeCollection));
+		query.returnSimilarDocuments(docToBeClassified);
 		query.addSimilarityFields(zeSchema.stringMetadata());
 
 		SPEQueryResponse results = searchServices.query(query);

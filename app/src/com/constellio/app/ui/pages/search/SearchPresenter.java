@@ -1,34 +1,14 @@
 package com.constellio.app.ui.pages.search;
 
-import static com.constellio.app.ui.i18n.i18n.$;
-import static java.util.Arrays.asList;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.constellio.app.entities.schemasDisplay.MetadataDisplayConfig;
 import com.constellio.app.modules.rm.model.labelTemplate.LabelTemplate;
 import com.constellio.app.modules.rm.reports.builders.search.stats.StatsReportBuilderFactory;
 import com.constellio.app.modules.rm.reports.factories.ExampleReportFactory;
-import com.constellio.app.modules.rm.wrappers.RMObject;
 import com.constellio.app.services.factories.ConstellioFactories;
 import com.constellio.app.services.schemasDisplay.SchemasDisplayManager;
 import com.constellio.app.ui.application.ConstellioUI;
 import com.constellio.app.ui.entities.FacetVO;
 import com.constellio.app.ui.entities.MetadataVO;
-import com.constellio.app.ui.entities.RecordVO;
 import com.constellio.app.ui.framework.builders.MetadataToVOBuilder;
 import com.constellio.app.ui.framework.builders.RecordToVOBuilder;
 import com.constellio.app.ui.framework.components.ReportPresenter;
@@ -36,18 +16,13 @@ import com.constellio.app.ui.framework.data.SearchResultVODataProvider;
 import com.constellio.app.ui.framework.reports.ReportBuilderFactory;
 import com.constellio.app.ui.pages.base.BasePresenter;
 import com.constellio.app.ui.pages.base.SessionContext;
-import com.constellio.app.ui.pages.search.batchProcessing.entities.BatchProcessRequest;
 import com.constellio.data.utils.KeySetMap;
 import com.constellio.model.entities.records.Record;
 import com.constellio.model.entities.records.wrappers.Facet;
 import com.constellio.model.entities.records.wrappers.SavedSearch;
-import com.constellio.model.entities.records.wrappers.User;
 import com.constellio.model.entities.records.wrappers.structure.FacetType;
 import com.constellio.model.entities.schemas.Metadata;
-import com.constellio.model.entities.schemas.MetadataSchema;
 import com.constellio.model.entities.schemas.MetadataSchemaType;
-import com.constellio.model.entities.schemas.Schemas;
-import com.constellio.model.entities.schemas.entries.DataEntryType;
 import com.constellio.model.services.records.RecordServicesException;
 import com.constellio.model.services.records.RecordServicesRuntimeException;
 import com.constellio.model.services.records.SchemasRecordsServices;
@@ -278,11 +253,7 @@ public abstract class SearchPresenter<T extends SearchView> extends BasePresente
 	public abstract List<MetadataVO> getMetadataAllowedInSort();
 
 	protected abstract LogicalSearchCondition getSearchCondition();
-	protected LogicalSearchCondition getSimilarityQuery(){
-		return null;
-	}
-	protected boolean isReturnSimilarDocuments(){
-		return false;
+	protected void customizeQuery(LogicalSearchQuery query){
 	}
 
 	protected LogicalSearchQuery getSearchQuery() {
@@ -292,11 +263,6 @@ public abstract class SearchPresenter<T extends SearchView> extends BasePresente
 				.filteredWithUser(getCurrentUser())
 				.filteredByStatus(StatusFilter.ACTIVES)
 				.setPreferAnalyzedFields(true);
-
-		if (isReturnSimilarDocuments()){
-			query.setMoreLikeThis(true);
-			query.setQueryCondition(getSimilarityQuery());
-		}
 
 		query.setReturnedMetadatas(ReturnedMetadatasFilter.onlyFields(
 				schemasDisplayManager.getReturnedFieldsForSearch(collection)));
@@ -318,6 +284,8 @@ public abstract class SearchPresenter<T extends SearchView> extends BasePresente
 				LOGGER.warn("Facet '" + id + "' has been deleted");
 			}
 		}
+
+		customizeQuery(query);
 		return query;
 	}
 
