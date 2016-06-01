@@ -1,43 +1,33 @@
 package com.constellio.app.modules.rm.ui.pages.document;
 
-import static com.constellio.app.ui.framework.buttons.WindowButton.WindowConfiguration.modalDialog;
-import static com.constellio.app.ui.i18n.i18n.$;
-
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.constellio.app.ui.framework.containers.RecordVOLazyContainer;
-import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.apache.commons.lang3.StringUtils;
-import org.vaadin.dialogs.ConfirmDialog;
-
+import com.constellio.app.modules.rm.navigation.RMViews;
 import com.constellio.app.modules.rm.ui.components.RMMetadataDisplayFactory;
 import com.constellio.app.modules.rm.ui.components.breadcrumb.FolderDocumentBreadcrumbTrail;
 import com.constellio.app.modules.rm.ui.entities.DocumentVO;
+import com.constellio.app.modules.rm.ui.entities.FolderVO;
 import com.constellio.app.modules.rm.wrappers.Document;
+import com.constellio.app.ui.application.ConstellioUI;
 import com.constellio.app.ui.entities.ContentVersionVO;
 import com.constellio.app.ui.entities.RecordVO;
-import com.constellio.app.ui.framework.buttons.BaseButton;
-import com.constellio.app.ui.framework.buttons.ConfirmDialogButton;
-import com.constellio.app.ui.framework.buttons.DeleteButton;
-import com.constellio.app.ui.framework.buttons.EditButton;
-import com.constellio.app.ui.framework.buttons.LinkButton;
-import com.constellio.app.ui.framework.buttons.WindowButton;
+import com.constellio.app.ui.framework.buttons.*;
 import com.constellio.app.ui.framework.buttons.WindowButton.WindowConfiguration;
 import com.constellio.app.ui.framework.components.BaseForm;
 import com.constellio.app.ui.framework.components.ComponentState;
 import com.constellio.app.ui.framework.components.RecordDisplay;
 import com.constellio.app.ui.framework.components.breadcrumb.BaseBreadcrumbTrail;
 import com.constellio.app.ui.framework.components.content.UpdateContentVersionWindowImpl;
+import com.constellio.app.ui.framework.components.converters.RecordVOToCaptionConverter;
 import com.constellio.app.ui.framework.components.fields.BaseTextField;
+import com.constellio.app.ui.framework.components.mouseover.NiceTitle;
 import com.constellio.app.ui.framework.components.table.ContentVersionVOTable;
 import com.constellio.app.ui.framework.components.table.RecordVOTable;
 import com.constellio.app.ui.framework.components.viewers.ContentViewer;
+import com.constellio.app.ui.framework.containers.RecordVOLazyContainer;
 import com.constellio.app.ui.framework.data.RecordVODataProvider;
 import com.constellio.app.ui.framework.items.RecordVOItem;
 import com.constellio.app.ui.pages.base.BaseViewImpl;
+import com.constellio.app.ui.util.FileIconUtils;
+import com.vaadin.data.Item;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.event.dd.DragAndDropEvent;
@@ -47,27 +37,33 @@ import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.FileDownloader;
 import com.vaadin.server.Page;
+import com.vaadin.server.Resource;
 import com.vaadin.server.StreamResource;
 import com.vaadin.server.StreamResource.StreamSource;
-import com.vaadin.ui.Button;
+import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.PasswordField;
-import com.vaadin.ui.TabSheet;
-import com.vaadin.ui.Table;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.Receiver;
 import com.vaadin.ui.Upload.SucceededEvent;
 import com.vaadin.ui.Upload.SucceededListener;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
+import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.apache.commons.lang3.StringUtils;
+import org.vaadin.dialogs.ConfirmDialog;
+
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import static com.constellio.app.ui.framework.buttons.WindowButton.WindowConfiguration.modalDialog;
+import static com.constellio.app.ui.i18n.i18n.$;
 
 public class DisplayDocumentViewImpl extends BaseViewImpl implements DisplayDocumentView, DropHandler {
+	private static final String PATH_SEP = " / ";
+
 	private VerticalLayout mainLayout;
 	private Label borrowedLabel;
 	private DocumentVO documentVO;
@@ -83,12 +79,16 @@ public class DisplayDocumentViewImpl extends BaseViewImpl implements DisplayDocu
 	private WindowButton renameContentButton;
 	private WindowButton sign;
 	private WindowButton startWorkflowButton;
+	private Layout similarDocumentsLayout;
+
 
 	private Button linkToDocumentButton, addAuthorizationButton, uploadButton, checkInButton, checkOutButton, finalizeButton,
 			shareDocumentButton, createPDFAButton, alertWhenAvailableButton, addToCartButton, publishButton, unpublishButton,
 			publicLinkButton;
 
 	private DisplayDocumentPresenter presenter;
+	private Map<FolderVO, Double> suggestedFolderVOs;
+	private Map<DocumentVO, Double> similarDocumentVOs;
 
 	public DisplayDocumentViewImpl() {
 		presenter = new DisplayDocumentPresenter(this);
@@ -156,6 +156,8 @@ public class DisplayDocumentViewImpl extends BaseViewImpl implements DisplayDocu
 		tasksComponent = new CustomComponent();
 		versionTable.setSizeFull();
 
+		similarDocumentsLayout = getSimilarDocumentsLayout();
+
 		tabSheet.addTab(recordDisplay, $("DisplayDocumentView.tabs.metadata"));
 		tabSheet.addTab(versionTable, $("DisplayDocumentView.tabs.versions"));
 		tabSheet.addTab(tasksComponent, $("DisplayDocumentView.tabs.tasks", presenter.getTaskCount()));
@@ -163,10 +165,180 @@ public class DisplayDocumentViewImpl extends BaseViewImpl implements DisplayDocu
 		Component disabled = new CustomComponent();
 		tabSheet.addTab(disabled, $("DisplayDocumentView.tabs.logs"));
 		tabSheet.getTab(disabled).setEnabled(false);
+		//TODO:please check the French translation.
+		tabSheet.addTab(similarDocumentsLayout, $("DisplayDocumentView.tabs.similarDocuments"));
 
 		mainLayout.addComponents(borrowedLabel, contentViewer, tabSheet);
 		return mainLayout;
 	}
+
+	private Layout getSimilarDocumentsLayout() {
+		if (similarDocumentsLayout != null)
+			return similarDocumentsLayout;
+
+		Layout suggestionsLayout = new CssLayout();
+		suggestionsLayout.setWidth("90%");
+		suggestionsLayout.addComponents(buildSimilarDocument()
+//				, buildNewDocumentLayout()
+		);
+		similarDocumentsLayout = suggestionsLayout;
+		return suggestionsLayout;
+	}
+
+	public void setSimilarDocumentsLayout(Map<DocumentVO, Double> similarDocumentsVOs) {
+		this.similarDocumentVOs = similarDocumentsVOs;
+	}
+
+	@SuppressWarnings("unchecked")
+	private Layout buildSimilarDocument() {
+		VerticalLayout newVersionLayout = new VerticalLayout();
+		newVersionLayout.setSpacing(true);
+		newVersionLayout.setWidth("90%");
+
+		RecordVOTable similarDocumentVOsTable = new RecordVOTable();
+//		similarDocumentVOsTable.setCaption($("DisplayDocumentView.tabs.similarDocuments.cap"));
+		similarDocumentVOsTable.addContainerProperty("document", Button.class, null);
+		similarDocumentVOsTable.addContainerProperty("similarity", Label.class, null);
+		similarDocumentVOsTable.setColumnExpandRatio("document", 1);
+		similarDocumentVOsTable.setColumnHeader("document", $("DeclareRMRecordView.similarDocuments.document"));
+		similarDocumentVOsTable.setColumnHeader("similarity", $("DeclareRMRecordView.similarDocuments.similarity"));
+		similarDocumentVOsTable.setPageLength(0);
+		similarDocumentVOsTable.setWidth("100%");
+
+		for (final DocumentVO documentVO : similarDocumentVOs.keySet()) {
+			String buttonCaption = getPath(documentVO);
+			Double similarity = similarDocumentVOs.get(documentVO);
+
+			BaseButton selectDocumentButton = new BaseButton(buttonCaption) {
+				@Override
+				public void buttonClick(ClickEvent event) {
+					ConstellioUI.getCurrent().navigate().to(RMViews.class).displayDocument(documentVO.getId());
+//					lookupNewDocumentFolderIdField.setValue(null);
+//					lookupNewVersionDocumentIdField.setValue(documentVO.getId());
+				}
+			};
+			selectDocumentButton.addStyleName(ValoTheme.BUTTON_LINK);
+			//TODO:please check the translation.
+			selectDocumentButton.addExtension(new NiceTitle(selectDocumentButton, $("DisplayDocumentView.tabs.similarDocuments.clickOnDocument")));
+			Resource documentVOIcon = FileIconUtils.getIcon(documentVO);
+			selectDocumentButton.setIcon(documentVOIcon);
+
+			String similarityText;
+			if (similarity == 1) {
+				similarityText = $("DeclareRMRecordView.similarDocuments.similarity.duplicate");
+			} else {
+				similarityText = String.format("%2.1f%%", similarity * 100);
+			}
+			Label similarityLabel = new Label(similarityText);
+			Item item = similarDocumentVOsTable.addItem(documentVO);
+			item.getItemProperty("document").setValue(selectDocumentButton);
+			item.getItemProperty("similarity").setValue(similarityLabel);
+		}
+
+		newVersionLayout.addComponents(similarDocumentVOsTable);
+		return  newVersionLayout;
+	}
+
+
+	@Override
+	public void setSuggestedFolders(Map<FolderVO, Double> suggestedFolderVOs) {
+		this.suggestedFolderVOs = suggestedFolderVOs;
+	}
+
+	@SuppressWarnings("unchecked")
+	private Layout buildNewDocumentLayout() {
+		VerticalLayout newDocumentLayout = new VerticalLayout();
+		newDocumentLayout.setSpacing(true);
+		newDocumentLayout.setWidth("50%");
+
+
+		RecordVOTable suggestedFolderVOsTable = new RecordVOTable();
+		suggestedFolderVOsTable.setCaption($("DeclareRMRecordView.suggestedFolders"));
+		suggestedFolderVOsTable.addContainerProperty("folder", Button.class, null);
+//		suggestedFolderVOsTable.addContainerProperty("similarity", Label.class, null);
+		suggestedFolderVOsTable.setColumnHeader("folder", $("DeclareRMRecordView.suggestedFolders.folder"));
+//		suggestedFolderVOsTable.setColumnHeader("similarity", $("DeclareRMRecordView.suggestedFolders.similarity"));
+		suggestedFolderVOsTable.setColumnExpandRatio("folder", 1);
+		suggestedFolderVOsTable.setPageLength(0);
+		suggestedFolderVOsTable.setWidth("100%");
+
+
+		for (final FolderVO folderVO : suggestedFolderVOs.keySet()) {
+			String buttonCaption = getPath(folderVO);
+//			Double similarity = suggestedFolderVOs.get(folderVO);
+
+			BaseButton selectFolderButton = new BaseButton(buttonCaption) {
+				@Override
+				public void buttonClick(ClickEvent event) {
+//					lookupNewVersionDocumentIdField.setValue(null);
+//					lookupNewDocumentFolderIdField.setValue(folderVO.getId());
+				}
+			};
+			Resource folderVOIcon = FileIconUtils.getIcon(folderVO);
+			selectFolderButton.setIcon(folderVOIcon);
+			selectFolderButton.addStyleName(ValoTheme.BUTTON_LINK);
+			selectFolderButton.addExtension(new NiceTitle(selectFolderButton, $("DeclareRMRecordView.selectFolder")));
+
+//			Label similarityLabel = new Label(String.format("%2.1f%%", similarity * 100));
+			Item item = suggestedFolderVOsTable.addItem(folderVO);
+			item.getItemProperty("folder").setValue(selectFolderButton);
+//			item.getItemProperty("similarity").setValue(similarityLabel);
+		}
+
+		newDocumentLayout.addComponents(suggestedFolderVOsTable);
+		return newDocumentLayout;
+	}
+
+
+
+	//FIXME: duplicate code, copied from the @link(DeclareRMRecordView#getPath)
+	private String getPath(DocumentVO documentVO) {
+		StringBuffer path = new StringBuffer();
+
+		Locale locale = getLocale();
+		RecordVOToCaptionConverter recordVOToCaptionConverter = new RecordVOToCaptionConverter();
+
+		String documentCaption = recordVOToCaptionConverter.convertToPresentation(documentVO, String.class, locale);
+		path.append(documentCaption);
+
+		String folderId = documentVO.getFolder();
+		if (folderId != null) {
+			FolderVO folderVO = presenter.getFolderVO(folderId);
+			String folderPath = getPath(folderVO);
+			path.append(" (");
+			path.append(folderPath);
+			path.append(")");
+		}
+
+		return path.toString();
+	}
+
+	//FIXME: duplicate code, copied from the @link(DeclareRMRecordView#getPath)
+	private String getPath(FolderVO folderVO) {
+		StringBuffer path = new StringBuffer();
+
+		Locale locale = getLocale();
+		RecordVOToCaptionConverter recordVOToCaptionConverter = new RecordVOToCaptionConverter();
+
+		String parentFolderId = folderVO.getParentFolder();
+		while (parentFolderId != null) {
+			FolderVO parentFolderVO = presenter.getFolderVO(parentFolderId);
+			String folderCaption = recordVOToCaptionConverter.convertToPresentation(parentFolderVO, String.class, locale);
+			if (path.length() > 0) {
+				path.insert(0, PATH_SEP);
+			}
+			path.insert(0, folderCaption);
+			parentFolderId = parentFolderVO.getParentFolder();
+		}
+
+		if (path.length() > 0) {
+			path.append(PATH_SEP);
+		}
+		String folderCaption = recordVOToCaptionConverter.convertToPresentation(folderVO, String.class, locale);
+		path.append(folderCaption);
+		return path.toString();
+	}
+
 
 	@Override
 	protected BaseBreadcrumbTrail buildBreadcrumbTrail() {
@@ -642,6 +814,7 @@ public class DisplayDocumentViewImpl extends BaseViewImpl implements DisplayDocu
 			publicLinkButton.setVisible(published);
 		}
 	}
+
 
 	@Override
 	public void openAgentURL(String agentURL) {
