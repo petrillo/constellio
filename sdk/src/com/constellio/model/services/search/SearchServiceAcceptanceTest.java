@@ -170,17 +170,14 @@ public class SearchServiceAcceptanceTest extends ConstellioTest {
 		condition = fromAllSchemasIn(zeCollection).where(Schemas.IDENTIFIER).isEqualTo(docToBeClassified);
 
 		LogicalSearchQuery query = new LogicalSearchQuery(fromAllSchemasIn(zeCollection).returnAll());
-		query.setQueryCondition(condition);
-		query.setMoreLikeThis(true);
-		query.addMoreLikeThisField(zeSchema.stringMetadata());
+		query.returnSimilarDocuments(docToBeClassified, fromAllSchemasIn(zeCollection));
+		query.addSimilarityFields(zeSchema.stringMetadata());
 
-		Map<Record, Map<Record, Double>> resutls = searchServices.searchWithMoreLikeThis(query);
+		SPEQueryResponse results = searchServices.query(query);
 
-		assertThat(resutls).hasSize(1);
-		assertThat(resutls.entrySet().iterator().next().getValue()).isNotEmpty();
 		//then
 
-		MoreLikeThisClustering facet = new MoreLikeThisClustering(resutls.get(docToBeClassified),
+		MoreLikeThisClustering facet = new MoreLikeThisClustering(results.getRecords(), results.getScores(),
 				new MoreLikeThisClustering.StringConverter<Record>() {
 
 					@Override
