@@ -1,5 +1,6 @@
 package com.constellio.app.modules.rm.ui.pages.document;
 
+import com.constellio.app.entities.schemasDisplay.SchemaTypeDisplayConfig;
 import static com.constellio.app.ui.i18n.i18n.$;
 import static com.constellio.model.services.search.query.logical.LogicalSearchQueryOperators.from;
 import static java.util.Arrays.asList;
@@ -17,9 +18,12 @@ import org.apache.commons.lang3.ObjectUtils;
 import com.constellio.app.modules.rm.navigation.RMViews;
 import com.constellio.app.modules.rm.services.RMSchemasRecordsServices;
 import com.constellio.app.modules.rm.ui.builders.DocumentToVOBuilder;
+import com.constellio.app.modules.rm.ui.builders.FolderToVOBuilder;
 import com.constellio.app.modules.rm.ui.components.breadcrumb.FolderDocumentBreadcrumbTrail;
 import com.constellio.app.modules.rm.ui.components.document.DocumentActionsPresenterUtils;
 import com.constellio.app.modules.rm.ui.entities.DocumentVO;
+import com.constellio.app.modules.rm.ui.entities.FolderVO;
+import com.constellio.app.modules.rm.wrappers.Cart;
 import com.constellio.app.modules.rm.wrappers.Cart;
 import com.constellio.app.modules.rm.wrappers.Document;
 import com.constellio.app.modules.rm.wrappers.RMTask;
@@ -28,6 +32,7 @@ import com.constellio.app.modules.tasks.model.wrappers.Workflow;
 import com.constellio.app.modules.tasks.navigation.TaskViews;
 import com.constellio.app.modules.tasks.services.TasksSchemasRecordsServices;
 import com.constellio.app.modules.tasks.services.WorkflowServices;
+import com.constellio.app.services.factories.ConstellioFactories;
 import com.constellio.app.ui.entities.ContentVersionVO;
 import com.constellio.app.ui.entities.MetadataSchemaVO;
 import com.constellio.app.ui.entities.RecordVO;
@@ -36,30 +41,52 @@ import com.constellio.app.ui.framework.builders.ContentVersionToVOBuilder;
 import com.constellio.app.ui.framework.builders.MetadataSchemaToVOBuilder;
 import com.constellio.app.ui.framework.builders.RecordToVOBuilder;
 import com.constellio.app.ui.framework.data.RecordVODataProvider;
+import com.constellio.app.ui.pages.base.SchemaPresenterUtils;
+import com.constellio.app.ui.pages.base.SessionContext;
 import com.constellio.app.ui.pages.base.SingleSchemaBasePresenter;
 import com.constellio.model.entities.records.Content;
 import com.constellio.model.entities.records.ContentVersion;
 import com.constellio.model.entities.records.Record;
 import com.constellio.model.entities.records.Transaction;
 import com.constellio.model.entities.records.wrappers.User;
+import com.constellio.model.entities.records.wrappers.UserDocument;
 import com.constellio.model.entities.schemas.Metadata;
 import com.constellio.model.entities.schemas.MetadataSchema;
+import com.constellio.model.entities.schemas.MetadataSchemaType;
 import com.constellio.model.entities.schemas.Schemas;
 import com.constellio.model.services.factories.ModelLayerFactory;
 import com.constellio.model.services.migrations.ConstellioEIMConfigs;
 import com.constellio.model.services.records.RecordServicesException;
+import com.constellio.model.services.records.RecordServicesException;
 import com.constellio.model.services.records.RecordServicesRuntimeException.NoSuchRecordWithId;
+import com.constellio.model.services.schemas.SchemaUtils;
+import com.constellio.model.services.search.SPEQueryResponse;
+import com.constellio.model.services.search.SearchServices;
 import com.constellio.model.services.search.StatusFilter;
+import com.constellio.model.services.search.moreLikeThis.MoreLikeThisClustering;
 import com.constellio.model.services.search.query.logical.LogicalSearchQuery;
+import org.apache.commons.lang3.ObjectUtils;
+
+import java.io.InputStream;
+import java.util.*;
+
+import static com.constellio.app.ui.i18n.i18n.$;
+import static com.constellio.model.services.search.query.logical.LogicalSearchQueryOperators.from;
+import static java.util.Arrays.asList;
 
 public class DisplayDocumentPresenter extends SingleSchemaBasePresenter<DisplayDocumentView> {
+	private static final double MIN_SIMILARITY = 0.03;
 
+	private final FolderToVOBuilder folderToVOBuilder;
+	private final SchemaPresenterUtils documentPresenterUtils;
 	protected DocumentToVOBuilder voBuilder;
 	protected ContentVersionToVOBuilder contentVersionVOBuilder;
 	protected DocumentActionsPresenterUtils<DisplayDocumentView> presenterUtils;
 	private MetadataSchemaToVOBuilder schemaVOBuilder = new MetadataSchemaToVOBuilder();
 	private RecordVODataProvider tasksDataProvider;
 	private RMSchemasRecordsServices rm;
+	private DocumentVO documentVO;
+	private MetadataSchemaType schemaType;
 
 	public DisplayDocumentPresenter(final DisplayDocumentView view) {
 		super(view);
@@ -74,6 +101,13 @@ public class DisplayDocumentPresenter extends SingleSchemaBasePresenter<DisplayD
 		contentVersionVOBuilder = new ContentVersionToVOBuilder(modelLayerFactory);
 		voBuilder = new DocumentToVOBuilder(modelLayerFactory);
 		rm = new RMSchemasRecordsServices(collection,appLayerFactory);
+		folderToVOBuilder = new FolderToVOBuilder();
+		ConstellioFactories constellioFactories = view.getConstellioFactories();
+		SessionContext sessionContext = view.getSessionContext();
+		documentPresenterUtils = new SchemaPresenterUtils(Document.DEFAULT_SCHEMA, constellioFactories, sessionContext);
+		schemaType = schemaType(UserDocument.SCHEMA_TYPE);
+
+
 	}
 
 	@Override
@@ -85,9 +119,9 @@ public class DisplayDocumentPresenter extends SingleSchemaBasePresenter<DisplayD
 		String id = params;
 		String taxonomyCode = view.getUIContext().getAttribute(FolderDocumentBreadcrumbTrail.TAXONOMY_CODE);
 		view.setTaxonomyCode(taxonomyCode);
-		
+
 		Record record = getRecord(id);
-		final DocumentVO documentVO = voBuilder.build(record, VIEW_MODE.DISPLAY, view.getSessionContext());
+		documentVO = voBuilder.build(record, VIEW_MODE.DISPLAY, view.getSessionContext());
 		view.setDocumentVO(documentVO);
 		presenterUtils.setRecordVO(documentVO);
 		ModelLayerFactory modelLayerFactory = view.getConstellioFactories().getModelLayerFactory();
@@ -109,6 +143,91 @@ public class DisplayDocumentPresenter extends SingleSchemaBasePresenter<DisplayD
 				return query;
 			}
 		};
+
+		//FIXME remove duplicate code (copied from DeclareRMRecordPresenter)
+		Map<DocumentVO, Double> similarDocumentsVOs = new LinkedHashMap<>();
+		Map<Record, Double> similarDocuments = findSimilarDocuments();
+		for (Map.Entry<Record, Double> documentAndSimilarity : similarDocuments.entrySet()) {
+			Record similarDocument = documentAndSimilarity.getKey();
+			Double similarity = documentAndSimilarity.getValue();
+			DocumentVO similarDocumentVO = voBuilder.build(similarDocument, VIEW_MODE.TABLE, view.getSessionContext());
+			similarDocumentsVOs.put(similarDocumentVO, similarity);
+		}
+		view.setSimilarDocumentsLayout(similarDocumentsVOs);
+
+		Map<FolderVO, Double> suggestedFolderVOs = new LinkedHashMap<>();
+		Map<String, Double> suggestedFolderIds = suggestFolderIds(similarDocuments);
+		for (String suggestedFolderId : suggestedFolderIds.keySet()) {
+			Record suggestedFolder = documentPresenterUtils.getRecord(suggestedFolderId);
+			FolderVO suggestedFolderVO = folderToVOBuilder.build(suggestedFolder, VIEW_MODE.TABLE, view.getSessionContext());
+			Double similarity = suggestedFolderIds.get(suggestedFolderId);
+			suggestedFolderVOs.put(suggestedFolderVO, similarity);
+		}
+		view.setSuggestedFolders(suggestedFolderVOs);
+	}
+
+
+	private List<MetadataSchemaType> allowedSchemaTypes() {
+		List<MetadataSchemaType> result = new ArrayList<>();
+		for (MetadataSchemaType type : types().getSchemaTypes()) {
+			SchemaTypeDisplayConfig config = schemasDisplayManager()
+					.getType(view.getSessionContext().getCurrentCollection(), type.getCode());
+			if (config.isSimpleSearch()) {
+				result.add(type);
+			}
+		}
+		return result;
+	}
+
+	private Map<Record, Double> findSimilarDocuments() {
+		String recordId = documentVO.getId();
+
+		LogicalSearchQuery query = new LogicalSearchQuery(
+				from(allowedSchemaTypes()).where(Schemas.COLLECTION).isEqualTo(collection));
+
+		query.returnSimilarDocuments(recordId, collection);
+
+		SearchServices searchServices = modelLayerFactory.newSearchServices();
+		SPEQueryResponse response = searchServices.query(query);
+
+		Map<Record, Double> results = new LinkedHashMap<Record, Double>();
+		for (int i = 0; i < response.getNumFound(); i++) {
+			results.put(response.getRecords().get(i), response.getScores().get(i));
+		}
+		return results;
+	}
+
+	private boolean isDocument(Record record) {
+		String schemaCode = record.getSchemaCode();
+		String schemaTypeCode = new SchemaUtils().getSchemaTypeCode(schemaCode);
+		return Document.SCHEMA_TYPE.equals(schemaTypeCode);
+	}
+
+	private Map<String, Double> suggestFolderIds(Map<Record, Double> similarRecords) {
+		MoreLikeThisClustering moreLikeThisClustering = new MoreLikeThisClustering(similarRecords,
+				new MoreLikeThisClustering.StringConverter<Record>() {
+					@Override
+					public String converToString(Record record) {
+						String folder;
+						if (isDocument(record)) {
+							Document document = new Document(record, types());
+							folder = document.getFolder();
+						} else {
+							folder = null;
+						}
+						return folder;
+					}
+				});
+
+		Map<String, Double> clusterScores = moreLikeThisClustering.getClusterScore();
+		for (Iterator<Map.Entry<String, Double>> iterClusterScore = clusterScores.entrySet().iterator(); iterClusterScore
+				.hasNext(); ) {
+			Double score = iterClusterScore.next().getValue();
+			if (score < MIN_SIMILARITY) {
+				iterClusterScore.remove();
+			}
+		}
+		return clusterScores;
 	}
 
 	public int getTaskCount() {
@@ -339,8 +458,7 @@ public class DisplayDocumentPresenter extends SingleSchemaBasePresenter<DisplayD
 	}
 
 	public String getPublicLink() {
-		String url = modelLayerFactory.getSystemConfigurationsManager().getValue(ConstellioEIMConfigs.CONSTELLIO_URL);
-		return url + "dl?id=" + presenterUtils.getDocumentVO().getId();
+		return null;
 	}
 
 	private void updateAndRefresh(Document document) {
@@ -361,5 +479,18 @@ public class DisplayDocumentPresenter extends SingleSchemaBasePresenter<DisplayD
 		} catch (RecordServicesException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public Map<FolderVO, Double> getSuggestedFolderVOs() {
+		return null;
+	}
+
+	public FolderVO getFolderVO(String id) {
+		Record record = documentPresenterUtils.getRecord(id);
+		return folderToVOBuilder.build(record, VIEW_MODE.TABLE, view.getSessionContext());
+	}
+
+	public Map<DocumentVO, Double> getSimilarDocuments() {
+		return null;
 	}
 }
