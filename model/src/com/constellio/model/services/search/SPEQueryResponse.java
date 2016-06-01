@@ -171,4 +171,8 @@ public class SPEQueryResponse {
 	public Map<Record, Map<Record, Double>> getRecordsWithMoreLikeThis() {
 		return recordsWithMoreLikeThis;
 	}
+
+	public List<Double> getScores() {
+		return scores;
+	}
 }

@@ -16,29 +16,45 @@ public class MoreLikeThisClustering{
 	
 	private Map<String, Double> facetValues = new TreeMap<>();
 
-	public <T> MoreLikeThisClustering(Map<T, Double> records, StringConverter<T> converter) {
-		
+	public <T> MoreLikeThisClustering(List<T> records, List<Double> scores, StringConverter<T> converter) {
+		init(records, scores, converter);
+	}
+
+	protected <T> void init(List<T> records, List<Double> scores, StringConverter<T> converter) {
 		double maxScore = 0;
 
-		for (Entry<T, Double> recordWithScore: records.entrySet()){
-			String facetValue = converter.converToString(recordWithScore.getKey());
+		for (int i = 0; i < records.size(); i++){
+			String facetValue = converter.converToString(records.get(i));
 			if (facetValue == null)
 				continue;
 			Double score = facetValues.get(facetValue);
 			if (score == null)
 				score = 0d;
-			
-			score += recordWithScore.getValue();
+
+			score +=  scores.get(i);
 			if (score > maxScore){
 				maxScore = score;
 			}
-			
+
 			facetValues.put(facetValue, score);
 		}
 
 		for (Entry<String, Double> aScore: facetValues.entrySet()){
 			aScore.setValue(aScore.getValue()/maxScore);
 		}
+	}
+
+	public <T> MoreLikeThisClustering(Map<T, Double> recordsWithScores, StringConverter<T> converter) {
+
+		List<T> records = new ArrayList<>(recordsWithScores.size());
+		List<Double> scores = new ArrayList<>(recordsWithScores.size());
+
+		for (Entry<T, Double> recordWithScore: recordsWithScores.entrySet()){
+			records.add(recordWithScore.getKey());
+			scores.add(recordWithScore.getValue());
+		}
+
+		init(records, scores, converter);
 	}
 	
 	public Map<String, Double> getClusterScore(){
