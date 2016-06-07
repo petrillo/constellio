@@ -67,6 +67,7 @@ public class GenericMetadataPopulatorField extends CustomField<MetadataPopulator
                 if (activePlugin != null) {
                     activePlugin.commit();
                     if (activePlugin.isEmpty())
+                        return null;
 
                     return activePlugin.getValue();
                 }
@@ -99,7 +100,7 @@ public class GenericMetadataPopulatorField extends CustomField<MetadataPopulator
             }
         });
 
-        setValue(null);
+//        setValue(null);
 
         return layout;
     }

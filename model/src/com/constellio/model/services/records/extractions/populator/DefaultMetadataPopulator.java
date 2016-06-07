@@ -27,6 +27,10 @@ public class DefaultMetadataPopulator implements MetadataPopulator {
 	public DefaultMetadataPopulator() {
 	}
 
+	public ExtractorSupplier getExtractorSupllier() {
+		return extractorSupllier;
+	}
+
 	public <T> DefaultMetadataPopulator(Extractor<T> extractor, ExtractorSupplier<T> feedsExtractor){
 		this.extractorSupllier = feedsExtractor;
 		this.extractor = extractor;
