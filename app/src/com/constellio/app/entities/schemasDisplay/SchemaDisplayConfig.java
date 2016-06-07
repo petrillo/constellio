@@ -123,6 +123,14 @@ public class SchemaDisplayConfig {
 		return withDisplayMetadataCodes(displayMetadatas);
 	}
 
+	public SchemaDisplayConfig withRemovedTableMetadatas(String... metadataCodes) {
+
+		List<String> tableMetadatas = new ArrayList<>();
+		tableMetadatas.addAll(this.tableMetadataCodes);
+		tableMetadatas.removeAll(asList(metadataCodes));
+		return withTableMetadataCodes(tableMetadatas);
+	}
+
 	public SchemaDisplayConfig withRemovedFormMetadatas(String... metadataCodes) {
 
 		List<String> formMetadatas = new ArrayList<>();
@@ -139,5 +147,30 @@ public class SchemaDisplayConfig {
 		return withFormMetadataCodes(formMetadatas);
 	}
 
-}
+	public SchemaDisplayConfig withNewTableMetadatas(String... metadataCodes) {
+		List<String> tableMetadatas = new ArrayList<>();
+		tableMetadatas.addAll(this.tableMetadataCodes);
+		tableMetadatas.addAll(asList(metadataCodes));
+		return withTableMetadataCodes(tableMetadatas);
+	}
 
+	public SchemaDisplayConfig withCode(String toCode) {
+
+		List<String> displayMetadataCodes = listForCode(this.displayMetadataCodes, toCode);
+		List<String> formMetadataCodes = listForCode(this.formMetadataCodes, toCode);
+		List<String> searchResultsMetadataCodes = listForCode(this.searchResultsMetadataCodes, toCode);
+		List<String> tableMetadataCodes = listForCode(this.tableMetadataCodes, toCode);
+
+		return new SchemaDisplayConfig(collection, toCode, displayMetadataCodes, formMetadataCodes, searchResultsMetadataCodes,
+				tableMetadataCodes);
+	}
+
+	private List<String> listForCode(List<String> codes, String toCode) {
+		List<String> returnedCodes = new ArrayList<>();
+		for (String code : codes) {
+			returnedCodes.add(code.replace(this.schemaCode, toCode));
+		}
+		return returnedCodes;
+	}
+
+}

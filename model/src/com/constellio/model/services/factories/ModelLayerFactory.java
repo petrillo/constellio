@@ -289,9 +289,7 @@ public class ModelLayerFactory extends LayerFactory {
 	}
 
 	public UserServices newUserServices() {
-		return new UserServices(userCredentialsManager, globalGroupsManager, collectionsListManager, newRecordServices(),
-				newSearchServices(), schemasManager, newAuthenticationService(), rolesManager, modelLayerConfiguration,
-				ldapConfigurationManager);
+		return new UserServices(this);
 	}
 
 	public LanguageDetectionManager getLanguageDetectionManager() {

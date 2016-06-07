@@ -31,6 +31,7 @@ import com.constellio.app.modules.rm.services.borrowingServices.BorrowingType;
 import com.constellio.app.modules.rm.services.decommissioning.DecommissioningService;
 import com.constellio.app.modules.rm.ui.builders.DocumentToVOBuilder;
 import com.constellio.app.modules.rm.ui.builders.FolderToVOBuilder;
+import com.constellio.app.modules.rm.ui.components.breadcrumb.FolderDocumentBreadcrumbTrail;
 import com.constellio.app.modules.rm.ui.entities.DocumentVO;
 import com.constellio.app.modules.rm.ui.entities.FolderVO;
 import com.constellio.app.modules.rm.ui.util.ConstellioAgentUtils;
@@ -56,6 +57,7 @@ import com.constellio.app.ui.framework.data.RecordVODataProvider;
 import com.constellio.app.ui.pages.base.SchemaPresenterUtils;
 import com.constellio.app.ui.pages.base.SessionContext;
 import com.constellio.app.ui.pages.base.SingleSchemaBasePresenter;
+import com.constellio.app.ui.params.ParamUtils;
 import com.constellio.data.utils.TimeProvider;
 import com.constellio.model.entities.records.Record;
 import com.constellio.model.entities.records.wrappers.EmailToSend;
@@ -110,7 +112,7 @@ public class DisplayFolderPresenter extends SingleSchemaBasePresenter<DisplayFol
 	}
 
 	private void initTransientObjects() {
-		rmSchemasRecordsServices = new RMSchemasRecordsServices(collection, modelLayerFactory);
+		rmSchemasRecordsServices = new RMSchemasRecordsServices(collection, appLayerFactory);
 		borrowingServices = new BorrowingServices(collection, modelLayerFactory);
 		folderVOBuilder = new FolderToVOBuilder();
 		documentVOBuilder = new DocumentToVOBuilder(modelLayerFactory);
@@ -126,7 +128,17 @@ public class DisplayFolderPresenter extends SingleSchemaBasePresenter<DisplayFol
 	}
 
 	public void forParams(String params) {
-		Record record = getRecord(params);
+		Map<String, String> paramsMap = ParamUtils.getParamsMap(params);
+		String id = paramsMap.get("id");
+		String taxonomyCode = paramsMap.get(FolderDocumentBreadcrumbTrail.TAXONOMY_CODE);
+		if (taxonomyCode != null) {
+			view.getUIContext().setAttribute(FolderDocumentBreadcrumbTrail.TAXONOMY_CODE, taxonomyCode);
+		} else {
+			taxonomyCode = view.getUIContext().getAttribute(FolderDocumentBreadcrumbTrail.TAXONOMY_CODE);
+		}
+		view.setTaxonomyCode(taxonomyCode);
+		
+		Record record = getRecord(id);
 		this.folderVO = folderVOBuilder.build(record, VIEW_MODE.DISPLAY, view.getSessionContext());
 		setSchemaCode(record.getSchemaCode());
 		view.setRecord(folderVO);
@@ -354,13 +366,16 @@ public class DisplayFolderPresenter extends SingleSchemaBasePresenter<DisplayFol
 		return ComponentState.visibleIf(user.has(RMPermissionsTo.MANAGE_FOLDER_AUTHORIZATIONS).on(folder));
 	}
 
-	private ComponentState getShareButtonState(User user, Folder folder) {
+	ComponentState getShareButtonState(User user, Folder folder) {
 		if (user.has(RMPermissionsTo.SHARE_FOLDER).on(folder)) {
 			if (folder.getPermissionStatus().isInactive()) {
 				return ComponentState.visibleIf(user.has(RMPermissionsTo.SHARE_A_INACTIVE_FOLDER).on(folder));
 			}
 			if (folder.getPermissionStatus().isSemiActive()) {
 				return ComponentState.visibleIf(user.has(RMPermissionsTo.SHARE_A_SEMIACTIVE_FOLDER).on(folder));
+			}
+			if(StringUtils.isNotBlank(folder.getLegacyId())) {
+				return ComponentState.visibleIf(user.has(RMPermissionsTo.SHARE_A_IMPORTED_FOLDER).on(folder));
 			}
 			return ComponentState.ENABLED;
 		}
@@ -466,7 +481,7 @@ public class DisplayFolderPresenter extends SingleSchemaBasePresenter<DisplayFol
 		view.setSubFolders(subFoldersDataProvider);
 		view.setTasks(tasksDataProvider);
 
-		RMSchemasRecordsServices schemas = new RMSchemasRecordsServices(collection, modelLayerFactory);
+		RMSchemasRecordsServices schemas = new RMSchemasRecordsServices(collection, appLayerFactory);
 		Folder folder = schemas.wrapFolder(toRecord(folderVO));
 		disableMenuItems(folder);
 		modelLayerFactory.newLoggingServices().logRecordView(folder.getWrappedRecord(), getCurrentUser());
@@ -565,7 +580,7 @@ public class DisplayFolderPresenter extends SingleSchemaBasePresenter<DisplayFol
 	}
 
 	private RMSchemasRecordsServices rmSchemasRecordsServices() {
-		return new RMSchemasRecordsServices(getCurrentUser().getCollection(), modelLayerFactory);
+		return new RMSchemasRecordsServices(getCurrentUser().getCollection(), appLayerFactory);
 	}
 
 	private boolean documentExists(String fileName) {
@@ -701,7 +716,7 @@ public class DisplayFolderPresenter extends SingleSchemaBasePresenter<DisplayFol
 
 	public void alertWhenAvailable() {
 		try {
-			RMSchemasRecordsServices schemas = new RMSchemasRecordsServices(view.getCollection(), modelLayerFactory);
+			RMSchemasRecordsServices schemas = new RMSchemasRecordsServices(view.getCollection(), appLayerFactory);
 			Folder folder = schemas.getFolder(folderVO.getId());
 			List<String> usersToAlert = folder.getAlertUsersWhenAvailable();
 			String currentUserId = getCurrentUser().getId();
@@ -821,7 +836,7 @@ public class DisplayFolderPresenter extends SingleSchemaBasePresenter<DisplayFol
 
 	public void parentFolderButtonClicked(String parentId)
 			throws RecordServicesException {
-		RMSchemasRecordsServices rmSchemas = new RMSchemasRecordsServices(collection, modelLayerFactory);
+		RMSchemasRecordsServices rmSchemas = new RMSchemasRecordsServices(collection, appLayerFactory);
 
 		String currentFolderId = folderVO.getId();
 		if (StringUtils.isNotBlank(parentId)) {

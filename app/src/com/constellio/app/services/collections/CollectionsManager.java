@@ -109,7 +109,6 @@ public class CollectionsManager implements StatefulService {
 			createAdminUser();
 		}
 
-
 		SchemasRecordsServices schemas = new SchemasRecordsServices(Collection.SYSTEM_COLLECTION, modelLayerFactory);
 		if (!schemas.getTypes().hasType(SolrUserCredential.SCHEMA_TYPE)) {
 			for (SystemCollectionListener listener : modelLayerFactory.getSystemCollectionListeners()) {
@@ -137,7 +136,7 @@ public class CollectionsManager implements StatefulService {
 	}
 
 	private void createAdminUser() {
-		String serviceKey = "adminkey";
+		//String serviceKey = "adminkey";
 		String password = "password";
 		String username = "admin";
 		String firstName = "System";
@@ -151,7 +150,7 @@ public class CollectionsManager implements StatefulService {
 
 		UserServices userServices = modelLayerFactory.newUserServices();
 		UserCredential adminCredentials = userServices.createUserCredential(
-				username, firstName, lastName, email, serviceKey, isSystemAdmin, globalGroups, collections,
+				username, firstName, lastName, email, null, isSystemAdmin, globalGroups, collections,
 				new HashMap<String, LocalDateTime>(), status, domain, Arrays.asList(""), null);
 		userServices.addUpdateUserCredential(adminCredentials);
 		AuthenticationService authenticationService = modelLayerFactory.newAuthenticationService();
@@ -290,6 +289,10 @@ public class CollectionsManager implements StatefulService {
 
 	public List<String> getCollectionLanguages(final String collection) {
 
+		if (Collection.SYSTEM_COLLECTION.equals(collection)) {
+			return asList(modelLayerFactory.getConfiguration().getMainDataLanguage());
+		}
+
 		List<String> collectionLanguages = collectionLanguagesCache.get(collection);
 
 		if (collectionLanguages == null) {
@@ -356,11 +359,12 @@ public class CollectionsManager implements StatefulService {
 			}
 		}
 
+		collectionLanguagesCache.put(code, languages);
 		createCollectionConfigs(code);
 		collectionsListManager.addCollection(code, languages);
 		Set<String> returnList = new HashSet<>();
 		try {
-			returnList.addAll(migrationServicesDelayed.get().migrate(code, version));
+			returnList.addAll(migrationServicesDelayed.get().migrate(code, version, true));
 		} catch (OptimisticLockingConfiguration optimisticLockingConfiguration) {
 			throw new CollectionsManagerRuntimeException_CannotMigrateCollection(code, version, optimisticLockingConfiguration);
 		} finally {

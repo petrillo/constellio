@@ -17,6 +17,7 @@ import com.constellio.app.services.extensions.ConstellioModulesManagerImpl;
 import com.constellio.app.services.extensions.plugins.ConstellioPluginConfigurationManager;
 import com.constellio.app.services.extensions.plugins.ConstellioPluginManager;
 import com.constellio.app.services.extensions.plugins.JSPFConstellioPluginManager;
+import com.constellio.app.services.metadata.AppSchemasServices;
 import com.constellio.app.services.migrations.ConstellioEIM;
 import com.constellio.app.services.migrations.MigrationServices;
 import com.constellio.app.services.recovery.UpgradeAppRecoveryService;
@@ -108,7 +109,8 @@ public class AppLayerFactory extends LayerFactory {
 				modelLayerFactory.getCollectionsListManager(), modelLayerFactory.getMetadataSchemasManager()));
 
 		IOServices ioServices = modelLayerFactory.getIOServicesFactory().newIOServices();
-		pluginManager = add(new JSPFConstellioPluginManager(appLayerConfiguration.getPluginsFolder(), appLayerConfiguration.getPluginsManagementOnStartupFile(), ioServices,
+		pluginManager = add(new JSPFConstellioPluginManager(appLayerConfiguration.getPluginsFolder(),
+				appLayerConfiguration.getPluginsManagementOnStartupFile(), ioServices,
 				new ConstellioPluginConfigurationManager(dataLayerFactory.getConfigManager())));
 		pluginManager.registerModule(new ConstellioRMModule());
 
@@ -126,7 +128,7 @@ public class AppLayerFactory extends LayerFactory {
 				new CollectionsManager(modelLayerFactory, modulesManager, migrationServicesDelayed, systemGlobalConfigsManager));
 		migrationServicesDelayed.set(newMigrationServices());
 		try {
-			newMigrationServices().migrate(null);
+			newMigrationServices().migrate(null, false);
 		} catch (OptimisticLockingConfiguration optimisticLockingConfiguration) {
 			throw new RuntimeException(optimisticLockingConfiguration);
 		}
@@ -239,7 +241,7 @@ public class AppLayerFactory extends LayerFactory {
 
 		try {
 			collectionsManager.initializeModulesResources();
-			invalidPlugins.addAll(newMigrationServices().migrate(null));
+			invalidPlugins.addAll(newMigrationServices().migrate(null, false));
 		} catch (OptimisticLockingConfiguration optimisticLockingConfiguration) {
 			throw new RuntimeException(optimisticLockingConfiguration);
 		}
@@ -339,5 +341,9 @@ public class AppLayerFactory extends LayerFactory {
 
 	public MetadataPopulatorPluginFactory getMetadataPopulatorPluginFactory() {
 		return metadataPopulatorPluginFactory;
+	}
+
+	public AppSchemasServices newSchemasServices() {
+		return new AppSchemasServices(this);
 	}
 }

@@ -4,9 +4,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.constellio.model.entities.Language;
 
 public class SchemaTypeDisplayConfig {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(SchemaTypeDisplayConfig.class);
 
 	private final String collection;
 
@@ -80,6 +85,17 @@ public class SchemaTypeDisplayConfig {
 	}
 
 	public SchemaTypeDisplayConfig withMetadataGroup(Map<String, Map<Language, String>> metadataGroup) {
+
+		boolean defaultTab = false;
+		for (String key : metadataGroup.keySet()) {
+			if (key.startsWith("default")) {
+				defaultTab = true;
+			}
+		}
+		if (!defaultTab) {
+			LOGGER.warn("It is recommended to have a metadata group starting with 'default'");
+		}
+
 		return new SchemaTypeDisplayConfig(collection, schemaType, manageable, advancedSearch, simpleSearch, metadataGroup);
 	}
 
