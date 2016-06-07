@@ -1,39 +1,43 @@
 package com.constellio.app.ui.pages.management.extractors.fields;
 
+import com.constellio.app.ui.entities.MetadataVO;
+import com.constellio.app.ui.pages.management.extractors.plugin.MetadataPopulatorField;
+import com.constellio.app.ui.pages.management.extractors.plugin.MetadataPopulatorPluginFactory;
+import com.constellio.app.ui.pages.management.extractors.plugin.MetadataPopulatorVO;
 import com.vaadin.data.Property;
+import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.data.util.AbstractProperty;
 import com.vaadin.ui.*;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
-/**
- * Created by Majid on 2016-04-25.
- */
-public class GenericMetadataPopulatorField extends CustomField<TypedMetadataPopulatorVO> {
-
-    TypedMetadataPopulatorVO typedMetadataPopulatorVO = new TypedMetadataPopulatorVO();
+public class GenericMetadataPopulatorField extends CustomField<MetadataPopulatorVO> {
 
     private Layout pluginLayout = new HorizontalLayout();
 
     private ComboBox type = new ComboBox();
     private MetadataPopulatorField activePlugin;
     private Map<String, MetadataPopulatorField> pluginLayouts = new HashMap<>();
+    private List<MetadataVO> metadataOptions;
+    private Map<Class<? extends MetadataPopulatorVO>, String> metadataPopulatorVOTypeMap = new HashMap<>();
+    private FieldGroup fieldGroup;
+    private MetadataPopulatorPluginFactory factory;
 
-    public GenericMetadataPopulatorField(){
-        List<MetadataPopulatorVO> plugins = new ArrayList<>();
-        plugins.add(new PluginA());
-        plugins.add(new PluginB());
-
-        List<MetadataPopulatorField> pluginFields = new ArrayList<>();
-        pluginFields.add(new PluginAField());
-        pluginFields.add(new PluginBField());
-
-        for (int i = 0; i < plugins.size(); i++){
-            type.addItem(plugins.get(i).getName());
-            pluginLayouts.put(plugins.get(i).getName(), pluginFields.get(i));
+    public GenericMetadataPopulatorField(MetadataPopulatorPluginFactory factory){
+        for (String aPlugin: factory.getRegisteredPluginNames()){
+            type.addItems(aPlugin);
+            pluginLayouts.put(aPlugin, factory.createInstance(aPlugin).getMetadataPopulatorField());
         }
+        this.factory = factory;
     }
+
+    private MetadataPopulatorField getPluginLayout(Object pluginName){
+        return pluginLayouts.get(pluginName);
+    }
+
 
     @Override
     protected Component initContent() {
@@ -48,54 +52,65 @@ public class GenericMetadataPopulatorField extends CustomField<TypedMetadataPopu
                 activePlugin = getPluginLayout(propertyValue);
                 if (activePlugin != null) {
                     pluginLayout.addComponent(activePlugin);
-                    typedMetadataPopulatorVO.setType((String) propertyValue);
+                    activePlugin.setMetadataOptions(metadataOptions);
+                    setInternalValue(activePlugin.getValue());
                 }
             }
         });
 
         layout.addComponent(pluginLayout);
+        layout.addComponent(pluginLayout);
 
-        setPropertyDataSource(new AbstractProperty<TypedMetadataPopulatorVO>() {
+        setPropertyDataSource(new AbstractProperty<MetadataPopulatorVO>() {
             @Override
-            public TypedMetadataPopulatorVO getValue() {
+            public MetadataPopulatorVO getValue() {
                 if (activePlugin != null) {
                     activePlugin.commit();
-                    typedMetadataPopulatorVO.setMetadataPopulatorVO(activePlugin.getValue());
+                    if (activePlugin.isEmpty())
+
+                    return activePlugin.getValue();
                 }
-                return typedMetadataPopulatorVO;
+                return null;
             }
 
             @Override
-            public void setValue(TypedMetadataPopulatorVO newValue) throws ReadOnlyException {
-                setInternalValue(newValue);
-                if (newValue == null){  //click add button
-                    activePlugin.clean();
-                    typedMetadataPopulatorVO = new TypedMetadataPopulatorVO();
-                } else if (newValue.getType() != null) {    //click edit or add button
-                    typedMetadataPopulatorVO = newValue;
-                    type.select(newValue.getType());
-                    activePlugin.setValue(typedMetadataPopulatorVO.getMetadataPopulatorVO());
+            public void setValue(MetadataPopulatorVO newValue) throws ReadOnlyException {
+                if (newValue != null){
+                    //update type
+                    String newType = factory.getPluginName(newValue.getClass());
+                    type.setValue(newType);
                 }
 
+                if (activePlugin != null){
+                    //set the value for the active plugin
+                    activePlugin.setValue(newValue);
+                }
+
+                //set internal value
+                if (activePlugin != null)
+                    setInternalValue(activePlugin.getValue());
+                else
+                    setInternalValue(null);
             }
 
             @Override
-            public Class<TypedMetadataPopulatorVO> getType() {
-                return TypedMetadataPopulatorVO.class;
+            public Class<MetadataPopulatorVO> getType() {
+                return MetadataPopulatorVO.class;
             }
         });
 
-        setValue(typedMetadataPopulatorVO);
+        setValue(null);
 
         return layout;
     }
 
-    private MetadataPopulatorField getPluginLayout(Object pluginName){
-        return pluginLayouts.get(pluginName);
+    @Override
+    public Class<? extends MetadataPopulatorVO> getType() {
+        return MetadataPopulatorVO.class;
     }
 
-    @Override
-    public Class<? extends TypedMetadataPopulatorVO> getType() {
-        return TypedMetadataPopulatorVO.class;
+    public void setMetadataOptions(List<MetadataVO> metadataOptions) {
+        this.metadataOptions = metadataOptions;
     }
+
 }

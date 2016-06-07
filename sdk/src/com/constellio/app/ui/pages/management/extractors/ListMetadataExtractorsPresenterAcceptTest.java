@@ -15,8 +15,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import com.constellio.app.modules.rm.RMTestRecords;
-import com.constellio.app.ui.application.CoreViews;
-import com.constellio.app.ui.entities.MetadataExtractorVO;
+import com.constellio.app.ui.pages.management.extractors.fields.MetadataExtractorVO;
 import com.constellio.app.ui.pages.base.SessionContext;
 import com.constellio.model.entities.schemas.MetadataSchemaTypes;
 import com.constellio.sdk.tests.ConstellioTest;

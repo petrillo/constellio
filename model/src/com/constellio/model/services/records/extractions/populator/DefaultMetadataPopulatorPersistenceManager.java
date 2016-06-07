@@ -1,4 +1,4 @@
-package com.constellio.model.services.records.extractions;
+package com.constellio.model.services.records.extractions.populator;
 
 import org.jdom2.Document;
 import org.jdom2.Element;

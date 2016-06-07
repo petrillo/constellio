@@ -1,5 +1,8 @@
 package com.constellio.model.services.records.extractions;
 
+import com.constellio.model.services.records.extractions.populator.*;
+import com.constellio.model.services.records.extractions.populator.plugin.MetadataToText;
+import com.constellio.model.services.records.extractions.populator.plugin.regexPopulatorPlugin.RegexExtractor;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.input.SAXBuilder;

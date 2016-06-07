@@ -1,4 +1,4 @@
-package com.constellio.model.services.records.extractions;
+package com.constellio.model.services.records.extractions.populator.plugin;
 
 import com.constellio.model.entities.records.Content;
 import com.constellio.model.entities.records.ParsedContent;
@@ -6,6 +6,7 @@ import com.constellio.model.entities.records.Record;
 import com.constellio.model.entities.schemas.Metadata;
 import com.constellio.model.entities.schemas.MetadataSchema;
 import com.constellio.model.entities.schemas.MetadataValueType;
+import com.constellio.model.services.records.extractions.populator.ExtractorSupplier;
 import com.google.common.cache.LoadingCache;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;

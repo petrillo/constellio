@@ -1,19 +1,6 @@
 package com.constellio.app.ui.pages.management.extractors;
 
-import static com.constellio.model.entities.schemas.MetadataValueType.CONTENT;
-import static com.constellio.model.entities.schemas.MetadataValueType.STRING;
-import static com.constellio.model.entities.schemas.MetadataValueType.TEXT;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
-
-import org.apache.commons.lang3.StringUtils;
-
-import com.constellio.app.ui.entities.MetadataExtractorVO;
-import com.constellio.app.ui.entities.MetadataSchemaTypeVO;
-import com.constellio.app.ui.entities.MetadataSchemaVO;
-import com.constellio.app.ui.entities.MetadataVO;
+import com.constellio.app.ui.entities.*;
 import com.constellio.app.ui.entities.RecordVO.VIEW_MODE;
 import com.constellio.app.ui.framework.builders.MetadataSchemaToVOBuilder;
 import com.constellio.app.ui.framework.builders.MetadataSchemaTypeToVOBuilder;
@@ -21,19 +8,27 @@ import com.constellio.app.ui.framework.builders.MetadataToVOBuilder;
 import com.constellio.app.ui.pages.base.BasePresenter;
 import com.constellio.app.ui.pages.base.SessionContext;
 import com.constellio.app.ui.pages.management.extractors.entities.RegexConfigVO;
+import com.constellio.app.ui.pages.management.extractors.plugin.MetadataPopulatorVO;
+import com.constellio.app.ui.pages.management.extractors.plugin.VOToMetadataPopulatorBuilder;
 import com.constellio.model.entities.CorePermissions;
 import com.constellio.model.entities.records.wrappers.User;
-import com.constellio.model.entities.schemas.Metadata;
-import com.constellio.model.entities.schemas.MetadataPopulateConfigs;
-import com.constellio.model.entities.schemas.MetadataSchema;
-import com.constellio.model.entities.schemas.MetadataSchemaType;
-import com.constellio.model.entities.schemas.MetadataSchemaTypes;
-import com.constellio.model.entities.schemas.RegexConfig;
+import com.constellio.model.entities.schemas.*;
+import com.constellio.model.services.records.extractions.populator.MetadataPopulator;
+import com.constellio.app.ui.pages.management.extractors.fields.MetadataExtractorVO;
+import com.constellio.app.ui.pages.management.extractors.plugin.MetadataPopulatorToVOBuilder;
 import com.constellio.model.services.schemas.MetadataListFilter;
 import com.constellio.model.services.schemas.MetadataSchemaTypesAlteration;
 import com.constellio.model.services.schemas.MetadataSchemasManager;
 import com.constellio.model.services.schemas.builders.MetadataBuilder;
 import com.constellio.model.services.schemas.builders.MetadataSchemaTypesBuilder;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+
+import static com.constellio.model.entities.schemas.MetadataValueType.*;
 
 public class AddEditMetadataExtractorPresenter extends BasePresenter<AddEditMetadataExtractorView> {
 
@@ -46,6 +41,8 @@ public class AddEditMetadataExtractorPresenter extends BasePresenter<AddEditMeta
 	private MetadataSchemaToVOBuilder metadataSchemaToVOBuilder;
 
 	private MetadataSchemaTypeToVOBuilder metadataSchemaTypeToVOBuilder;
+	private final Map<Class<? extends MetadataPopulator>, MetadataPopulatorToVOBuilder> metadataPopulatorToVoBuilders;
+	private final Map<Class<? extends MetadataPopulatorVO>, VOToMetadataPopulatorBuilder> voToMetadataPopulatorBuilders;
 
 	private String schemaCode;
 
@@ -56,6 +53,8 @@ public class AddEditMetadataExtractorPresenter extends BasePresenter<AddEditMeta
 		metadataToVOBuilder = new MetadataToVOBuilder();
 		metadataSchemaToVOBuilder = new MetadataSchemaToVOBuilder();
 		metadataSchemaTypeToVOBuilder = new MetadataSchemaTypeToVOBuilder();
+		metadataPopulatorToVoBuilders = appLayerFactory.getMetadataPopulatorPluginFactory().getMetadataPopulatorToVoBuilders();
+		voToMetadataPopulatorBuilders = appLayerFactory.getMetadataPopulatorPluginFactory().getVoToMetadataPopulatorBuilders();
 	}
 
 	@Override
@@ -69,7 +68,7 @@ public class AddEditMetadataExtractorPresenter extends BasePresenter<AddEditMeta
 
 		addView = StringUtils.isBlank(parameters);
 		if (addView) {
-			metadataExtractorVO = new MetadataExtractorVO(null, new MetadataPopulateConfigs());
+			metadataExtractorVO = new MetadataExtractorVO(null, new MetadataPopulateConfigs(), metadataPopulatorToVoBuilders);
 			view.setSchemaTypeFieldVisible(true);
 			view.setSchemaFieldVisible(true);
 			view.setMetadataFieldEnabled(true);
@@ -98,7 +97,7 @@ public class AddEditMetadataExtractorPresenter extends BasePresenter<AddEditMeta
 			schemaCode = metadata.getSchemaCode();
 			metadataVO = metadataToVOBuilder.build(metadata, sessionContext);
 
-			metadataExtractorVO = new MetadataExtractorVO(metadataVO, metadata.getPopulateConfigs());
+			metadataExtractorVO = new MetadataExtractorVO(metadataVO, metadata.getPopulateConfigs(), metadataPopulatorToVoBuilders);
 		}
 		view.setMetadataExtractorVO(metadataExtractorVO);
 
@@ -109,6 +108,7 @@ public class AddEditMetadataExtractorPresenter extends BasePresenter<AddEditMeta
 
 		final List<RegexConfig> regexConfigs = voToRegexConfigs();
 
+		final List<MetadataPopulator> metadataPopulators = voToMetatpopulators();
 		final String metadataCode = metadataVO.getCode();
 		MetadataSchemasManager metadataSchemasManager = modelLayerFactory.getMetadataSchemasManager();
 		metadataSchemasManager.modify(collection, new MetadataSchemaTypesAlteration() {
@@ -118,9 +118,19 @@ public class AddEditMetadataExtractorPresenter extends BasePresenter<AddEditMeta
 				metadataBuilder.getPopulateConfigsBuilder().setStyles(metadataExtractorVO.getStyles());
 				metadataBuilder.getPopulateConfigsBuilder().setProperties(metadataExtractorVO.getProperties());
 				metadataBuilder.getPopulateConfigsBuilder().setRegexes(regexConfigs);
+				metadataBuilder.getPopulateConfigsBuilder().setMetadataPopulators(metadataPopulators);
 			}
 		});
 		view.navigate().to().listMetadataExtractors();
+	}
+
+	private List<MetadataPopulator> voToMetatpopulators() {
+		final List<MetadataPopulator> metadataPopulatorConfigs = new ArrayList<>();
+		for (MetadataPopulatorVO metadataPopulatorVO: metadataExtractorVO.getMetadataPopulators()){
+			metadataPopulatorConfigs.add(voToMetadataPopulatorBuilders
+					.get(metadataPopulatorVO.getClass()).build(metadataPopulatorVO));
+		}
+		return metadataPopulatorConfigs;
 	}
 
 	private List<RegexConfig> voToRegexConfigs() {

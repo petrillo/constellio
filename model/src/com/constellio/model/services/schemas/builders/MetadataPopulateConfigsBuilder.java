@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.constellio.model.entities.schemas.MetadataPopulateConfigs;
 import com.constellio.model.entities.schemas.RegexConfig;
-import com.constellio.model.services.records.extractions.MetadataPopulator;
+import com.constellio.model.services.records.extractions.populator.MetadataPopulator;
 
 public class MetadataPopulateConfigsBuilder {
 

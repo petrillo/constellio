@@ -1,4 +1,4 @@
-package com.constellio.model.services.records.extractions;
+package com.constellio.model.services.records.extractions.populator;
 
 import com.constellio.model.entities.records.Record;
 import com.constellio.model.entities.schemas.MetadataSchema;

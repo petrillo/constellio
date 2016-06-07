@@ -1,4 +1,4 @@
-package com.constellio.model.services.records.extractions;
+package com.constellio.model.services.records.extractions.populator;
 
 import com.constellio.model.entities.records.ParsedContent;
 import com.constellio.model.entities.records.Record;
@@ -19,7 +19,7 @@ public class DefaultMetadataPopulator implements MetadataPopulator {
 
 	private Extractor extractor;
 
-	private ExtractorSupplier feedsExtractor;
+	private ExtractorSupplier extractorSupllier;
 
 	private LoadingCache<String, ParsedContent> cachedContentManager;
 	private boolean multiValue;
@@ -28,7 +28,7 @@ public class DefaultMetadataPopulator implements MetadataPopulator {
 	}
 
 	public <T> DefaultMetadataPopulator(Extractor<T> extractor, ExtractorSupplier<T> feedsExtractor){
-		this.feedsExtractor = feedsExtractor;
+		this.extractorSupllier = feedsExtractor;
 		this.extractor = extractor;
 	}
 
@@ -40,12 +40,12 @@ public class DefaultMetadataPopulator implements MetadataPopulator {
 		this.extractor = extractor;
 	}
 
-	public ExtractorSupplier getFeedsExtractor() {
-		return feedsExtractor;
+	public ExtractorSupplier getExtractorSupplier() {
+		return extractorSupllier;
 	}
 
-	public void setFeedsExtractor(ExtractorSupplier feedsExtractor) {
-		this.feedsExtractor = feedsExtractor;
+	public void setExtractorSupllier(ExtractorSupplier extractorSupllier) {
+		this.extractorSupllier = extractorSupllier;
 	}
 
 	@Override
@@ -58,14 +58,14 @@ public class DefaultMetadataPopulator implements MetadataPopulator {
 			}
 		};
 		cachedContentManager = CacheBuilder.newBuilder().build(loader);
-		feedsExtractor.init(cachedContentManager, schema);
+		extractorSupllier.init(cachedContentManager, schema);
 	}
 
 	@Override
 	public Object getPopulationValue(Record record){
 		List<Object> results = new ArrayList<>();
 
-		for (Object feed: feedsExtractor.getFeeds(record)){
+		for (Object feed: extractorSupllier.getFeeds(record)){
 			Collection<? extends Object> value = extractor.extractFrom(feed);
 			if (value != null)
 				results.addAll(value);
@@ -117,4 +117,6 @@ public class DefaultMetadataPopulator implements MetadataPopulator {
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);
 	}
+
+
 }

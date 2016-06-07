@@ -29,9 +29,9 @@ import com.constellio.model.entities.schemas.entries.DataEntry;
 import com.constellio.model.entities.schemas.entries.DataEntryType;
 import com.constellio.model.entities.schemas.validation.RecordMetadataValidator;
 import com.constellio.model.entities.schemas.validation.RecordValidator;
-import com.constellio.model.services.records.extractions.DefaultMetadataPopulatorPersistenceManager;
-import com.constellio.model.services.records.extractions.MetadataPopulator;
-import com.constellio.model.services.records.extractions.MetadataPopulatorPersistenceManager;
+import com.constellio.model.services.records.extractions.populator.DefaultMetadataPopulatorPersistenceManager;
+import com.constellio.model.services.records.extractions.populator.MetadataPopulator;
+import com.constellio.model.services.records.extractions.populator.MetadataPopulatorPersistenceManager;
 import com.constellio.model.services.schemas.builders.ClassListBuilder;
 import com.constellio.model.utils.ParametrizedInstanceUtils;
 

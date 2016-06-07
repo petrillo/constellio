@@ -1,4 +1,4 @@
-package com.constellio.model.services.records.extractions;
+package com.constellio.model.services.records.extractions.populator;
 
 import java.util.Collection;
 

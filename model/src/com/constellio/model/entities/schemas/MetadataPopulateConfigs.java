@@ -1,6 +1,6 @@
 package com.constellio.model.entities.schemas;
 
-import com.constellio.model.services.records.extractions.MetadataPopulator;
+import com.constellio.model.services.records.extractions.populator.MetadataPopulator;
 
 import java.io.Serializable;
 import java.util.ArrayList;

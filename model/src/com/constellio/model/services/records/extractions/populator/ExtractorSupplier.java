@@ -1,4 +1,4 @@
-package com.constellio.model.services.records.extractions;
+package com.constellio.model.services.records.extractions.populator;
 
 import com.constellio.model.entities.records.ParsedContent;
 import com.constellio.model.entities.records.Record;

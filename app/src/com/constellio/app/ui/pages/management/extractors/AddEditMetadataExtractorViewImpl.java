@@ -1,6 +1,5 @@
 package com.constellio.app.ui.pages.management.extractors;
 
-import com.constellio.app.ui.entities.MetadataExtractorVO;
 import com.constellio.app.ui.entities.MetadataSchemaTypeVO;
 import com.constellio.app.ui.entities.MetadataSchemaVO;
 import com.constellio.app.ui.entities.MetadataVO;
@@ -9,6 +8,7 @@ import com.constellio.app.ui.framework.components.fields.list.ListAddRemoveTextF
 import com.constellio.app.ui.pages.base.BaseViewImpl;
 import com.constellio.app.ui.pages.management.extractors.fields.ListAddRemoveMetadataPopulatorField;
 import com.constellio.app.ui.pages.management.extractors.fields.ListAddRemoveRegexConfigField;
+import com.constellio.app.ui.pages.management.extractors.fields.MetadataExtractorVO;
 import com.constellio.model.frameworks.validation.ValidationException;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -141,8 +141,10 @@ public class AddEditMetadataExtractorViewImpl extends BaseViewImpl implements Ad
 		regexesField = new ListAddRemoveRegexConfigField();
 		regexesField.setCaption($("AddEditMetadataExtractorView.regexes"));
 
-		metadataPopulatorField = new ListAddRemoveMetadataPopulatorField();
-		metadataPopulatorField.setCaption("metadata");
+		//TODO: check if this code is fine?
+		metadataPopulatorField = new ListAddRemoveMetadataPopulatorField(
+				getConstellioFactories().getAppLayerFactory().getMetadataPopulatorPluginFactory());
+		metadataPopulatorField.setCaption($("AddEditMetadataExtractorView.plugins"));
 
 		baseForm = new BaseForm<MetadataExtractorVO>(metadataExtractorVO, this, schemaTypeField, schemaField,
 				metadataField,
@@ -203,6 +205,7 @@ public class AddEditMetadataExtractorViewImpl extends BaseViewImpl implements Ad
 	@Override
 	public void setRegexMetadataOptions(List<MetadataVO> metadataVOs) {
 		regexesField.setMetadataOptions(metadataVOs);
+		metadataPopulatorField.setMetadataOptions(metadataVOs);
 	}
 
 	@Override

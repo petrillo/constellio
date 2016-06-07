@@ -1,5 +1,6 @@
-package com.constellio.model.services.records.extractions;
+package com.constellio.model.services.records.extractions.populator.plugin.regexPopulatorPlugin;
 
+import com.constellio.model.services.records.extractions.populator.Extractor;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 

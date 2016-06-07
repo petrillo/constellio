@@ -1,17 +1,5 @@
 package com.constellio.app.services.factories;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.constellio.app.api.cmis.binding.global.CmisCacheManager;
 import com.constellio.app.conf.AppLayerConfiguration;
 import com.constellio.app.extensions.AppLayerExtensions;
@@ -41,6 +29,8 @@ import com.constellio.app.ui.i18n.i18n;
 import com.constellio.app.ui.pages.base.EnterViewListener;
 import com.constellio.app.ui.pages.base.InitUIListener;
 import com.constellio.app.ui.pages.base.PresenterService;
+import com.constellio.app.ui.pages.management.extractors.fields.DefaultMetadataPopulatorPluginFactory;
+import com.constellio.app.ui.pages.management.extractors.plugin.MetadataPopulatorPluginFactory;
 import com.constellio.data.dao.managers.StatefulService;
 import com.constellio.data.dao.managers.StatefullServiceDecorator;
 import com.constellio.data.dao.managers.config.ConfigManagerException.OptimisticLockingConfiguration;
@@ -57,6 +47,11 @@ import com.constellio.model.services.extensions.ConstellioModulesManager;
 import com.constellio.model.services.factories.ModelLayerFactory;
 import com.constellio.model.services.migrations.ConstellioEIMConfigs;
 import com.constellio.model.services.records.reindexing.ReindexationMode;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 public class AppLayerFactory extends LayerFactory {
 
@@ -90,6 +85,8 @@ public class AppLayerFactory extends LayerFactory {
 	private final LabelTemplateManager labelTemplateManager;
 
 	private final AppLayerConfiguration appLayerConfiguration;
+
+	private final MetadataPopulatorPluginFactory metadataPopulatorPluginFactory;
 
 	private final Map<String, StatefulService> moduleManagers = new HashMap<>();
 	final private NavigatorConfigurationService navigatorConfigService;
@@ -135,6 +132,7 @@ public class AppLayerFactory extends LayerFactory {
 		}
 		labelTemplateManager = new LabelTemplateManager(dataLayerFactory.getConfigManager());
 		this.navigatorConfigService = new NavigatorConfigurationService();
+		this.metadataPopulatorPluginFactory = DefaultMetadataPopulatorPluginFactory.getInstance();
 	}
 
 	private void setDefaultLocale() {
@@ -337,5 +335,9 @@ public class AppLayerFactory extends LayerFactory {
 
 	public AppLayerConfiguration getAppLayerConfiguration() {
 		return appLayerConfiguration;
+	}
+
+	public MetadataPopulatorPluginFactory getMetadataPopulatorPluginFactory() {
+		return metadataPopulatorPluginFactory;
 	}
 }

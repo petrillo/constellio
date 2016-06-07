@@ -14,10 +14,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import com.constellio.model.services.records.extractions.DefaultMetadataPopulator;
-import com.constellio.model.services.records.extractions.MetadataPopulator;
-import com.constellio.model.services.records.extractions.MetadataToText;
-import com.constellio.model.services.records.extractions.RegexExtractor;
+import com.constellio.model.services.records.extractions.populator.DefaultMetadataPopulator;
+import com.constellio.model.services.records.extractions.populator.MetadataPopulator;
+import com.constellio.model.services.records.extractions.populator.plugin.MetadataToText;
+import com.constellio.model.services.records.extractions.populator.plugin.regexPopulatorPlugin.RegexExtractor;
 import org.junit.Before;
 import org.junit.Test;
 

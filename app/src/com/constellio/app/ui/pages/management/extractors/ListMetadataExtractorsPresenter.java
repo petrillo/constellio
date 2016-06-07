@@ -1,9 +1,7 @@
 package com.constellio.app.ui.pages.management.extractors;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.constellio.app.ui.entities.MetadataExtractorVO;
+import com.constellio.app.ui.pages.management.extractors.fields.MetadataExtractorVO;
+import com.constellio.app.ui.pages.management.extractors.plugin.MetadataPopulatorToVOBuilder;
 import com.constellio.app.ui.entities.MetadataSchemaVO;
 import com.constellio.app.ui.entities.MetadataVO;
 import com.constellio.app.ui.entities.RecordVO.VIEW_MODE;
@@ -13,33 +11,37 @@ import com.constellio.app.ui.pages.base.BasePresenter;
 import com.constellio.app.ui.pages.base.SessionContext;
 import com.constellio.model.entities.CorePermissions;
 import com.constellio.model.entities.records.wrappers.User;
-import com.constellio.model.entities.schemas.Metadata;
-import com.constellio.model.entities.schemas.MetadataPopulateConfigs;
-import com.constellio.model.entities.schemas.MetadataSchema;
-import com.constellio.model.entities.schemas.MetadataSchemaType;
-import com.constellio.model.entities.schemas.MetadataSchemaTypes;
+import com.constellio.model.entities.schemas.*;
+import com.constellio.model.services.records.extractions.populator.MetadataPopulator;
 import com.constellio.model.services.schemas.MetadataSchemaTypesAlteration;
 import com.constellio.model.services.schemas.MetadataSchemasManager;
 import com.constellio.model.services.schemas.builders.MetadataBuilder;
 import com.constellio.model.services.schemas.builders.MetadataSchemaTypesBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class ListMetadataExtractorsPresenter extends BasePresenter<ListMetadataExtractorsView> {
 
 	private MetadataToVOBuilder metadataToVOBuilder;
 
 	private MetadataSchemaToVOBuilder metadataSchemaToVOBuilder;
+	private final Map<Class<? extends MetadataPopulator>, MetadataPopulatorToVOBuilder> metadataPopulatorToVoBuilders;
 
 	public ListMetadataExtractorsPresenter(ListMetadataExtractorsView view) {
 		super(view);
 
 		metadataToVOBuilder = new MetadataToVOBuilder();
 		metadataSchemaToVOBuilder = new MetadataSchemaToVOBuilder();
+		metadataPopulatorToVoBuilders = appLayerFactory.getMetadataPopulatorPluginFactory().getMetadataPopulatorToVoBuilders();
 
 		SessionContext sessionContext = view.getSessionContext();
 
 		MetadataSchemaTypes types = types();
 		List<MetadataExtractorVO> metadataExtractorVOs = getMetadataExtractorVOs(sessionContext, types);
 		view.setMetadataExtractorVOs(metadataExtractorVOs);
+
 	}
 
 	List<MetadataExtractorVO> getMetadataExtractorVOs(SessionContext sessionContext, MetadataSchemaTypes types) {
@@ -50,7 +52,7 @@ public class ListMetadataExtractorsPresenter extends BasePresenter<ListMetadataE
 			MetadataSchemaVO schemaVO = metadataSchemaToVOBuilder.build(schema, VIEW_MODE.TABLE, sessionContext);
 			MetadataVO metadataVO = metadataToVOBuilder.build(metadata, schemaVO, sessionContext);
 			MetadataPopulateConfigs metadataPopulateConfigs = metadata.getPopulateConfigs();
-			metadataExtractorVOs.add(new MetadataExtractorVO(metadataVO, metadataPopulateConfigs));
+			metadataExtractorVOs.add(new MetadataExtractorVO(metadataVO, metadataPopulateConfigs, metadataPopulatorToVoBuilders));
 		}
 		return metadataExtractorVOs;
 	}

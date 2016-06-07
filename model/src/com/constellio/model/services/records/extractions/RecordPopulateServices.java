@@ -5,6 +5,7 @@ import static com.constellio.model.entities.schemas.MetadataValueType.CONTENT;
 import java.util.*;
 import java.util.regex.Matcher;
 
+import com.constellio.model.services.records.extractions.populator.MetadataPopulator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
