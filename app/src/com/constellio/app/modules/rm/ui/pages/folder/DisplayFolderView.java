@@ -66,4 +66,6 @@ public interface DisplayFolderView extends BaseView, RecordsManagementViewGroup 
 
 	void downloadContentVersion(RecordVO recordVO, ContentVersionVO contentVersionVO);
 
+	void setTaxonomyCode(String taxonomyCode);
+
 }

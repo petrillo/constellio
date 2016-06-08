@@ -86,6 +86,7 @@ public class DisplayFolderViewImpl extends BaseViewImpl implements DisplayFolder
 	public static final String STYLE_NAME = "display-folder";
 	public static final String USER_LOOKUP = "user-lookup";
 	private RecordVO recordVO;
+	private String taxonomyCode;
 	private VerticalLayout mainLayout;
 	private ContentVersionUploadField uploadField;
 	private TabSheet tabSheet;
@@ -178,7 +179,7 @@ public class DisplayFolderViewImpl extends BaseViewImpl implements DisplayFolder
 
 	@Override
 	protected BaseBreadcrumbTrail buildBreadcrumbTrail() {
-		return new FolderDocumentBreadcrumbTrail(recordVO.getId());
+		return new FolderDocumentBreadcrumbTrail(recordVO.getId(), taxonomyCode);
 	}
 
 	@Override
@@ -799,6 +800,11 @@ public class DisplayFolderViewImpl extends BaseViewImpl implements DisplayFolder
 		ContentVersionVOResource contentVersionResource = new ContentVersionVOResource(contentVersionVO);
 		Resource downloadedResource = DownloadLink.wrapForDownload(contentVersionResource);
 		Page.getCurrent().open(downloadedResource, null, false);
+	}
+
+	@Override
+	public void setTaxonomyCode(String taxonomyCode) {
+		this.taxonomyCode = taxonomyCode;
 	}
 
 	private class StartWorkflowButton extends WindowButton {
