@@ -13,13 +13,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import com.constellio.app.ui.entities.MetadataSchemaVO;
-import com.constellio.app.ui.framework.builders.MetadataSchemaToVOBuilder;
-import com.constellio.app.ui.framework.builders.RecordToVOBuilder;
-import com.constellio.app.ui.framework.data.RecordVODataProvider;
-import com.constellio.model.entities.records.Transaction;
-import com.constellio.model.entities.schemas.*;
-import com.constellio.model.services.search.query.logical.LogicalSearchQuery;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +61,7 @@ import com.constellio.model.entities.schemas.Schemas;
 import com.constellio.model.entities.schemas.entries.DataEntryType;
 import com.constellio.model.services.batch.actions.ChangeValueOfMetadataBatchProcessAction;
 import com.constellio.model.services.batch.manager.BatchProcessesManager;
+import com.constellio.model.services.migrations.ConstellioEIMConfigs;
 import com.constellio.model.services.records.RecordServicesException;
 import com.constellio.model.services.reports.ReportServices;
 import com.constellio.model.services.search.query.logical.LogicalSearchQuery;
@@ -120,6 +114,7 @@ public class AdvancedSearchPresenter extends SearchPresenter<AdvancedSearchView>
 		schemaTypeCode = search.getSchemaFilter();
 		pageNumber = search.getPageNumber();
 		resultsViewMode = search.getResultsViewMode() != null ? search.getResultsViewMode():SearchResultsViewMode.DETAILED;
+		setSelectedPageLength(search.getPageLength());
 
 		view.setSchemaType(schemaTypeCode);
 		view.setSearchExpression(searchExpression);
@@ -406,7 +401,8 @@ public class AdvancedSearchPresenter extends SearchPresenter<AdvancedSearchView>
 				.setFreeTextSearch(searchExpression)
 				.setAdvancedSearch(view.getSearchCriteria())
 				.setPageNumber(pageNumber)
-				.setResultsViewMode(resultsViewMode);
+				.setResultsViewMode(resultsViewMode)
+				.setPageLength(selectedPageLength);
 		try {
 			recordServices().update(search);
 			if(refreshPage) {
@@ -477,5 +473,9 @@ public class AdvancedSearchPresenter extends SearchPresenter<AdvancedSearchView>
 	public void switchToDetailedView() {
 		resultsViewMode = SearchResultsViewMode.DETAILED;
 		saveTemporarySearch(true);
+	}
+
+	public int getMaxSelectableResults() {
+		return modelLayerFactory.getSystemConfigurationsManager().getValue(ConstellioEIMConfigs.MAX_SELECTABLE_SEARCH_RESULTS);
 	}
 }

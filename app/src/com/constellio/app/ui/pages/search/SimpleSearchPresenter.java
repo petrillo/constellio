@@ -35,7 +35,6 @@ public class SimpleSearchPresenter extends SearchPresenter<SimpleSearchView> {
 	public SimpleSearchPresenter forRequestParameters(String params) {
 		if (StringUtils.isNotBlank(params)) {
 			String[] parts = params.split("/", 3);
-			pageNumber = parts.length == 3 ? Integer.parseInt(parts[2]) : 1;
 			if ("s".equals(parts[0])) {
 				searchID = parts[1];
 				SavedSearch search = getSavedSearch(searchID);
@@ -58,7 +57,8 @@ public class SimpleSearchPresenter extends SearchPresenter<SimpleSearchView> {
 		sortCriterion = search.getSortField();
 		sortOrder = SortOrder.valueOf(search.getSortOrder().name());
 		pageNumber = search.getPageNumber();
-		resultsViewMode = search.getResultsViewMode() != null ? search.getResultsViewMode():SearchResultsViewMode.DETAILED;
+		resultsViewMode = search.getResultsViewMode() != null ? search.getResultsViewMode() : SearchResultsViewMode.DETAILED;
+		setSelectedPageLength(search.getPageLength());
 	}
 
 	@Override
@@ -189,7 +189,8 @@ public class SimpleSearchPresenter extends SearchPresenter<SimpleSearchView> {
 				.setTemporary(true)
 				.setSearchType(SimpleSearchView.SEARCH_TYPE)
 				.setFreeTextSearch(searchExpression)
-				.setPageNumber(pageNumber);
+				.setPageNumber(pageNumber)
+				.setPageLength(selectedPageLength);
 		try {
 			recordServices().update(search);
 			if (refreshPage) {

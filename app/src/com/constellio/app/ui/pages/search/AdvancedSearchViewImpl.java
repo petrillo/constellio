@@ -181,9 +181,9 @@ public class AdvancedSearchViewImpl extends SearchViewImpl<AdvancedSearchPresent
 	}
 
 	@Override
-	SearchResultTable buildResultTable() {
+	protected SearchResultTable buildResultTable() {
 		// TODO Table should take all space, since facets and sort are hidden.
-		if(presenter.getResultsViewMode().equals(SearchResultsViewMode.TABLE)) {
+		if (presenter.getResultsViewMode().equals(SearchResultsViewMode.TABLE)) {
 			return buildSimpleResultsTable();
 		} else {
 			return buildDetailedResultsTable();
@@ -191,8 +191,9 @@ public class AdvancedSearchViewImpl extends SearchViewImpl<AdvancedSearchPresent
 	}
 
 	private SearchResultTable buildSimpleResultsTable() {
+		int maxSelectableResults = presenter.getMaxSelectableResults();
 		final RecordVOLazyContainer container = new RecordVOLazyContainer(presenter.getSearchResultsAsRecordVOs());
-		SearchResultSimpleTable table = new SearchResultSimpleTable(container);
+		SearchResultSimpleTable table = new SearchResultSimpleTable(container, maxSelectableResults);
 		table.setWidth("100%");
 		return table;
 	}
