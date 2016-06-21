@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.constellio.app.ui.framework.buttons.*;
-import com.constellio.app.ui.framework.components.fields.BaseTextField;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,12 +21,23 @@ import com.constellio.app.modules.rm.ui.entities.DocumentVO;
 import com.constellio.app.modules.rm.wrappers.Document;
 import com.constellio.app.ui.entities.ContentVersionVO;
 import com.constellio.app.ui.entities.RecordVO;
+import com.constellio.app.ui.framework.buttons.AddButton;
+import com.constellio.app.ui.framework.buttons.BaseButton;
+import com.constellio.app.ui.framework.buttons.DeleteWithJustificationButton;
+import com.constellio.app.ui.framework.buttons.DisplayButton;
+import com.constellio.app.ui.framework.buttons.DownloadLink;
+import com.constellio.app.ui.framework.buttons.EditButton;
+import com.constellio.app.ui.framework.buttons.IconButton;
+import com.constellio.app.ui.framework.buttons.LabelsButton;
 import com.constellio.app.ui.framework.buttons.LabelsButton.RecordSelector;
+import com.constellio.app.ui.framework.buttons.LinkButton;
+import com.constellio.app.ui.framework.buttons.WindowButton;
 import com.constellio.app.ui.framework.components.BaseWindow;
 import com.constellio.app.ui.framework.components.ComponentState;
 import com.constellio.app.ui.framework.components.RecordDisplay;
 import com.constellio.app.ui.framework.components.breadcrumb.BaseBreadcrumbTrail;
 import com.constellio.app.ui.framework.components.content.ContentVersionVOResource;
+import com.constellio.app.ui.framework.components.fields.BaseTextField;
 import com.constellio.app.ui.framework.components.fields.date.JodaDateField;
 import com.constellio.app.ui.framework.components.fields.lookup.LookupRecordField;
 import com.constellio.app.ui.framework.components.fields.upload.ContentVersionUploadField;
@@ -72,13 +81,13 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
-import ucar.nc2.grib.TimeCoordUnion;
 
 public class DisplayFolderViewImpl extends BaseViewImpl implements DisplayFolderView, DropHandler {
 	private final static Logger LOGGER = LoggerFactory.getLogger(DisplayFolderViewImpl.class);
 	public static final String STYLE_NAME = "display-folder";
 	public static final String USER_LOOKUP = "user-lookup";
 	private RecordVO recordVO;
+	private String taxonomyCode;
 	private VerticalLayout mainLayout;
 	private ContentVersionUploadField uploadField;
 	private TabSheet tabSheet;
@@ -171,7 +180,7 @@ public class DisplayFolderViewImpl extends BaseViewImpl implements DisplayFolder
 
 	@Override
 	protected BaseBreadcrumbTrail buildBreadcrumbTrail() {
-		return new FolderDocumentBreadcrumbTrail(recordVO.getId());
+		return new FolderDocumentBreadcrumbTrail(recordVO.getId(), taxonomyCode);
 	}
 
 	@Override
@@ -313,22 +322,7 @@ public class DisplayFolderViewImpl extends BaseViewImpl implements DisplayFolder
 			}
 		};
 
-		/* TODO Change addtoCart button to a WindowButton
-			The popup should contain a tab sheet with two tabs:
-				- Owned carts
-				- Carts shared with me (added when carts are sharable)
-			Each tab should contain a record table, each having a click listener
-			to call the presenter's "addToCartRequested" method with the proper ID
-			as a parameter.
-		 */
 		addToCartButton = buildAddToCartButton();
-
-//		addToCartButton = new LinkButton($("DisplayFolderView.addToCart")) {
-//			@Override
-//			protected void buttonClick(ClickEvent event) {
-//				presenter.addToCartRequested();
-//			}
-//		};
 
 		Factory<List<LabelTemplate>> labelTemplatesFactory = new Factory<List<LabelTemplate>>() {
 			@Override
@@ -393,7 +387,7 @@ public class DisplayFolderViewImpl extends BaseViewImpl implements DisplayFolder
 
 				HorizontalLayout newCartLayout = new HorizontalLayout();
 				newCartLayout.setSpacing(true);
-				newCartLayout.addComponent(new Label("New cart: "));
+				newCartLayout.addComponent(new Label($("CartView.newCart")));
 				final BaseTextField newCartTitleField;
 				newCartLayout.addComponent(newCartTitleField = new BaseTextField());
 				BaseButton saveButton;
@@ -857,6 +851,11 @@ public class DisplayFolderViewImpl extends BaseViewImpl implements DisplayFolder
 		ContentVersionVOResource contentVersionResource = new ContentVersionVOResource(contentVersionVO);
 		Resource downloadedResource = DownloadLink.wrapForDownload(contentVersionResource);
 		Page.getCurrent().open(downloadedResource, null, false);
+	}
+
+	@Override
+	public void setTaxonomyCode(String taxonomyCode) {
+		this.taxonomyCode = taxonomyCode;
 	}
 
 	private class StartWorkflowButton extends WindowButton {

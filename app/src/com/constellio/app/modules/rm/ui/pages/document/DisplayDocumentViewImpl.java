@@ -1,6 +1,18 @@
 package com.constellio.app.modules.rm.ui.pages.document;
 
 import com.constellio.app.modules.rm.navigation.RMViews;
+import static com.constellio.app.ui.framework.buttons.WindowButton.WindowConfiguration.modalDialog;
+import static com.constellio.app.ui.i18n.i18n.$;
+
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.apache.commons.lang3.StringUtils;
+import org.vaadin.dialogs.ConfirmDialog;
+
 import com.constellio.app.modules.rm.ui.components.RMMetadataDisplayFactory;
 import com.constellio.app.modules.rm.ui.components.breadcrumb.FolderDocumentBreadcrumbTrail;
 import com.constellio.app.modules.rm.ui.entities.DocumentVO;
@@ -24,6 +36,7 @@ import com.constellio.app.ui.framework.components.table.RecordVOTable;
 import com.constellio.app.ui.framework.components.viewers.ContentViewer;
 import com.constellio.app.ui.framework.containers.RecordVOLazyContainer;
 import com.constellio.app.ui.framework.data.RecordVODataProvider;
+import com.constellio.app.ui.framework.decorators.tabs.TabSheetDecorator;
 import com.constellio.app.ui.framework.items.RecordVOItem;
 import com.constellio.app.ui.pages.base.BaseViewImpl;
 import com.constellio.app.ui.util.FileIconUtils;
@@ -67,6 +80,7 @@ public class DisplayDocumentViewImpl extends BaseViewImpl implements DisplayDocu
 	private VerticalLayout mainLayout;
 	private Label borrowedLabel;
 	private DocumentVO documentVO;
+	private String taxonomyCode;
 	private TabSheet tabSheet;
 	private ContentViewer contentViewer;
 	private RecordDisplay recordDisplay;
@@ -85,6 +99,8 @@ public class DisplayDocumentViewImpl extends BaseViewImpl implements DisplayDocu
 	private Button linkToDocumentButton, addAuthorizationButton, uploadButton, checkInButton, checkOutButton, finalizeButton,
 			shareDocumentButton, createPDFAButton, alertWhenAvailableButton, addToCartButton, publishButton, unpublishButton,
 			publicLinkButton;
+
+	private List<TabSheetDecorator> tabSheetDecorators = new ArrayList<>();
 
 	private DisplayDocumentPresenter presenter;
 	private Map<FolderVO, Double> suggestedFolderVOs;
@@ -169,6 +185,11 @@ public class DisplayDocumentViewImpl extends BaseViewImpl implements DisplayDocu
 		tabSheet.addTab(similarDocumentsLayout, $("DisplayDocumentView.tabs.similarDocuments"));
 
 		mainLayout.addComponents(borrowedLabel, contentViewer, tabSheet);
+
+		for (TabSheetDecorator tabSheetDecorator : tabSheetDecorators) {
+			tabSheetDecorator.decorate(this, tabSheet);
+		}
+
 		return mainLayout;
 	}
 
@@ -342,7 +363,7 @@ public class DisplayDocumentViewImpl extends BaseViewImpl implements DisplayDocu
 
 	@Override
 	protected BaseBreadcrumbTrail buildBreadcrumbTrail() {
-		return new FolderDocumentBreadcrumbTrail(documentVO.getId());
+		return new FolderDocumentBreadcrumbTrail(documentVO.getId(), taxonomyCode);
 	}
 
 	@Override
@@ -628,7 +649,7 @@ public class DisplayDocumentViewImpl extends BaseViewImpl implements DisplayDocu
 
 				HorizontalLayout newCartLayout = new HorizontalLayout();
 				newCartLayout.setSpacing(true);
-				newCartLayout.addComponent(new Label("New cart: "));
+				newCartLayout.addComponent(new Label($("CartView.newCart")));
 				final BaseTextField newCartTitleField;
 				newCartLayout.addComponent(newCartTitleField = new BaseTextField());
 				BaseButton saveButton;
@@ -815,10 +836,30 @@ public class DisplayDocumentViewImpl extends BaseViewImpl implements DisplayDocu
 		}
 	}
 
-
 	@Override
 	public void openAgentURL(String agentURL) {
 		Page.getCurrent().open(agentURL, null);
+	}
+
+	@Override
+	public void setTaxonomyCode(String taxonomyCode) {
+		this.taxonomyCode = taxonomyCode;
+	}
+
+	public void addTabSheetDecorator(TabSheetDecorator decorator) {
+		this.tabSheetDecorators.add(decorator);
+	}
+
+	public List<TabSheetDecorator> getTabSheetDecorators() {
+		return this.tabSheetDecorators;
+	}
+
+	public void removeTabSheetDecorator(TabSheetDecorator decorator) {
+		this.tabSheetDecorators.remove(decorator);
+	}
+
+	public DocumentVO getDocumentVO() {
+		return documentVO;
 	}
 
 	private class StartWorkflowButton extends WindowButton {

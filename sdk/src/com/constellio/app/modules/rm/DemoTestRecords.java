@@ -29,6 +29,7 @@ import com.constellio.app.modules.rm.services.logging.DecommissioningLoggingServ
 import com.constellio.app.modules.rm.wrappers.DecommissioningList;
 import com.constellio.app.modules.rm.wrappers.Document;
 import com.constellio.app.modules.rm.wrappers.structures.DecomListFolderDetail;
+import com.constellio.app.services.factories.AppLayerFactory;
 import com.constellio.model.entities.batchprocess.BatchProcess;
 import com.constellio.model.entities.records.Content;
 import com.constellio.model.entities.records.Transaction;
@@ -287,6 +288,8 @@ public class DemoTestRecords {
 
 	private ModelLayerFactory modelLayerFactory;
 
+	private AppLayerFactory appLayerFactory;
+
 	private RecordServices recordServices;
 
 	private LoggingServices loggingServices;
@@ -354,7 +357,7 @@ public class DemoTestRecords {
 		edouard_managerInB_userInC = users.edouardIn(collection).getId();
 		gandalf_managerInABC = users.gandalfIn(collection).getId();
 		chuckNorris = users.chuckNorrisIn(collection).getId();
-		schemas = new RMSchemasRecordsServices(collection, modelLayerFactory);
+		schemas = new RMSchemasRecordsServices(collection, appLayerFactory);
 		recordServices = modelLayerFactory.newRecordServices();
 		loggingServices = modelLayerFactory.newLoggingServices();
 		decommissioningLoggingService = new DecommissioningLoggingService(modelLayerFactory);

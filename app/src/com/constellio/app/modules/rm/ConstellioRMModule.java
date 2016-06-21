@@ -7,8 +7,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.constellio.app.entities.modules.ComboMigrationScript;
 import com.constellio.app.entities.modules.InstallableSystemModule;
 import com.constellio.app.entities.modules.MigrationScript;
+import com.constellio.app.entities.modules.ModuleWithComboMigration;
 import com.constellio.app.entities.navigation.NavigationConfig;
 import com.constellio.app.extensions.AppLayerCollectionExtensions;
 import com.constellio.app.modules.rm.constants.RMPermissionsTo;
@@ -77,7 +79,7 @@ import com.constellio.model.services.records.RecordServicesException;
 import com.constellio.model.services.records.cache.CacheConfig;
 import com.constellio.model.services.records.cache.RecordsCache;
 
-public class ConstellioRMModule implements InstallableSystemModule {
+public class ConstellioRMModule implements InstallableSystemModule, ModuleWithComboMigration {
 	public static final String ID = "rm";
 	public static final String NAME = "Constellio RM";
 
@@ -123,8 +125,14 @@ public class ConstellioRMModule implements InstallableSystemModule {
 				new RMMigrationTo6_2(),
 				new RMMigrationTo6_2_0_7(),
 				new RMMigrationTo6_3(),
-				new RMMigrationTo6_4()
+				new RMMigrationTo6_4(),
+				new RMMigrationTo6_5()
 		);
+	}
+
+	@Override
+	public ComboMigrationScript getComboMigrationScript() {
+		return new RMMigrationCombo();
 	}
 
 	@Override
@@ -169,7 +177,7 @@ public class ConstellioRMModule implements InstallableSystemModule {
 
 	@Override
 	public void addDemoData(String collection, AppLayerFactory appLayerFactory) {
-		RMSchemasRecordsServices rm = new RMSchemasRecordsServices(collection, appLayerFactory.getModelLayerFactory());
+		RMSchemasRecordsServices rm = new RMSchemasRecordsServices(collection, appLayerFactory);
 		Transaction transaction = new Transaction();
 
 		AdministrativeUnit adminUnit = rm.newAdministrativeUnit().setCode("1").setTitle($("RMDemoData.adminUnit"));
@@ -246,17 +254,17 @@ public class ConstellioRMModule implements InstallableSystemModule {
 		if (cache.isConfigured(AdministrativeUnit.SCHEMA_TYPE)) {
 			cache.removeCache(AdministrativeUnit.SCHEMA_TYPE);
 		}
-		cache.configureCache(CacheConfig.permanentCache(rm.administrativeUnitSchemaType()));
+		cache.configureCache(CacheConfig.permanentCache(rm.administrativeUnit.schemaType()));
 
 		if (cache.isConfigured(Category.SCHEMA_TYPE)) {
 			cache.removeCache(Category.SCHEMA_TYPE);
 		}
-		cache.configureCache(CacheConfig.permanentCache(rm.categorySchemaType()));
+		cache.configureCache(CacheConfig.permanentCache(rm.category.schemaType()));
 
-		cache.configureCache(CacheConfig.permanentCache(rm.retentionRuleSchemaType()));
-		cache.configureCache(CacheConfig.permanentCache(rm.uniformSubdivisionSchemaType()));
-		cache.configureCache(CacheConfig.permanentCache(rm.containerRecordSchemaType()));
-		cache.configureCache(CacheConfig.volatileCache(rm.folderSchemaType(), 10000));
+		cache.configureCache(CacheConfig.permanentCache(rm.retentionRule.schemaType()));
+		cache.configureCache(CacheConfig.permanentCache(rm.uniformSubdivision.schemaType()));
+		cache.configureCache(CacheConfig.permanentCache(rm.containerRecord.schemaType()));
+		cache.configureCache(CacheConfig.volatileCache(rm.folder.schemaType(), 10000));
 		cache.configureCache(CacheConfig.volatileCache(rm.documentSchemaType(), 100));
 	}
 

@@ -88,6 +88,10 @@ public class AuthorizationBuilder {
 		return withRoles(asList(roles));
 	}
 
+	public Authorization giving(List<String> roles) {
+		return withRoles(roles);
+	}
+
 	public Authorization giving(Role... roles) {
 		List<String> rolesCodes = new ArrayList<>();
 		for (Role role : roles) {

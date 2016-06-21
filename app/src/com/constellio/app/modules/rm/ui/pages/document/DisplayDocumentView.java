@@ -21,6 +21,9 @@ public interface DisplayDocumentView extends BaseView, RecordsManagementViewGrou
 
 	void setPublishButtons(boolean published);
 
+	void setTaxonomyCode(String taxonomyCode);
+
+
 	void setSimilarDocumentsLayout(Map<DocumentVO, Double> similarDocumentsVOs);
 
 	void setSuggestedFolders(Map<FolderVO, Double> suggestedFolderVOs);

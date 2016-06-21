@@ -1,8 +1,8 @@
 package com.constellio.app.modules.es.migrations;
 
 import static com.constellio.app.modules.es.model.connectors.smb.ConnectorSmbInstance.SKIP_SHARE_ACCESS_CONTROL;
+import static java.util.Arrays.asList;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import com.constellio.app.entities.modules.MetadataSchemasAlterationHelper;
@@ -41,13 +41,9 @@ public class ESMigrationTo6_1 extends MigrationHelper implements MigrationScript
 	private void updateFormAndDisplay(String collection, AppLayerFactory appLayerFactory) {
 		SchemasDisplayManager manager = appLayerFactory.getMetadataSchemasDisplayManager();
 
-		Language language = migrationResourcesProvider.getLanguage();
-		Map<String, Map<Language, String>> groups = new HashMap<>();
-		Map<Language, String> labels = new HashMap<>();
+		String advancedTab = "connectors.advanced";
 
-		String advancedTab = migrationResourcesProvider.get("connectors.advanced");
-		labels.put(language, advancedTab);
-		groups.put("connectors.advanced", labels);
+		Map<String, Map<Language, String>> groups = migrationResourcesProvider.getLanguageMap(asList(advancedTab));
 
 		SchemaTypesDisplayTransactionBuilder transaction = manager.newTransactionBuilderFor(collection);
 		transaction.add(manager.getType(collection, ConnectorInstance.SCHEMA_TYPE).withNewMetadataGroup(groups));

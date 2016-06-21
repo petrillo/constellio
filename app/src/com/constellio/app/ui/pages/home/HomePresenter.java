@@ -11,6 +11,7 @@ import com.constellio.app.entities.navigation.NavigationItem;
 import com.constellio.app.entities.navigation.PageItem;
 import com.constellio.app.modules.es.model.connectors.smb.ConnectorSmbDocument;
 import com.constellio.app.modules.rm.navigation.RMViews;
+import com.constellio.app.modules.rm.ui.components.breadcrumb.FolderDocumentBreadcrumbTrail;
 import com.constellio.app.modules.rm.ui.util.ConstellioAgentUtils;
 import com.constellio.app.modules.rm.wrappers.ContainerRecord;
 import com.constellio.app.modules.rm.wrappers.Document;
@@ -50,8 +51,12 @@ public class HomePresenter extends BasePresenter<HomeView> {
 	public String getDefaultTab() {
 		return getCurrentUser().getStartTab();
 	}
+	
+	public void tabSelected(String tabCode) {
+		currentTab = tabCode;
+	}
 
-	public void recordClicked(String id) {
+	public void recordClicked(String id, String taxonomyCode) {
 		if (id != null && !id.startsWith("dummy")) {
 			SchemasRecordsServices schemas = new SchemasRecordsServices(collection, modelLayerFactory);
 			try {
@@ -59,8 +64,10 @@ public class HomePresenter extends BasePresenter<HomeView> {
 				String schemaCode = record.getSchemaCode();
 				String schemaTypeCode = new SchemaUtils().getSchemaTypeCode(schemaCode);
 				if (Folder.SCHEMA_TYPE.equals(schemaTypeCode)) {
+					view.getUIContext().setAttribute(FolderDocumentBreadcrumbTrail.TAXONOMY_CODE, taxonomyCode);
 					view.navigate().to(RMViews.class).displayFolder(id);
 				} else if (Document.SCHEMA_TYPE.equals(schemaTypeCode)) {
+					view.getUIContext().setAttribute(FolderDocumentBreadcrumbTrail.TAXONOMY_CODE, taxonomyCode);
 					view.navigate().to(RMViews.class).displayDocument(id);
 				} else if (ContainerRecord.SCHEMA_TYPE.equals(schemaTypeCode)) {
 					view.navigate().to(RMViews.class).displayContainer(id);
