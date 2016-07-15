@@ -71,7 +71,11 @@ public class LDAPConfigManagementPresenter extends
 			String user, String password) {
 		LDAPServices ldapServices = LDAPServicesFactory.newLDAPServices(ldapServerConfiguration.getDirectoryType());
 		try {
-			ldapServices.authenticateUser(ldapServerConfiguration, user, password);
+			if (LDAPDirectoryType.AZURE_AD.equals(ldapServerConfiguration.getDirectoryType())) {
+
+			} else {
+				ldapServices.testLdapConnection(ldapServerConfiguration, user, password);
+			}
 			return $("ldap.authentication.success");
 		} catch (CouldNotConnectUserToLDAP e) {
 			LOGGER.warn("Error when trying to authenticate user " + user);
@@ -113,12 +117,12 @@ public class LDAPConfigManagementPresenter extends
 
 	public void typeChanged(LDAPDirectoryType previousDirectoryType, LDAPDirectoryType newValue) {
 		switch (previousDirectoryType) {
-		case AZUR_AD:
+		case AZURE_AD:
 			view.updateComponents();
 			break;
 		case ACTIVE_DIRECTORY:
 		case E_DIRECTORY:
-			if (newValue == LDAPDirectoryType.AZUR_AD) {
+			if (newValue == LDAPDirectoryType.AZURE_AD) {
 				view.updateComponents();
 			}
 			break;

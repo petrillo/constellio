@@ -108,7 +108,7 @@ public class UserGroupAndModifyProfilePageWithLDAPAcceptTest extends ConstellioT
 		driver.snapshot("1");
 		navigatoToListUserCredentialPage();
 		driver.snapshot("2");
-		assertThat(ldapConfigurationManager.idUsersSynchActivated()).isFalse();
+		assertThat(ldapConfigurationManager.idUsersSyncActivated()).isFalse();
 		assertThat(ldapConfigurationManager.isLDAPAuthentication()).isTrue();
 		givenListUserCredentialsPageThenCanAddUser();
 		givenAddPageWhenAddUserThenAddUserWithoutPassword(1);
@@ -129,7 +129,7 @@ public class UserGroupAndModifyProfilePageWithLDAPAcceptTest extends ConstellioT
 			throws Exception {
 		navigatoToListUserCredentialPage();
 
-		assertThat(ldapConfigurationManager.idUsersSynchActivated()).isFalse();
+		assertThat(ldapConfigurationManager.idUsersSyncActivated()).isFalse();
 		assertThat(ldapConfigurationManager.isLDAPAuthentication()).isTrue();
 		givenListUserCredentialsPageThenCanAddUser();
 		givenAddPageWhenAddUserThenAddUserWithoutPassword(2);
@@ -150,7 +150,7 @@ public class UserGroupAndModifyProfilePageWithLDAPAcceptTest extends ConstellioT
 
 		navigatoToListUserCredentialPage();
 
-		assertThat(ldapConfigurationManager.idUsersSynchActivated()).isTrue();
+		assertThat(ldapConfigurationManager.idUsersSyncActivated()).isTrue();
 		assertThat(ldapConfigurationManager.isLDAPAuthentication()).isTrue();
 		givenListUserCredentialsPageThenCannotAddUser();
 		givenListUserCredentialsPageWhenSearchForAdministratorThenCannotEdit();
@@ -168,7 +168,7 @@ public class UserGroupAndModifyProfilePageWithLDAPAcceptTest extends ConstellioT
 
 		navigatoToListUserCredentialPage();
 
-		assertThat(ldapConfigurationManager.idUsersSynchActivated()).isTrue();
+		assertThat(ldapConfigurationManager.idUsersSyncActivated()).isTrue();
 		assertThat(ldapConfigurationManager.isLDAPAuthentication()).isTrue();
 		givenListUserCredentialsPageThenCannotAddUser();
 		givenListUserCredentialsPageWhenSearchForAdministratorThenCannotEdit();

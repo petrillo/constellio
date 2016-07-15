@@ -3,9 +3,7 @@ package com.constellio.model.conf.ldap.services;
 import javax.naming.NamingException;
 
 import com.constellio.model.conf.ldap.LDAPDirectoryType;
-import com.constellio.model.conf.ldap.user.ADUserBuilder;
-import com.constellio.model.conf.ldap.user.EdirectoryUserBuilder;
-import com.constellio.model.conf.ldap.user.LDAPUserBuilder;
+import com.constellio.model.conf.ldap.user.*;
 
 public class LDAPUserBuilderFactory {
 

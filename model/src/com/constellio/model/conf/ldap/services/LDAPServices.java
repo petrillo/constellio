@@ -11,6 +11,10 @@ import com.constellio.model.conf.ldap.user.LDAPGroup;
 import com.constellio.model.conf.ldap.user.LDAPUser;
 
 public interface LDAPServices {
+
+	void testLdapConnection(LDAPServerConfiguration ldapServerConfiguration, String user, String password)
+			throws CouldNotConnectUserToLDAP;
+
 	void authenticateUser(LDAPServerConfiguration ldapServerConfiguration, String user, String password)
 			throws CouldNotConnectUserToLDAP;
 

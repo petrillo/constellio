@@ -14,11 +14,10 @@ import com.constellio.data.dao.managers.StatefulService;
 import com.constellio.data.dao.managers.config.ConfigManager;
 import com.constellio.data.dao.managers.config.PropertiesAlteration;
 import com.constellio.model.conf.PropertiesModelLayerConfigurationRuntimeException;
-import com.constellio.model.conf.ldap.config.ADAzurServerConfig;
-import com.constellio.model.conf.ldap.config.ADAzurUserSynchConfig;
+import com.constellio.model.conf.ldap.config.AzureADServerConfig;
+import com.constellio.model.conf.ldap.config.AzureADUserSyncConfig;
 import com.constellio.model.conf.ldap.config.LDAPServerConfiguration;
 import com.constellio.model.conf.ldap.config.LDAPUserSyncConfiguration;
-import com.constellio.model.conf.ldap.config.NonAzurAdServerConfig;
 import com.constellio.model.conf.ldap.services.LDAPServicesImpl;
 import com.constellio.model.services.encrypt.EncryptionServices;
 import com.constellio.model.services.factories.ModelLayerFactory;
@@ -82,11 +81,11 @@ public class LDAPConfigurationManager implements StatefulService {
 				} else {
 					directoryType = LDAPDirectoryType.ACTIVE_DIRECTORY;
 				}
-				if (directoryType == LDAPDirectoryType.AZUR_AD) {
+				if (directoryType == LDAPDirectoryType.AZURE_AD) {
 					properties.put("ldap.serverConfiguration.authorityUrl", ldapServerConfiguration.getAuthorityUrl());
-					properties.put("ldap.serverConfiguration.authorityTenantId", ldapServerConfiguration.getAuthorityTenantId());
+					properties.put("ldap.serverConfiguration.tenantName", ldapServerConfiguration.getTenantName());
 					properties.put("ldap.serverConfiguration.clientId", ldapServerConfiguration.getClientId());
-					properties.put("ldap.syncConfiguration.applicationKey", ldapUserSyncConfiguration.getApplicationKey());
+					properties.put("ldap.syncConfiguration.clientSecret", ldapServerConfiguration.getClientSecret());
 				} else {
 					properties.put("ldap.serverConfiguration.urls.sharpSV", joinWithSharp(ldapServerConfiguration.getUrls()));
 					properties
@@ -143,7 +142,7 @@ public class LDAPConfigurationManager implements StatefulService {
 					if (durationInMilli >= MIN_DURATION) {
 						properties.put("ldap.syncConfiguration.durationBetweenExecution",
 								format(durationInMilli) + "");
-					} else if (durationInMilli == 0l) {
+					} else if (durationInMilli == 0) {
 						properties.remove("ldap.syncConfiguration.durationBetweenExecution");
 					} else {
 						throw new TooShortDurationRuntimeException(ldapUserSyncConfiguration.getDurationBetweenExecution());
@@ -198,14 +197,14 @@ public class LDAPConfigurationManager implements StatefulService {
 		Boolean authenticationActive = configs.getLdapAuthenticationActive();
 		if (authenticationActive) {
 			LDAPDirectoryType directoryType = configs.getDirectoryType();
-			if (directoryType == LDAPDirectoryType.AZUR_AD) {
-				validateAzurConfig(configs, ldapUserSyncConfiguration);
+			if (directoryType == LDAPDirectoryType.AZURE_AD) {
+				validateAzureADConfig(configs, ldapUserSyncConfiguration);
 			} else {
 				validateADAndEDirectoryConfiguration(configs, ldapUserSyncConfiguration);
 			}
 
 			if (ldapUserSyncConfiguration.getDurationBetweenExecution() != null
-					&& ldapUserSyncConfiguration.getDurationBetweenExecution().getMillis() != 0l) {
+					&& ldapUserSyncConfiguration.getDurationBetweenExecution().getMillis() != 0) {
 				if (ldapUserSyncConfiguration.getDurationBetweenExecution().getMillis() < MIN_DURATION) {
 					throw new TooShortDurationRuntimeException(ldapUserSyncConfiguration.getDurationBetweenExecution());
 				}
@@ -237,7 +236,7 @@ public class LDAPConfigurationManager implements StatefulService {
 		}
 	}
 
-	private void validateAzurConfig(LDAPServerConfiguration configs, LDAPUserSyncConfiguration ldapUserSyncConfiguration) {
+	private void validateAzureADConfig(LDAPServerConfiguration configs, LDAPUserSyncConfiguration ldapUserSyncConfiguration) {
 		//TODO
 	}
 
@@ -247,13 +246,15 @@ public class LDAPConfigurationManager implements StatefulService {
 		LDAPDirectoryType directoryType = getLDAPDirectoryType(configs);
 		Boolean active = getBooleanValue(configs, "ldap.authentication.active", false);
 
-		if (directoryType == LDAPDirectoryType.AZUR_AD) {
+		if (directoryType == LDAPDirectoryType.AZURE_AD) {
 			String authorityUrl = getString(configs, "ldap.serverConfiguration.authorityUrl", null);
-			String authorityTanentId = getString(configs, "ldap.serverConfiguration.authorityTenantId", null);
+			String tenantName = getString(configs, "ldap.serverConfiguration.tenantName", null);
 			String clientId = getString(configs, "ldap.serverConfiguration.clientId", null);
-			ADAzurServerConfig serverConf = new ADAzurServerConfig().setAuthorityTenantId(authorityTanentId)
-					.setAuthorityUrl(authorityUrl).setClientId(clientId);
-			return new LDAPServerConfiguration(serverConf, active);
+			String clientSecret = getString(configs, "ldap.syncConfiguration.clientSecret", null);
+
+			AzureADServerConfig azureADServerConfig = new AzureADServerConfig().setTenantName(tenantName)
+					.setAuthorityUrl(authorityUrl).setClientId(clientId).setClientSecret(clientSecret);
+			return new LDAPServerConfiguration(azureADServerConfig, active);
 		} else {
 			List<String> urls = getSharpSeparatedValuesWithoutBlanks(configs, "ldap.serverConfiguration.urls.sharpSV",
 					new ArrayList<String>());
@@ -280,10 +281,9 @@ public class LDAPConfigurationManager implements StatefulService {
 		List<String> selectedCollections = getSharpSeparatedValuesWithoutBlanks(configs,
 				"ldap.syncConfiguration.selectedCollectionsCodes.sharpSV", new ArrayList<String>());
 		LDAPDirectoryType directoryType = getLDAPDirectoryType(configs);
-		if (directoryType == LDAPDirectoryType.AZUR_AD) {
-			String applicationKey = getString(configs, "ldap.syncConfiguration.applicationKey", null);
-			ADAzurUserSynchConfig azurConf = new ADAzurUserSynchConfig().setApplicationKey(applicationKey);
-			return new LDAPUserSyncConfiguration(azurConf, userFilter, groupFilter, durationBetweenExecution,
+		if (directoryType == LDAPDirectoryType.AZURE_AD) {
+			AzureADUserSyncConfig azureADUserSyncConfig = new AzureADUserSyncConfig();
+			return new LDAPUserSyncConfiguration(azureADUserSyncConfig, userFilter, groupFilter, durationBetweenExecution,
 					selectedCollections);
 		} else {
 			String user = getString(configs, "ldap.syncConfiguration.user.login", null);
@@ -333,8 +333,8 @@ public class LDAPConfigurationManager implements StatefulService {
 			return LDAPDirectoryType.ACTIVE_DIRECTORY;
 		} else if (directoryTypeString.equals(LDAPDirectoryType.E_DIRECTORY.getCode().toLowerCase())) {
 			return LDAPDirectoryType.E_DIRECTORY;
-		} else if (directoryTypeString.equals(LDAPDirectoryType.AZUR_AD.getCode().toLowerCase())) {
-			return LDAPDirectoryType.AZUR_AD;
+		} else if (directoryTypeString.equals(LDAPDirectoryType.AZURE_AD.getCode().toLowerCase())) {
+			return LDAPDirectoryType.AZURE_AD;
 		} else {
 			throw new PropertiesModelLayerConfigurationRuntimeException.PropertiesModelLayerConfigurationRuntimeException_InvalidLdapType(
 					directoryTypeString);
@@ -358,7 +358,9 @@ public class LDAPConfigurationManager implements StatefulService {
 
 	private Duration newDuration(Map<String, String> configs, String key) {
 		String durationString = getString(configs, key, null);
-		if (durationString != null) {
+		if (durationString == null) {
+			return null;
+		} else {
 			//format (\\d*d)(\\d*h)(\\d*mn) (d == day)
 			PeriodFormatter formatter = new PeriodFormatterBuilder()
 					.appendDays()
@@ -368,10 +370,9 @@ public class LDAPConfigurationManager implements StatefulService {
 					.appendMinutes()
 					.appendLiteral("mn")
 					.toFormatter();
-			Duration duration = formatter.parsePeriod(durationString).toStandardDuration();
-			return duration;
+
+			return formatter.parsePeriod(durationString).toStandardDuration();
 		}
-		return null;
 	}
 
 	private RegexFilter newRegexFilter(Map<String, String> configs, String acceptedRegexKey, String rejectedRegexKey) {
@@ -386,7 +387,7 @@ public class LDAPConfigurationManager implements StatefulService {
 		}
 	}
 
-	public Boolean idUsersSynchActivated() {
+	public Boolean idUsersSyncActivated() {
 		LDAPUserSyncConfiguration config = getLDAPUserSyncConfiguration(false);
 		return config != null && config.getDurationBetweenExecution() != null;
 	}

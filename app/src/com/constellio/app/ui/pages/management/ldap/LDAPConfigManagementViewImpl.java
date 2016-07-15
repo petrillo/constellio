@@ -6,24 +6,16 @@ import java.util.List;
 
 import com.constellio.app.ui.framework.components.StringListComponent;
 import com.constellio.model.conf.ldap.LDAPDirectoryType;
-import com.constellio.model.conf.ldap.config.ADAzurServerConfig;
-import com.constellio.model.conf.ldap.config.ADAzurUserSynchConfig;
+import com.constellio.model.conf.ldap.config.AzureADServerConfig;
+import com.constellio.model.conf.ldap.config.AzureADUserSyncConfig;
 import com.constellio.model.conf.ldap.config.LDAPServerConfiguration;
 import com.constellio.model.conf.ldap.config.LDAPUserSyncConfiguration;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.Field;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.PasswordField;
-import com.vaadin.ui.TabSheet;
-import com.vaadin.ui.TextArea;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.*;
 
 public class LDAPConfigManagementViewImpl extends LDAPConfigBaseView implements LDAPConfigManagementView {
-	private AzurAuthenticationTab azurAuthenticationTab;
-	private AzurSynchTab azurSynchTab;
+	private AzureADAuthenticationTab azureADAuthenticationTab;
+	private AzureADSyncTab azureADSyncTab;
 
 	private DefaultAuthenticationTab defaultAuthenticationTab;
 	private DefaultSynchTab defaultSynchTab;
@@ -68,8 +60,8 @@ public class LDAPConfigManagementViewImpl extends LDAPConfigBaseView implements 
 
 	@Override
 	protected String getAuthenticationPassword() {
-		if (getDirectoryType() == LDAPDirectoryType.AZUR_AD) {
-			return azurAuthenticationTab.getTestPassword();
+		if (getDirectoryType() == LDAPDirectoryType.AZURE_AD) {
+			return azureADAuthenticationTab.getTestPassword();
 		} else {
 			return defaultSynchTab.getTestPassword();
 		}
@@ -77,8 +69,8 @@ public class LDAPConfigManagementViewImpl extends LDAPConfigBaseView implements 
 
 	@Override
 	protected String getAuthenticationUser() {
-		if (getDirectoryType() == LDAPDirectoryType.AZUR_AD) {
-			return azurAuthenticationTab.getTestUser();
+		if (getDirectoryType() == LDAPDirectoryType.AZURE_AD) {
+			return azureADAuthenticationTab.getTestUser();
 		} else {
 			return defaultSynchTab.getTestUser();
 		}
@@ -87,8 +79,8 @@ public class LDAPConfigManagementViewImpl extends LDAPConfigBaseView implements 
 	protected Component createConfigTabSheet() {
 		LDAPDirectoryType directoryType = getDirectoryType();
 		switch (directoryType) {
-		case AZUR_AD:
-			return createAzureConfigTabSheet();
+		case AZURE_AD:
+			return createAzureADConfigTabSheet();
 		case ACTIVE_DIRECTORY:
 		case E_DIRECTORY:
 			return createDefaultLDAPTabSheet();
@@ -107,20 +99,20 @@ public class LDAPConfigManagementViewImpl extends LDAPConfigBaseView implements 
 		return returnTabSheet;
 	}
 
-	private TabSheet createAzureConfigTabSheet() {
+	private TabSheet createAzureADConfigTabSheet() {
 		TabSheet returnTabSheet = new TabSheet();
-		azurAuthenticationTab = new AzurAuthenticationTab();
-		returnTabSheet.addTab(azurAuthenticationTab, $("LDAPConfigManagementView.authentication"));
+		azureADAuthenticationTab = new AzureADAuthenticationTab();
+		returnTabSheet.addTab(azureADAuthenticationTab, $("LDAPConfigManagementView.authentication"));
 
-		azurSynchTab = new AzurSynchTab();
-		returnTabSheet.addTab(azurSynchTab, $("LDAPConfigManagementView.synchronisation"));
+		azureADSyncTab = new AzureADSyncTab();
+		returnTabSheet.addTab(azureADSyncTab, $("LDAPConfigManagementView.synchronisation"));
 		return returnTabSheet;
 	}
 
 	@Override
 	protected LDAPUserSyncConfiguration getLDAPUserSyncConfiguration() {
-		if (getDirectoryType() == LDAPDirectoryType.AZUR_AD) {
-			return azurSynchTab.getLDAPUserSyncConfiguration();
+		if (getDirectoryType() == LDAPDirectoryType.AZURE_AD) {
+			return azureADSyncTab.getLDAPUserSyncConfiguration();
 		} else {
 			return defaultSynchTab.getLDAPUserSyncConfiguration();
 		}
@@ -129,73 +121,83 @@ public class LDAPConfigManagementViewImpl extends LDAPConfigBaseView implements 
 	@Override
 	protected LDAPServerConfiguration getLDAPServerConfiguration() {
 		LDAPDirectoryType directoryType = getDirectoryType();
-		if (directoryType == LDAPDirectoryType.AZUR_AD) {
-			return azurAuthenticationTab.getLDAPServerConfiguration();
+		if (directoryType == LDAPDirectoryType.AZURE_AD) {
+			return azureADAuthenticationTab.getLDAPServerConfiguration();
 		} else {
 			return defaultAuthenticationTab.getLDAPServerConfiguration();
 		}
 	}
 
-	private class AzurAuthenticationTab extends VerticalLayout {
-		private Field clientId, authorityUrl, authorityTenantId;
-		private Field userField;
-		private Field passwordField;
+	private class AzureADAuthenticationTab extends VerticalLayout {
+		private Field authorityUrl;
+		private Field tenantName;
+		private Field clientId;
+		private Field clientSecret;
+        private Field userField;
+        private Field passwordField;
 
-		private AzurAuthenticationTab() {
+		private AzureADAuthenticationTab() {
 			LDAPServerConfiguration ldapServerConfiguration = presenter.getLDAPServerConfiguration();
 			setSpacing(true);
 			setSizeFull();
 
-			clientId = createStringField(ldapServerConfiguration.getClientId(), true);
-			clientId.setCaption($("LDAPConfigManagementView.clientId"));
-			addComponent(clientId);
-
 			authorityUrl = createStringField(ldapServerConfiguration.getAuthorityUrl(), true);
 			authorityUrl.setCaption($("LDAPConfigManagementView.authorityUrl"));
-			authorityTenantId = createStringField(ldapServerConfiguration.getAuthorityTenantId(), true);
-			authorityTenantId.setCaption($("LDAPConfigManagementView.authorityTenantId"));
-			HorizontalLayout authority = new HorizontalLayout(authorityUrl, authorityTenantId);
+			tenantName = createStringField(ldapServerConfiguration.getTenantName(), true);
+			tenantName.setCaption($("LDAPConfigManagementView.tenantName"));
+			HorizontalLayout authority = new HorizontalLayout(authorityUrl, tenantName);
 			addComponent(authority);
 
-			userField = new TextField($("LDAPConfigManagementView.testAuthenticationUser"));
-			addComponent(userField);
+            clientId = createStringField(ldapServerConfiguration.getClientId(), true);
+            clientId.setCaption($("LDAPConfigManagementView.clientId"));
+            clientSecret = createStringField(presenter.getLDAPServerConfiguration().getClientSecret(), true);
+            clientSecret.setCaption($("LDAPConfigManagementView.clientSecret"));
+            addComponent(new HorizontalLayout(clientId, clientSecret));
 
-			passwordField = new PasswordField($("LDAPConfigManagementView.testAuthenticationPassword"));
-			addComponent(passwordField);
+            userField = new TextField($("LDAPConfigManagementView.testAuthenticationUser"));
+            addComponent(userField);
+
+            passwordField = new PasswordField($("LDAPConfigManagementView.testAuthenticationPassword"));
+            addComponent(passwordField);
 		}
 
 		public String getAuthorityUrl() {
 			return (String) authorityUrl.getValue();
 		}
 
-		public String getAuthorityTenantId() {
-			return (String) authorityTenantId.getValue();
+		public String getTenantName() {
+			return (String) tenantName.getValue();
 		}
 
 		public String getClientId() {
 			return (String) clientId.getValue();
 		}
 
-		public String getTestUser() {
-			return (String) userField.getValue();
-		}
-
-		public String getTestPassword() {
-			return (String) passwordField.getValue();
+		public String getClientSecret() {
+			return (String) clientSecret.getValue();
 		}
 
 		public LDAPServerConfiguration getLDAPServerConfiguration() {
-			ADAzurServerConfig serverConfig = new ADAzurServerConfig()
-					.setAuthorityTenantId(azurAuthenticationTab.getAuthorityTenantId())
-					.setAuthorityUrl(azurAuthenticationTab.getAuthorityUrl()).setClientId(azurAuthenticationTab.getClientId());
+			AzureADServerConfig serverConfig = new AzureADServerConfig()
+					.setTenantName(azureADAuthenticationTab.getTenantName())
+					.setAuthorityUrl(azureADAuthenticationTab.getAuthorityUrl())
+                    .setClientId(azureADAuthenticationTab.getClientId())
+                    .setClientSecret(azureADAuthenticationTab.getClientSecret());
 			return new LDAPServerConfiguration(serverConfig, ldapAuthenticationActive.getValue());
 		}
+
+        public String getTestUser() {
+            return (String) userField.getValue();
+        }
+
+        public String getTestPassword() {
+            return (String) passwordField.getValue();
+        }
 	}
 
-	private class AzurSynchTab extends VerticalLayout {
-		Field applicationKey;
+	private class AzureADSyncTab extends VerticalLayout {
 
-		private AzurSynchTab() {
+		private AzureADSyncTab() {
 			LDAPUserSyncConfiguration ldapUserSyncConfiguration = presenter.getLDAPUserSyncConfiguration();
 			setSpacing(true);
 			setSizeFull();
@@ -204,9 +206,6 @@ public class LDAPConfigManagementViewImpl extends LDAPConfigBaseView implements 
 			addComponent(durationField);
 			buildCollectionsPanel();
 			addComponent(collectionsComponent);
-			applicationKey = createStringField(ldapUserSyncConfiguration.getApplicationKey(), true);
-			applicationKey.setCaption($("LDAPConfigManagementView.applicationKey"));
-			addComponent(applicationKey);
 			buildUsersAcceptRegex(ldapUserSyncConfiguration);
 			addComponent(usersAcceptanceRegexField);
 			buildUsersRejectRegex(ldapUserSyncConfiguration);
@@ -218,14 +217,9 @@ public class LDAPConfigManagementViewImpl extends LDAPConfigBaseView implements 
 
 		}
 
-		public String getApplicationKey() {
-			return (String) applicationKey.getValue();
-		}
-
 		public LDAPUserSyncConfiguration getLDAPUserSyncConfiguration() {
-			ADAzurUserSynchConfig azurUserSynchConfig = new ADAzurUserSynchConfig()
-					.setApplicationKey(azurSynchTab.getApplicationKey());
-			return new LDAPUserSyncConfiguration(azurUserSynchConfig, getUserFilter(), getGroupsFilter(),
+			AzureADUserSyncConfig azureADUserSyncConfig = new AzureADUserSyncConfig();
+			return new LDAPUserSyncConfiguration(azureADUserSyncConfig, getUserFilter(), getGroupsFilter(),
 					durationField.getDuration(), selectedCollections());
 		}
 	}

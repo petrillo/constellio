@@ -380,6 +380,12 @@ public class LDAPServicesImpl implements LDAPServices {
 	}
 
 	@Override
+	public void testLdapConnection(LDAPServerConfiguration ldapServerConfiguration, String user, String password)
+			throws CouldNotConnectUserToLDAP {
+		authenticateUser(ldapServerConfiguration, user, password);
+	}
+
+	@Override
 	public void authenticateUser(LDAPServerConfiguration ldapServerConfiguration, String user, String password)
 			throws CouldNotConnectUserToLDAP {
 		if(StringUtils.isBlank(password)){

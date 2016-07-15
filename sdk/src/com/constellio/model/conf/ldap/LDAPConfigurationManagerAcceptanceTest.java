@@ -11,8 +11,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.constellio.model.conf.LDAPTestConfig;
-import com.constellio.model.conf.ldap.config.ADAzurServerConfig;
-import com.constellio.model.conf.ldap.config.ADAzurUserSynchConfig;
+import com.constellio.model.conf.ldap.config.AzureADServerConfig;
+import com.constellio.model.conf.ldap.config.AzureADUserSyncConfig;
 import com.constellio.model.conf.ldap.config.LDAPServerConfiguration;
 import com.constellio.model.conf.ldap.config.LDAPUserSyncConfiguration;
 import com.constellio.sdk.tests.ConstellioTest;
@@ -20,10 +20,10 @@ import com.constellio.sdk.tests.ConstellioTest;
 public class LDAPConfigurationManagerAcceptanceTest extends ConstellioTest {
 
 	private LDAPConfigurationManager ldapConfigManager;
-	private RegexFilter azurUsersRegex = new RegexFilter("zAcceptUser", "zRejectUser"), azurGroupsRegex = new RegexFilter("zAccG",
+	private RegexFilter azureADUsersRegex = new RegexFilter("zAcceptUser", "zRejectUser"), azurGroupsRegex = new RegexFilter("zAccG",
 			"zRejectGroups");
-	private Duration azurDuration = new Duration(120000 * 60);
-	private List<String> azurCollections = Arrays.asList("zAzurColl1", "zAzurColl2");
+	private Duration azureADDuration = new Duration(120000 * 60);
+	private List<String> azureADCollections = Arrays.asList("zAzurColl1", "zAzurColl2");
 
 	@Before
 	public void setup()
@@ -43,13 +43,13 @@ public class LDAPConfigurationManagerAcceptanceTest extends ConstellioTest {
 		ldapConfigManager.saveLDAPConfiguration(ldapServerConfiguration, ldapUserSyncConfiguration);
 	}
 
-	private void saveValidAzurConfig() {
-		ADAzurServerConfig serverConfig = new ADAzurServerConfig().setClientId("zclientId").setAuthorityUrl("zUrl")
-				.setAuthorityTenantId("zTanentId");
+	private void saveValidAzureADConfig() {
+		AzureADServerConfig serverConfig = new AzureADServerConfig().setClientId("zclientId").setAuthorityUrl("zUrl")
+				.setTenantName("zTanentId");
 		LDAPServerConfiguration ldapServerConfiguration = new LDAPServerConfiguration(serverConfig, false);
-		ADAzurUserSynchConfig azurConf = new ADAzurUserSynchConfig().setApplicationKey("zApplicationKey");
-		LDAPUserSyncConfiguration ldapUserSyncConfiguration = new LDAPUserSyncConfiguration(azurConf, azurUsersRegex,
-				azurGroupsRegex, azurDuration, azurCollections);
+		AzureADServerConfig azureADServerConfig = new AzureADServerConfig().setClientSecret("zClientSecret");
+		LDAPUserSyncConfiguration ldapUserSyncConfiguration = new LDAPUserSyncConfiguration(new AzureADUserSyncConfig(), azureADUsersRegex,
+				azurGroupsRegex, azureADDuration, azureADCollections);
 		ldapConfigManager.saveLDAPConfiguration(ldapServerConfiguration, ldapUserSyncConfiguration);
 	}
 
@@ -61,8 +61,8 @@ public class LDAPConfigurationManagerAcceptanceTest extends ConstellioTest {
 		ldapUserSyncConfiguration.setDurationBetweenExecution(new Duration(0));
 		ldapConfigManager.saveLDAPConfiguration(ldapServerConfiguration, ldapUserSyncConfiguration);
 
-		assertThat(ldapConfigManager.isLDAPAuthentication()).isEqualTo(true);
-		assertThat(ldapConfigManager.idUsersSynchActivated()).isEqualTo(false);
+		assertThat(ldapConfigManager.isLDAPAuthentication()).isTrue();
+		assertThat(ldapConfigManager.idUsersSyncActivated()).isFalse();
 		ldapUserSyncConfiguration = ldapConfigManager.getLDAPUserSyncConfiguration();
 
 		assertThat(ldapUserSyncConfiguration.getDurationBetweenExecution()).isNull();
@@ -95,16 +95,16 @@ public class LDAPConfigurationManagerAcceptanceTest extends ConstellioTest {
 	@Test
 	public void givenLDAPSavedAfterAzurWhenGetLDAPServerConfigurationThenItIsCreatedWithConfigInformation()
 			throws Exception {
-		saveValidAzurConfig();
+		saveValidAzureADConfig();
 		saveValidLDAPConfig();
-		assertThat(ldapConfigManager.isLDAPAuthentication()).isEqualTo(true);
+		assertThat(ldapConfigManager.isLDAPAuthentication()).isTrue();
 		LDAPServerConfiguration ldapServerConfiguration = ldapConfigManager.getLDAPServerConfiguration();
 
 		assertThat(ldapServerConfiguration.getDirectoryType()).isEqualTo(LDAPDirectoryType.ACTIVE_DIRECTORY);
 		assertThat(ldapServerConfiguration.getUrls()).containsAll(LDAPTestConfig.getUrls());
 		assertThat(ldapServerConfiguration.getDomains()).containsAll(LDAPTestConfig.getDomains());
 
-		assertThat(ldapServerConfiguration.getAuthorityTenantId()).isNull();
+		assertThat(ldapServerConfiguration.getTenantName()).isNull();
 		assertThat(ldapServerConfiguration.getAuthorityUrl()).isEqualTo("https://login.microsoftonline.com/");
 		assertThat(ldapServerConfiguration.getClientId()).isNull();
 	}
@@ -112,7 +112,7 @@ public class LDAPConfigurationManagerAcceptanceTest extends ConstellioTest {
 	@Test
 	public void givenLDAPSavedAfterAzurWhenGetLDAPSyncConfigurationThenItIsCreatedWithConfigInformation()
 			throws Exception {
-		saveValidAzurConfig();
+		saveValidAzureADConfig();
 		saveValidLDAPConfig();
 		LDAPUserSyncConfiguration ldapUserSyncConfiguration = ldapConfigManager.getLDAPUserSyncConfiguration(true);
 
@@ -138,24 +138,22 @@ public class LDAPConfigurationManagerAcceptanceTest extends ConstellioTest {
 		assertThat(ldapUserSyncConfiguration.isUserAccepted("testuser")).isTrue();
 		assertThat(ldapUserSyncConfiguration.isUserAccepted("testAuj")).isFalse();
 		assertThat(ldapUserSyncConfiguration.isUserAccepted("admin")).isFalse();
-
-		assertThat(ldapUserSyncConfiguration.getApplicationKey()).isNull();
 	}
 
 	@Test
 	public void givenAzurSavedAfterLDAPWhenGetLDAPServerConfigurationThenItIsCreatedWithConfigInformation()
 			throws Exception {
 		saveValidLDAPConfig();
-		saveValidAzurConfig();
+		saveValidAzureADConfig();
 
-		assertThat(ldapConfigManager.isLDAPAuthentication()).isEqualTo(false);
+		assertThat(ldapConfigManager.isLDAPAuthentication()).isFalse();
 		LDAPServerConfiguration ldapServerConfiguration = ldapConfigManager.getLDAPServerConfiguration();
 
 		assertThat(ldapServerConfiguration.getClientId()).isEqualTo("zclientId");
 		assertThat(ldapServerConfiguration.getAuthorityUrl()).isEqualTo("zUrl");
-		assertThat(ldapServerConfiguration.getAuthorityTenantId()).isEqualTo("zTanentId");
+		assertThat(ldapServerConfiguration.getTenantName()).isEqualTo("zTanentId");
 
-		assertThat(ldapServerConfiguration.getDirectoryType()).isEqualTo(LDAPDirectoryType.AZUR_AD);
+		assertThat(ldapServerConfiguration.getDirectoryType()).isEqualTo(LDAPDirectoryType.AZURE_AD);
 		assertThat(ldapServerConfiguration.getUrls()).isNull();
 		assertThat(ldapServerConfiguration.getDomains()).isNull();
 
@@ -165,16 +163,15 @@ public class LDAPConfigurationManagerAcceptanceTest extends ConstellioTest {
 	public void givenAzurSavedAfterLDAPWhenGetLDAPSyncConfigurationThenItIsCreatedWithConfigInformation()
 			throws Exception {
 		saveValidLDAPConfig();
-		saveValidAzurConfig();
+		saveValidAzureADConfig();
 
 		LDAPUserSyncConfiguration ldapUserSyncConfiguration = ldapConfigManager.getLDAPUserSyncConfiguration(true);
 
-		assertThat(ldapUserSyncConfiguration.getApplicationKey()).isEqualTo("zApplicationKey");
 		assertThat(ldapUserSyncConfiguration.getGroupFilter().getAcceptedRegex()).isEqualTo(azurGroupsRegex.getAcceptedRegex());
 		assertThat(ldapUserSyncConfiguration.getGroupFilter().getRejectedRegex()).isEqualTo(azurGroupsRegex.getRejectedRegex());
-		assertThat(ldapUserSyncConfiguration.getUserFilter().getAcceptedRegex()).isEqualTo(azurUsersRegex.getAcceptedRegex());
-		assertThat(ldapUserSyncConfiguration.getUserFilter().getRejectedRegex()).isEqualTo(azurUsersRegex.getRejectedRegex());
-		assertThat(ldapUserSyncConfiguration.getSelectedCollectionsCodes()).containsExactlyElementsOf(azurCollections);
+		assertThat(ldapUserSyncConfiguration.getUserFilter().getAcceptedRegex()).isEqualTo(azureADUsersRegex.getAcceptedRegex());
+		assertThat(ldapUserSyncConfiguration.getUserFilter().getRejectedRegex()).isEqualTo(azureADUsersRegex.getRejectedRegex());
+		assertThat(ldapUserSyncConfiguration.getSelectedCollectionsCodes()).containsExactlyElementsOf(azureADCollections);
 
 		assertThat(ldapUserSyncConfiguration.getGroupBaseContextList()).isNull();
 		assertThat(ldapUserSyncConfiguration.getUsersWithoutGroupsBaseContextList()).isNull();
