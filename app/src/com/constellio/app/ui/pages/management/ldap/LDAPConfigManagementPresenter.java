@@ -71,14 +71,10 @@ public class LDAPConfigManagementPresenter extends
 			String user, String password) {
 		LDAPServices ldapServices = LDAPServicesFactory.newLDAPServices(ldapServerConfiguration.getDirectoryType());
 		try {
-			if (LDAPDirectoryType.AZURE_AD.equals(ldapServerConfiguration.getDirectoryType())) {
-
-			} else {
-				ldapServices.testLdapConnection(ldapServerConfiguration, user, password);
-			}
+			ldapServices.testLdapConnection(ldapServerConfiguration, user, password);
 			return $("ldap.authentication.success");
 		} catch (CouldNotConnectUserToLDAP e) {
-			LOGGER.warn("Error when trying to authenticate user " + user);
+			LOGGER.warn("Error when trying to authenticate user " + user, e);
 			return $("ldap.authentication.fail");
 		}
 	}

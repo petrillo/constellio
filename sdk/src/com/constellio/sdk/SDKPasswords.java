@@ -246,4 +246,20 @@ public class SDKPasswords {
 			}
 		}
 	}
+
+	//FIXME remove
+	public static String testAzureClientId() {
+		loadCorrectIfRequired();
+		return sdkPasswords.get("testAzure.clientId");
+	}
+
+	public static String testAzureTenantName() {
+		loadCorrectIfRequired();
+		return sdkPasswords.get("testAzure.tenantName");
+	}
+
+	public static String testAzureApplicationKey() {
+		loadCorrectIfRequired();
+		return sdkPasswords.get("testAzure.applicationKey");
+	}
 }
