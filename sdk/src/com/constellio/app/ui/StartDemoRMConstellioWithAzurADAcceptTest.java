@@ -1,12 +1,14 @@
 package com.constellio.app.ui;
 
+import static java.util.Arrays.asList;
+
 import org.junit.Before;
 import org.junit.Test;
 
 import com.constellio.app.modules.rm.DemoTestRecords;
 import com.constellio.app.modules.rm.RMTestRecords;
 import com.constellio.app.modules.rm.services.RMSchemasRecordsServices;
-import com.constellio.model.conf.LDAPTestConfig;
+import com.constellio.model.conf.ldap.AzureADTestConfig;
 import com.constellio.model.conf.ldap.config.LDAPServerConfiguration;
 import com.constellio.model.conf.ldap.config.LDAPUserSyncConfiguration;
 import com.constellio.model.services.records.RecordServices;
@@ -19,7 +21,7 @@ import com.constellio.sdk.tests.selenium.adapters.constellio.ConstellioWebDriver
 
 @UiTest
 @MainTest
-public class StartDemoRMConstellioWithLDAPAcceptTest extends ConstellioTest {
+public class StartDemoRMConstellioWithAzurADAcceptTest extends ConstellioTest {
 
 	RecordServices recordServices;
 	ConstellioWebDriver driver;
@@ -44,8 +46,8 @@ public class StartDemoRMConstellioWithLDAPAcceptTest extends ConstellioTest {
 
 		recordServices = getModelLayerFactory().newRecordServices();
 
-		LDAPUserSyncConfiguration userSync = LDAPTestConfig.getLDAPUserSyncConfiguration();
-		LDAPServerConfiguration serverConf = LDAPTestConfig.getLDAPServerConfiguration();
+		LDAPUserSyncConfiguration userSync = AzureADTestConfig.getLDAPUserSyncConfiguration(asList(zeCollection));
+		LDAPServerConfiguration serverConf = AzureADTestConfig.getLDAPServerConfiguration();
 		getModelLayerFactory().getLdapConfigurationManager().saveLDAPConfiguration(serverConf, userSync);
 		UserServices userServices = getModelLayerFactory().newUserServices();
 		System.out.println(userServices.getAllUserCredentials().size());

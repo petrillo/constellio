@@ -1,55 +1,62 @@
-package com.constellio.model.conf.ldap;
+package com.constellio.model.conf.ldap.config;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.Duration;
 
+import com.constellio.model.conf.ldap.RegexFilter;
 import com.constellio.model.services.security.authentification.LDAPAuthenticationService;
 
 public class LDAPUserSyncConfiguration {
-
-	String user;
-
-	String password;
-
 	transient RegexFilter userFilter;
 
 	transient RegexFilter groupFilter;
 
 	Duration durationBetweenExecution;
 
-	private final List<String> groupBaseContextList;
-
-	private List<String> usersWithoutGroupsBaseContextList;
-
 	private List<String> selectedCollectionsCodes;
 
+	AzureADUserSyncConfig azurUserSynchConfig = new AzureADUserSyncConfig();
+	NonAzurADUserSyncConfig nonAzurADUserSyncConfig = new NonAzurADUserSyncConfig();
+
 	public LDAPUserSyncConfiguration(String user, String password,
-									 RegexFilter userFilter, RegexFilter groupFilter, Duration durationBetweenExecution,
-									 List<String> groupBaseContextList, List<String> usersWithoutGroupsBaseContextList) {
-		this(user, password, userFilter, groupFilter, durationBetweenExecution, groupBaseContextList, usersWithoutGroupsBaseContextList, new ArrayList<String>());
+			RegexFilter userFilter, RegexFilter groupFilter, Duration durationBetweenExecution,
+			List<String> groupBaseContextList, List<String> usersWithoutGroupsBaseContextList) {
+		this(user, password, userFilter, groupFilter, durationBetweenExecution, groupBaseContextList,
+				usersWithoutGroupsBaseContextList, new ArrayList<String>());
 	}
 
 	public LDAPUserSyncConfiguration(String user, String password,
 			RegexFilter userFilter, RegexFilter groupFilter, Duration durationBetweenExecution,
-			List<String> groupBaseContextList, List<String> usersWithoutGroupsBaseContextList, List<String> selectedCollectionsCodes) {
-		this.user = user;
-		this.password = password;
+			List<String> groupBaseContextList, List<String> usersWithoutGroupsBaseContextList,
+			List<String> selectedCollectionsCodes) {
+		this.nonAzurADUserSyncConfig.user = user;
+		this.nonAzurADUserSyncConfig.password = password;
 		this.userFilter = userFilter;
 		this.groupFilter = groupFilter;
 		this.durationBetweenExecution = durationBetweenExecution;
-		this.groupBaseContextList = groupBaseContextList;
-		this.usersWithoutGroupsBaseContextList = usersWithoutGroupsBaseContextList;
+		this.nonAzurADUserSyncConfig.groupBaseContextList = groupBaseContextList;
+		this.nonAzurADUserSyncConfig.usersWithoutGroupsBaseContextList = usersWithoutGroupsBaseContextList;
+		this.selectedCollectionsCodes = selectedCollectionsCodes;
+	}
+
+	public LDAPUserSyncConfiguration(AzureADUserSyncConfig azurUserSynchConfig,
+			RegexFilter userFilter, RegexFilter groupFilter, Duration durationBetweenExecution,
+			List<String> selectedCollectionsCodes) {
+		this.azurUserSynchConfig = azurUserSynchConfig;
+		this.userFilter = userFilter;
+		this.groupFilter = groupFilter;
+		this.durationBetweenExecution = durationBetweenExecution;
 		this.selectedCollectionsCodes = selectedCollectionsCodes;
 	}
 
 	public String getUser() {
-		return user;
+		return nonAzurADUserSyncConfig.user;
 	}
 
 	public String getPassword() {
-		return password;
+		return nonAzurADUserSyncConfig.password;
 	}
 
 	public boolean isUserAccepted(String userName) {
@@ -84,11 +91,11 @@ public class LDAPUserSyncConfiguration {
 	}
 
 	public List<String> getGroupBaseContextList() {
-		return groupBaseContextList;
+		return nonAzurADUserSyncConfig.groupBaseContextList;
 	}
 
 	public List<String> getUsersWithoutGroupsBaseContextList() {
-		return usersWithoutGroupsBaseContextList;
+		return nonAzurADUserSyncConfig.usersWithoutGroupsBaseContextList;
 	}
 
 	public String getUsersFilterAcceptanceRegex() {
@@ -130,4 +137,5 @@ public class LDAPUserSyncConfiguration {
 	public List<String> getSelectedCollectionsCodes() {
 		return selectedCollectionsCodes;
 	}
+
 }

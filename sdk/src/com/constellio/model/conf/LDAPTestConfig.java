@@ -7,8 +7,8 @@ import java.util.List;
 import org.joda.time.Duration;
 
 import com.constellio.model.conf.ldap.LDAPDirectoryType;
-import com.constellio.model.conf.ldap.LDAPServerConfiguration;
-import com.constellio.model.conf.ldap.LDAPUserSyncConfiguration;
+import com.constellio.model.conf.ldap.config.LDAPServerConfiguration;
+import com.constellio.model.conf.ldap.config.LDAPUserSyncConfiguration;
 import com.constellio.model.conf.ldap.RegexFilter;
 import com.constellio.sdk.SDKPasswords;
 
@@ -22,11 +22,9 @@ public class LDAPTestConfig {
 		return SDKPasswords.testLDAPServer();
 	}
 
-
 	public static List<String> getExchangeLDAPDevServerUrl() {
 		return asList(SDKPasswords.testExchangeLDAPServer());
 	}
-
 
 	public static List<String> getDomains() {
 		return asList(new String[] { "test" });
@@ -93,13 +91,13 @@ public class LDAPTestConfig {
 				getGroupBaseContextList(), getUsersWithoutGroupsBaseContextList());
 	}
 
-
 	public static LDAPServerConfiguration getExchangeLDAPServerConfiguration() {
 		return new LDAPServerConfiguration(getExchangeLDAPDevServerUrl(), getDomains(), getDirectoryType(), true, false);
 	}
 
 	public static LDAPUserSyncConfiguration getExchangeLDAPUserSyncConfiguration() {
-		return new LDAPUserSyncConfiguration(getUser(), SDKPasswords.testExchangeLDAPPassword(), new RegexFilter("indexer.*", null), getGroupFiler(), null,
+		return new LDAPUserSyncConfiguration(getUser(), SDKPasswords.testExchangeLDAPPassword(),
+				new RegexFilter("indexer.*", null), getGroupFiler(), null,
 				getGroupBaseContextList(),
 				getUsersWithoutGroupsBaseContextList(), asList("zeCollection"));
 	}

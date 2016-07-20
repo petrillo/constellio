@@ -82,7 +82,6 @@ public class LDAPFastBind {
 		} catch (NamingException e) {
 			throw new RuntimeNamingException(e.getMessage());
 		}*/
-		//FIX de Vincent pour o a q
 		try {
 			ctx = new InitialLdapContext(env, connCtls);
 		} catch (NamingException e) {

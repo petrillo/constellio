@@ -16,8 +16,8 @@ import com.constellio.model.conf.ModelLayerConfiguration;
 import com.constellio.model.conf.email.EmailConfigurationsManager;
 import com.constellio.model.conf.email.EmailServerConfiguration;
 import com.constellio.model.conf.ldap.LDAPConfigurationManager;
-import com.constellio.model.conf.ldap.LDAPServerConfiguration;
-import com.constellio.model.conf.ldap.LDAPUserSyncConfiguration;
+import com.constellio.model.conf.ldap.config.LDAPServerConfiguration;
+import com.constellio.model.conf.ldap.config.LDAPUserSyncConfiguration;
 import com.constellio.model.services.encrypt.EncryptionServices;
 import com.constellio.model.services.factories.ModelLayerFactory;
 import com.constellio.model.services.users.UserCredentialsManager;
@@ -82,7 +82,8 @@ public class CoreMigrationTo_5_1_3 implements MigrationScript {
 		dataLayerFactory.saveEncryptionKey();
 	}
 
-	private static void createKeyFile(ModelLayerConfiguration modelLayerConfiguration, DataLayerConfiguration dataLayerConfiguration)
+	private static void createKeyFile(ModelLayerConfiguration modelLayerConfiguration,
+			DataLayerConfiguration dataLayerConfiguration)
 			throws IOException {
 		File encryptionFile = modelLayerConfiguration.getConstellioEncryptionFile();
 

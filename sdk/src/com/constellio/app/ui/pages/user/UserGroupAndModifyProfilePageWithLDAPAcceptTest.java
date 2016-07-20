@@ -23,8 +23,8 @@ import com.constellio.app.ui.pages.globalGroup.ListGlobalGroupPage;
 import com.constellio.app.ui.pages.profile.ModifyProfilePage;
 import com.constellio.model.conf.LDAPTestConfig;
 import com.constellio.model.conf.ldap.LDAPConfigurationManager;
-import com.constellio.model.conf.ldap.LDAPServerConfiguration;
-import com.constellio.model.conf.ldap.LDAPUserSyncConfiguration;
+import com.constellio.model.conf.ldap.config.LDAPServerConfiguration;
+import com.constellio.model.conf.ldap.config.LDAPUserSyncConfiguration;
 import com.constellio.model.entities.records.wrappers.User;
 import com.constellio.model.entities.security.global.GlobalGroupStatus;
 import com.constellio.model.entities.security.global.UserCredential;
@@ -108,7 +108,7 @@ public class UserGroupAndModifyProfilePageWithLDAPAcceptTest extends ConstellioT
 		driver.snapshot("1");
 		navigatoToListUserCredentialPage();
 		driver.snapshot("2");
-		assertThat(ldapConfigurationManager.idUsersSynchActivated()).isFalse();
+		assertThat(ldapConfigurationManager.idUsersSyncActivated()).isFalse();
 		assertThat(ldapConfigurationManager.isLDAPAuthentication()).isTrue();
 		givenListUserCredentialsPageThenCanAddUser();
 		givenAddPageWhenAddUserThenAddUserWithoutPassword(1);
@@ -129,7 +129,7 @@ public class UserGroupAndModifyProfilePageWithLDAPAcceptTest extends ConstellioT
 			throws Exception {
 		navigatoToListUserCredentialPage();
 
-		assertThat(ldapConfigurationManager.idUsersSynchActivated()).isFalse();
+		assertThat(ldapConfigurationManager.idUsersSyncActivated()).isFalse();
 		assertThat(ldapConfigurationManager.isLDAPAuthentication()).isTrue();
 		givenListUserCredentialsPageThenCanAddUser();
 		givenAddPageWhenAddUserThenAddUserWithoutPassword(2);
@@ -150,7 +150,7 @@ public class UserGroupAndModifyProfilePageWithLDAPAcceptTest extends ConstellioT
 
 		navigatoToListUserCredentialPage();
 
-		assertThat(ldapConfigurationManager.idUsersSynchActivated()).isTrue();
+		assertThat(ldapConfigurationManager.idUsersSyncActivated()).isTrue();
 		assertThat(ldapConfigurationManager.isLDAPAuthentication()).isTrue();
 		givenListUserCredentialsPageThenCannotAddUser();
 		givenListUserCredentialsPageWhenSearchForAdministratorThenCannotEdit();
@@ -168,7 +168,7 @@ public class UserGroupAndModifyProfilePageWithLDAPAcceptTest extends ConstellioT
 
 		navigatoToListUserCredentialPage();
 
-		assertThat(ldapConfigurationManager.idUsersSynchActivated()).isTrue();
+		assertThat(ldapConfigurationManager.idUsersSyncActivated()).isTrue();
 		assertThat(ldapConfigurationManager.isLDAPAuthentication()).isTrue();
 		givenListUserCredentialsPageThenCannotAddUser();
 		givenListUserCredentialsPageWhenSearchForAdministratorThenCannotEdit();

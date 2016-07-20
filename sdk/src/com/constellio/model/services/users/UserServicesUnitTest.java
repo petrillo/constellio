@@ -403,7 +403,7 @@ public class UserServicesUnitTest extends ConstellioTest {
 			throws Exception {
 
 		when(configurationManager.isLDAPAuthentication()).thenReturn(true);
-		when(configurationManager.idUsersSynchActivated()).thenReturn(true);
+		when(configurationManager.idUsersSyncActivated()).thenReturn(true);
 
 		assertThat(userServices.canAddOrModifyUserAndGroup()).isFalse();
 	}
@@ -413,7 +413,7 @@ public class UserServicesUnitTest extends ConstellioTest {
 			throws Exception {
 
 		when(configurationManager.isLDAPAuthentication()).thenReturn(true);
-		when(configurationManager.idUsersSynchActivated()).thenReturn(false);
+		when(configurationManager.idUsersSyncActivated()).thenReturn(false);
 
 		assertThat(userServices.canAddOrModifyUserAndGroup()).isTrue();
 	}
@@ -423,7 +423,7 @@ public class UserServicesUnitTest extends ConstellioTest {
 			throws Exception {
 
 		when(configurationManager.isLDAPAuthentication()).thenReturn(false);
-		when(configurationManager.idUsersSynchActivated()).thenReturn(true);
+		when(configurationManager.idUsersSyncActivated()).thenReturn(true);
 
 		assertThat(userServices.canAddOrModifyUserAndGroup()).isTrue();
 	}
@@ -433,7 +433,7 @@ public class UserServicesUnitTest extends ConstellioTest {
 			throws Exception {
 
 		when(configurationManager.isLDAPAuthentication()).thenReturn(false);
-		when(configurationManager.idUsersSynchActivated()).thenReturn(false);
+		when(configurationManager.idUsersSyncActivated()).thenReturn(false);
 
 		assertThat(userServices.canAddOrModifyUserAndGroup()).isTrue();
 	}

@@ -438,7 +438,7 @@ public class UserServices {
 	}
 
 	public boolean canAddOrModifyUserAndGroup() {
-		return !(ldapConfigurationManager.isLDAPAuthentication() && ldapConfigurationManager.idUsersSynchActivated());
+		return !(ldapConfigurationManager.isLDAPAuthentication() && ldapConfigurationManager.idUsersSyncActivated());
 	}
 
 	public boolean canModifyPassword(UserCredential userInEdition, UserCredential currentUser) {
