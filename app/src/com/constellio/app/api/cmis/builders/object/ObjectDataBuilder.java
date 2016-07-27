@@ -24,7 +24,6 @@ import com.constellio.app.extensions.api.cmis.params.BuildCmisObjectFromConstell
 import com.constellio.app.services.factories.AppLayerFactory;
 import com.constellio.model.entities.records.Record;
 import com.constellio.model.entities.schemas.Metadata;
-import com.constellio.model.entities.schemas.MetadataSchemaType;
 import com.constellio.model.entities.schemas.Schemas;
 import com.constellio.model.services.factories.ModelLayerFactory;
 import com.constellio.model.services.records.SchemasRecordsServices;
@@ -61,15 +60,15 @@ public class ObjectDataBuilder {
 		}
 
 		if (includeAllowableActions) {
-			result.setAllowableActions(new AllowableActionsBuilder(appLayerFactory, repository, record).build());
+			result.setAllowableActions(new AllowableActionsBuilder(repository, record).build());
 		}
 
 		callExtensions(result, propertiesBuilder, record);
 
-		//if (includeAcl) {
-		result.setAcl(new AclBuilder(repository, modelLayerFactory).build(record));
-		result.setIsExactAcl(true);
-		//}
+		//		if (includeAcl) {
+		//			builtProperties.setAcl(new AclBuilder(repository).build(file));
+		//			builtProperties.setIsExactAcl(true);
+		//		}
 
 		if (context.isObjectInfoRequired()) {
 			objectInfo.setObject(result);
@@ -177,14 +176,11 @@ public class ObjectDataBuilder {
 	}
 
 	private void setupObjectInfo(ObjectInfoImpl objectInfo, String typeId) {
-		MetadataSchemaType type = modelLayerFactory.getMetadataSchemasManager().getSchemaTypes(repository.getCollection())
-				.getSchemaType(new SchemaUtils().getSchemaTypeCode(typeId));
-
 		objectInfo.setBaseType(BaseTypeId.CMIS_FOLDER);
 		objectInfo.setTypeId(typeId);
 		objectInfo.setContentType(null);
 		objectInfo.setFileName(null);
-		objectInfo.setHasAcl(type.hasSecurity());
+		objectInfo.setHasAcl(false);
 		objectInfo.setHasContent(false);
 		objectInfo.setVersionSeriesId(null);
 		objectInfo.setIsCurrentVersion(true);

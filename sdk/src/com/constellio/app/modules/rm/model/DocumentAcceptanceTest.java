@@ -46,7 +46,7 @@ public class DocumentAcceptanceTest extends ConstellioTest {
 		assertThat(getModelLayerFactory().getTaxonomiesManager().getPrincipalTaxonomy(zeCollection).getCode())
 				.isEqualTo(RMTaxonomies.ADMINISTRATIVE_UNITS);
 
-		rm = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
+		rm = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
 		recordServices = getModelLayerFactory().newRecordServices();
 
 		dakota = users.dakotaLIndienIn(zeCollection);

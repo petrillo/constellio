@@ -141,7 +141,6 @@ public class MetadataSchemaXMLReader3 {
 		String enabledStringValue = metadataElement.getAttributeValue("enabled");
 		String defaultRequirementStringValue = metadataElement.getAttributeValue("defaultRequirement");
 		String inputMask = metadataElement.getAttributeValue("inputMask");
-		String duplicableStringValue = metadataElement.getAttributeValue("duplicable");
 
 		List<String> validatorsClassNames = parseValidators(metadataElement, null);
 		for (String validatorsClassName : validatorsClassNames) {
@@ -166,10 +165,6 @@ public class MetadataSchemaXMLReader3 {
 			metadataBuilder.setDefaultValue(defaultValue);
 		}
 
-		if (duplicableStringValue != null) {
-			metadataBuilder.setDuplicable(readBoolean(duplicableStringValue));
-		}
-
 		setPopulateConfigs(metadataBuilder, metadataElement);
 	}
 
@@ -178,7 +173,6 @@ public class MetadataSchemaXMLReader3 {
 		if (!metadataBuilder.isSystemReserved()) {
 			String enabledStringValue = metadataElement.getAttributeValue("enabled");
 			String defaultRequirementStringValue = metadataElement.getAttributeValue("defaultRequirement");
-			String duplicableStringValue = metadataElement.getAttributeValue("duplicable");
 
 			if (enabledStringValue == null) {
 				metadataBuilder.setEnabled(true);
@@ -188,15 +182,11 @@ public class MetadataSchemaXMLReader3 {
 
 			if (defaultRequirementStringValue == null) {
 				metadataBuilder.setDefaultRequirement(false);
+
 			} else {
 				metadataBuilder.setDefaultRequirement(readBoolean(defaultRequirementStringValue));
 			}
 
-			if (duplicableStringValue == null) {
-				metadataBuilder.setDuplicable(false);
-			} else {
-				metadataBuilder.setDuplicable(readBoolean(duplicableStringValue));
-			}
 		}
 
 		MetadataBuilder globalMetadataInCollectionSchema = null;

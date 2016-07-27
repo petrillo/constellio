@@ -26,7 +26,7 @@ public class GeneralUIAcceptTest extends ConstellioTest {
 				withCollection("otherCollection").withConstellioRMModule().withAllTestUsers()
 		);
 
-		schemas = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
+		schemas = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
 
 		driver = newWebDriver(loggedAsUserInCollection("admin", zeCollection));
 

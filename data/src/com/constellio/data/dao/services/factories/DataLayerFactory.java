@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 
 import org.apache.solr.common.SolrDocument;
@@ -53,8 +54,6 @@ import com.constellio.data.utils.ImpossibleRuntimeException;
 
 public class DataLayerFactory extends LayerFactory {
 
-	private static final String RECORDS_SEQUENCE_TABLE_CONFIG_PATH = "/sequence.properties";
-	private static final String SECONDARY_SEQUENCE_TABLE_CONFIG_PATH = "/secondarySequence.properties";
 	static final String RECORDS_COLLECTION = "records";
 	static final String EVENTS_COLLECTION = "events";
 	static final String CONTENTS_COLLECTION = "contents";
@@ -64,7 +63,6 @@ public class DataLayerFactory extends LayerFactory {
 	private final SolrServers solrServers;
 	private final ConfigManager configManager;
 	private final UniqueIdGenerator idGenerator;
-	private final UniqueIdGenerator secondaryIdGenerator;
 	private final DataLayerConfiguration dataLayerConfiguration;
 	private final ContentDao contentDao;
 	private final BigVaultLogger bigVaultLogger;
@@ -104,18 +102,7 @@ public class DataLayerFactory extends LayerFactory {
 			this.idGenerator = new UUIDV1Generator();
 
 		} else if (dataLayerConfiguration.getIdGeneratorType() == IdGeneratorType.SEQUENTIAL) {
-			this.idGenerator = add(new ZeroPaddedSequentialUniqueIdGenerator(configManager, RECORDS_SEQUENCE_TABLE_CONFIG_PATH));
-
-		} else {
-			throw new ImpossibleRuntimeException("Unsupported UniqueIdGenerator");
-		}
-
-		if (dataLayerConfiguration.getSecondaryIdGeneratorType() == IdGeneratorType.UUID_V1) {
-			this.secondaryIdGenerator = new UUIDV1Generator();
-
-		} else if (dataLayerConfiguration.getSecondaryIdGeneratorType() == IdGeneratorType.SEQUENTIAL) {
-			this.secondaryIdGenerator = add(new ZeroPaddedSequentialUniqueIdGenerator(configManager,
-					SECONDARY_SEQUENCE_TABLE_CONFIG_PATH));
+			this.idGenerator = add(new ZeroPaddedSequentialUniqueIdGenerator(configManager));
 
 		} else {
 			throw new ImpossibleRuntimeException("Unsupported UniqueIdGenerator");
@@ -191,10 +178,6 @@ public class DataLayerFactory extends LayerFactory {
 
 	public UniqueIdGenerator getUniqueIdGenerator() {
 		return idGenerator;
-	}
-
-	public UniqueIdGenerator getSecondaryUniqueIdGenerator() {
-		return secondaryIdGenerator;
 	}
 
 	public DataLayerLogger getDataLayerLogger() {
@@ -275,9 +258,10 @@ public class DataLayerFactory extends LayerFactory {
 		return (String) solrDocument.getFieldValue("value_s");
 	}
 
-	public void saveEncryptionKey() {
-		String solrKeyPart = dataLayerConfiguration.createRandomUniqueKey();
 
+	public void saveEncryptionKey() {
+		Random random = new Random();
+		String solrKeyPart = random.nextInt(1000) + "-" + random.nextInt(1000) + "-" + random.nextInt(1000);
 		RecordDao recordDao = newRecordDao();
 		Map<String, Object> fields = new HashMap<>();
 		fields.put("value_s", solrKeyPart);

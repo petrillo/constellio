@@ -18,7 +18,6 @@ import com.constellio.app.modules.rm.services.RMSchemasRecordsServices;
 import com.constellio.app.modules.rm.wrappers.Document;
 import com.constellio.app.ui.application.CoreViews;
 import com.constellio.app.ui.pages.base.SessionContext;
-import com.constellio.app.ui.pages.base.UIContext;
 import com.constellio.model.entities.records.Content;
 import com.constellio.model.entities.records.Record;
 import com.constellio.model.entities.records.wrappers.EmailToSend;
@@ -41,7 +40,6 @@ public class DisplayDocumentPresenterAcceptTest extends ConstellioTest {
 	RMSchemasRecordsServices schemasRecordsServices;
 	DisplayDocumentPresenter presenter;
 	SessionContext sessionContext;
-	@Mock UIContext uiContext;	
 	RecordServices recordServices;
 	LocalDateTime now = new LocalDateTime();
 	LocalDateTime shishOClock = new LocalDateTime().plusDays(1);
@@ -72,7 +70,6 @@ public class DisplayDocumentPresenterAcceptTest extends ConstellioTest {
 		when(displayDocumentView.getCollection()).thenReturn(zeCollection);
 		when(displayDocumentView.getConstellioFactories()).thenReturn(getConstellioFactories());
 		when(displayDocumentView.navigateTo()).thenReturn(navigator);
-		when(displayDocumentView.getUIContext()).thenReturn(uiContext);
 
 		presenter = new DisplayDocumentPresenter(displayDocumentView);
 	}

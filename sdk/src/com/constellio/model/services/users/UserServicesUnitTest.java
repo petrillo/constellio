@@ -22,9 +22,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 
-import com.constellio.data.dao.services.factories.DataLayerFactory;
-import com.constellio.data.dao.services.idGenerator.UUIDV1Generator;
-import com.constellio.data.dao.services.idGenerator.UniqueIdGenerator;
 import com.constellio.model.conf.ModelLayerConfiguration;
 import com.constellio.model.conf.ldap.LDAPConfigurationManager;
 import com.constellio.model.entities.records.Record;
@@ -41,7 +38,6 @@ import com.constellio.model.entities.security.global.UserCredential;
 import com.constellio.model.entities.security.global.UserCredentialStatus;
 import com.constellio.model.entities.security.global.XmlGlobalGroup;
 import com.constellio.model.services.collections.CollectionsListManager;
-import com.constellio.model.services.factories.ModelLayerFactory;
 import com.constellio.model.services.records.RecordServices;
 import com.constellio.model.services.schemas.MetadataSchemasManager;
 import com.constellio.model.services.search.SearchServices;
@@ -93,9 +89,6 @@ public class UserServicesUnitTest extends ConstellioTest {
 	@Mock User bobRecordInCollection1, bobRecordInCollection2;
 	@Mock Record bobRecordInCollection1Record, bobRecordInCollection2Record;
 
-	@Mock ModelLayerFactory modelLayerFactory;
-	@Mock DataLayerFactory dataLayerFactory;
-	UniqueIdGenerator uniqueIdGenerator = new UUIDV1Generator();
 	@Mock Group legendsInCollection1, legendsInCollection2;
 	@Mock Record legendsInCollection1Record, legendsInCollection2Record;
 	@Mock RolesManager rolesManager;
@@ -106,20 +99,9 @@ public class UserServicesUnitTest extends ConstellioTest {
 			throws Exception {
 
 		when(rolesManager.getCollectionRoles(zeCollection)).thenReturn(roles);
-		when(modelLayerFactory.getDataLayerFactory()).thenReturn(dataLayerFactory);
-		when(dataLayerFactory.getSecondaryUniqueIdGenerator()).thenReturn(uniqueIdGenerator);
-		when(modelLayerFactory.getUserCredentialsManager()).thenReturn(userCredentialsManager);
-		when(modelLayerFactory.getGlobalGroupsManager()).thenReturn(globalGroupsManager);
-		when(modelLayerFactory.getCollectionsListManager()).thenReturn(collectionsListManager);
-		when(modelLayerFactory.newRecordServices()).thenReturn(recordServices);
-		when(modelLayerFactory.newSearchServices()).thenReturn(searchServices);
-		when(modelLayerFactory.getMetadataSchemasManager()).thenReturn(metadataSchemasManager);
-		when(modelLayerFactory.newAuthenticationService()).thenReturn(authenticationService);
-		when(modelLayerFactory.getRolesManager()).thenReturn(rolesManager);
-		when(modelLayerFactory.getConfiguration()).thenReturn(modelLayerConfiguration);
-		when(modelLayerFactory.getLdapConfigurationManager()).thenReturn(configurationManager);
-
-		userServices = spy(new UserServices(modelLayerFactory));
+		userServices = spy(new UserServices(userCredentialsManager, globalGroupsManager, collectionsListManager, recordServices,
+				searchServices, metadataSchemasManager, authenticationService, rolesManager, modelLayerConfiguration,
+				configurationManager));
 
 		doReturn("group1Collection1Id").when(userServices).getGroupIdInCollection("group1", "collection1");
 		doReturn("group2Collection1Id").when(userServices).getGroupIdInCollection("group2", "collection1");

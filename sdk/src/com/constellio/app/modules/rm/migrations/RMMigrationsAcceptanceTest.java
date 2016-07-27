@@ -24,7 +24,11 @@ import com.constellio.app.modules.tasks.TaskModule;
 import com.constellio.app.modules.tasks.model.wrappers.Task;
 import com.constellio.model.entities.CorePermissions;
 import com.constellio.model.entities.Language;
-import com.constellio.model.entities.schemas.*;
+import com.constellio.model.entities.schemas.Metadata;
+import com.constellio.model.entities.schemas.MetadataSchema;
+import com.constellio.model.entities.schemas.MetadataSchemaType;
+import com.constellio.model.entities.schemas.MetadataSchemaTypes;
+import com.constellio.model.entities.schemas.MetadataValueType;
 import com.constellio.model.entities.security.Role;
 import com.constellio.model.services.configs.SystemConfigurationsManager;
 import com.constellio.sdk.tests.ConstellioTest;
@@ -37,8 +41,8 @@ public class RMMigrationsAcceptanceTest extends ConstellioTest {
 	protected void validateZeCollectionState()
 			throws Exception {
 		if (getModelLayerFactory().getCollectionsListManager().getCollections().contains(zeCollection)) {
-			MetadataSchemaTypes metadataSchemaTypes = getModelLayerFactory().getMetadataSchemasManager().getSchemaTypes(zeCollection);
-			if (metadataSchemaTypes.hasType(RetentionRule.SCHEMA_TYPE)) {
+			MetadataSchemaTypes types = getModelLayerFactory().getMetadataSchemasManager().getSchemaTypes(zeCollection);
+			if (types.hasType(RetentionRule.SCHEMA_TYPE)) {
 				whenMigratingToCurrentVersionThenValidSchemas();
 				whenMigratingToCurrentVersionThenSchemasDisplayedCorrectly();
 				whenMigratingToCurrentVersionThenHasValueListWithDefaultItems();
@@ -47,23 +51,8 @@ public class RMMigrationsAcceptanceTest extends ConstellioTest {
 				whenMigratingToCurrentVersionThenConfigHasValidDefaultValue();
 				whenMigratingToCurrentVersionThenTaskModuleIsEnabledAndExtraRMMetadatasAreCreated();
 				whenMigratingToCurrentVersionThenMarkedForReindexingIfVersionIsBefore5_1_3();
-                whenMigratingToCurrentVersionThenOnlyEnabledNonSystemReservedManuallyValuedMetadataAreDuplicable(metadataSchemaTypes);
 			}
 		}
-	}
-
-	private void whenMigratingToCurrentVersionThenOnlyEnabledNonSystemReservedManuallyValuedMetadataAreDuplicable(final MetadataSchemaTypes metadataSchemaTypes) {
-		final MetadataSchema folderSchema = metadataSchemaTypes.getSchema(Folder.DEFAULT_SCHEMA);
-		assertThat(folderSchema.getMetadata(Folder.TITLE).isDuplicable()).isTrue();
-		assertThat(folderSchema.getMetadata(Folder.TYPE).isDuplicable()).isTrue();
-        assertThat(folderSchema.getMetadata(Schemas.IDENTIFIER.getCode()).isDuplicable()).isFalse();
-        assertThat(folderSchema.getMetadata(Schemas.PATH.getCode()).isDuplicable()).isFalse();
-
-        final MetadataSchema documentSchema = metadataSchemaTypes.getSchema(Document.DEFAULT_SCHEMA);
-        assertThat(documentSchema.getMetadata(Folder.TITLE).isDuplicable()).isTrue();
-        assertThat(documentSchema.getMetadata(Folder.TYPE).isDuplicable()).isTrue();
-        assertThat(documentSchema.getMetadata(Schemas.IDENTIFIER.getCode()).isDuplicable()).isFalse();
-        assertThat(documentSchema.getMetadata(Schemas.PATH.getCode()).isDuplicable()).isFalse();
 	}
 
 	private void whenMigratingToCurrentVersionThenMarkedForReindexingIfVersionIsBefore5_1_3() {
@@ -98,7 +87,7 @@ public class RMMigrationsAcceptanceTest extends ConstellioTest {
 		assertThat(linkedDocumentsMetadata.getAllowedReferences().getAllowedSchemaType()).isEqualTo(Document.SCHEMA_TYPE);
 	}
 
-	private void whenMigratingToCurrentVersionThenValidSchemas()
+	public void whenMigratingToCurrentVersionThenValidSchemas()
 			throws Exception {
 
 		MetadataSchemaTypes metadataSchemaTypes = getModelLayerFactory().getMetadataSchemasManager().getSchemaTypes(zeCollection);
@@ -131,7 +120,7 @@ public class RMMigrationsAcceptanceTest extends ConstellioTest {
 		return types;
 	}
 
-	private void whenMigratingToCurrentVersionThenSchemasDisplayedCorrectly()
+	public void whenMigratingToCurrentVersionThenSchemasDisplayedCorrectly()
 			throws Exception {
 
 		SchemaDisplayConfig folderDisplayConfig = getAppLayerFactory().getMetadataSchemasDisplayManager()
@@ -172,7 +161,7 @@ public class RMMigrationsAcceptanceTest extends ConstellioTest {
 
 	}
 
-	private void whenMigratingToCurrentVersionThenHasValueListWithDefaultItems()
+	public void whenMigratingToCurrentVersionThenHasValueListWithDefaultItems()
 			throws Exception {
 
 		assertThat(rm.PA()).isNotNull();
@@ -180,17 +169,17 @@ public class RMMigrationsAcceptanceTest extends ConstellioTest {
 		assertThat(rm.FI()).isNotNull();
 	}
 
-	private void whenMigratingToCurrentVersionThenConfigHasValidDefaultValue()
+	public void whenMigratingToCurrentVersionThenConfigHasValidDefaultValue()
 			throws Exception {
 
 		SystemConfigurationsManager manager = getModelLayerFactory().getSystemConfigurationsManager();
 		assertThat(manager.getValue(RMConfigs.LINKABLE_CATEGORY_MUST_NOT_BE_ROOT)).isEqualTo(Boolean.FALSE);
 	}
 
-	private void whenMigratingToCurrentVersionThenHasEssentialMetadatas()
+	public void whenMigratingToCurrentVersionThenHasEssentialMetadatas()
 			throws Exception {
 
-		assertThat(rm.administrativeUnit.filingSpaces().isEssential()).isFalse();
+		assertThat(rm.administrativeUnitFilingSpaces().isEssential()).isFalse();
 		assertThat(rm.defaultFolderSchema().getMetadata(Folder.CATEGORY_ENTERED).isEssential()).isTrue();
 		assertThat(rm.defaultFolderSchema().getMetadata(Folder.ADMINISTRATIVE_UNIT_ENTERED).isEssential()).isTrue();
 		assertThat(rm.defaultFolderSchema().getMetadata(Folder.RETENTION_RULE_ENTERED).isEssential()).isTrue();
@@ -198,7 +187,7 @@ public class RMMigrationsAcceptanceTest extends ConstellioTest {
 		assertThat(rm.defaultFolderSchema().getMetadata(Folder.PARENT_FOLDER).isEssential()).isTrue();
 	}
 
-	private void whenMigratingToCurrentVersionThenHasRolesWithRightPermissions() {
+	public void whenMigratingToCurrentVersionThenHasRolesWithRightPermissions() {
 		Role userRole = getModelLayerFactory().getRolesManager().getRole(zeCollection, RMRoles.USER);
 		Role managerRole = getModelLayerFactory().getRolesManager().getRole(zeCollection, RMRoles.MANAGER);
 		Role rgdRole = getModelLayerFactory().getRolesManager().getRole(zeCollection, RMRoles.RGD);
@@ -245,7 +234,7 @@ public class RMMigrationsAcceptanceTest extends ConstellioTest {
 		}
 	}
 
-	protected void setUp(boolean old)
+	public void setUp(boolean old)
 			throws Exception {
 
 		givenDisabledAfterTestValidations();
@@ -262,7 +251,7 @@ public class RMMigrationsAcceptanceTest extends ConstellioTest {
 			getCurrentTestSession().getFactoriesTestFeatures().givenSystemInState(state).withFakeEncryptionServices();
 		}
 
-		rm = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
+		rm = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
 	}
 
 	protected static File getStatesFolder(boolean old) {

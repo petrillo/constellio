@@ -13,6 +13,7 @@ import static com.constellio.app.modules.complementary.esRmRobots.model.Classify
 import static com.constellio.app.modules.complementary.esRmRobots.model.ClassifyConnectorFolderInTaxonomyActionParameters.PATH_PREFIX;
 import static java.util.Arrays.asList;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import com.constellio.app.entities.modules.MetadataSchemasAlterationHelper;
@@ -108,13 +109,28 @@ public class ESRMRobotsMigrationTo5_1_5 implements MigrationScript {
 	private void configureClassifyInTaxonomyParametersForm(String collection,
 			MigrationResourcesProvider migrationResourcesProvider, AppLayerFactory appLayerFactory) {
 
-		String taxonomyTab = "default:tab.taxonomy";
-		String optionsTab = "tab.options";
-		String defaultValuesTab = "tab.defaultValues";
-		String mappingsTab = "tab.mappings";
+		Language language = migrationResourcesProvider.getLanguage();
+		Map<String, Map<Language, String>> groups = new HashMap<>();
 
-		Map<String, Map<Language, String>> groups = migrationResourcesProvider.getLanguageMap(
-				asList(taxonomyTab, optionsTab, defaultValuesTab, mappingsTab));
+		String taxonomyTab = migrationResourcesProvider.get("tab.taxonomy");
+		Map<Language, String> labelsTaxo = new HashMap<>();
+		labelsTaxo.put(language, taxonomyTab);
+		groups.put("tab.taxonomy", labelsTaxo);
+
+		String optionsTab = migrationResourcesProvider.get("tab.options");
+		Map<Language, String> labelsOptions = new HashMap<>();
+		labelsOptions.put(language, optionsTab);
+		groups.put("tab.options", labelsOptions);
+
+		String defaultValuesTab = migrationResourcesProvider.get("tab.defaultValues");
+		Map<Language, String> labelsDefaultValues = new HashMap<>();
+		labelsDefaultValues.put(language, defaultValuesTab);
+		groups.put("tab.defaultValues", labelsDefaultValues);
+
+		String mappingsTab = migrationResourcesProvider.get("tab.mappings");
+		Map<Language, String> labelsMappings = new HashMap<>();
+		labelsMappings.put(language, mappingsTab);
+		groups.put("tab.mappings", labelsMappings);
 
 		String parametersSchema = ClassifyConnectorFolderInTaxonomyActionParameters.SCHEMA;
 

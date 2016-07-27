@@ -73,21 +73,21 @@ public class ClassificationPlanReportPresenter {
 			Map<AdministrativeUnit, List<ClassificationPlanReportModel_Category>> categoriesByAdmUnit = model
 					.getCategoriesByAdministrativeUnitMap();
 
-			MetadataSchemaType retentionRuleSchemaType = rm.retentionRule.schemaType();
+			MetadataSchemaType retentionRuleSchemaType = rm.retentionRuleSchemaType();
 			AdministrativeUnit administrativeUnit = rm.getAdministrativeUnit(administrativeUnitId);
 
 			LogicalSearchQuery retentionRulesQuery = new LogicalSearchQuery()
 					.setCondition(LogicalSearchQueryOperators.from(retentionRuleSchemaType)
-							.where(rm.retentionRule.administrativeUnits())
+							.where(rm.retentionRuleAdministrativeUnitsId())
 							.isContaining(Arrays.asList(administrativeUnit.getId()))).sortAsc(Schemas.CODE);
 			List<String> retentionRulesIds = searchServices.searchRecordIds(retentionRulesQuery);
 
 			for (String retentionRulesId : retentionRulesIds) {
 
-				MetadataSchemaType categorySchemaType = rm.category.schemaType();
+				MetadataSchemaType categorySchemaType = rm.categorySchemaType();
 				LogicalSearchQuery categoriesQuery = new LogicalSearchQuery()
 						.setCondition(LogicalSearchQueryOperators.from(categorySchemaType)
-								.where(rm.category.retentionRules())
+								.where(rm.categoryRetentionRules())
 								.isContaining(Arrays.asList(retentionRulesId)))
 						.sortAsc(Schemas.CODE);
 

@@ -371,7 +371,7 @@ public class RMTestRecords {
 		UserServices userServices = modelLayerFactory.newUserServices();
 		users.setUp(userServices);
 
-		rm = new RMSchemasRecordsServices(collection, appLayerFactory);
+		rm = new RMSchemasRecordsServices(collection, modelLayerFactory);
 		tasks = new TasksSchemasRecordsServices(collection, appLayerFactory);
 		SearchServices searchServices = modelLayerFactory.newSearchServices();
 		List<Record> userRecords = searchServices.search(new LogicalSearchQuery()
@@ -436,7 +436,7 @@ public class RMTestRecords {
 		this.modelLayerFactory = appLayerFactory.getModelLayerFactory();
 		UserServices userServices = modelLayerFactory.newUserServices();
 		users.setUp(userServices).withPasswords(modelLayerFactory.newAuthenticationService());
-		rm = new RMSchemasRecordsServices(collection, appLayerFactory);
+		rm = new RMSchemasRecordsServices(collection, modelLayerFactory);
 		tasks = new TasksSchemasRecordsServices(collection, appLayerFactory);
 		recordServices = modelLayerFactory.newRecordServices();
 		loggingServices = modelLayerFactory.newLoggingServices();
@@ -611,8 +611,7 @@ public class RMTestRecords {
 		});
 
 		transaction.add(rm.newFolderType().setCode("employe").setTitle("Dossier employé").setLinkedSchema("folder_employe"));
-		transaction.add(rm.newFolderType().setCode("meetingFolder").setTitle("Réunion employé")
-				.setLinkedSchema("folder_meetingFolder"));
+		transaction.add(rm.newFolderType().setCode("meetingFolder").setTitle("Réunion employé").setLinkedSchema("folder_meeting"));
 		transaction.add(rm.newFolderType().setCode("other").setTitle("Autre"));
 
 		transaction.add(rm.newDocumentType().setCode("form").setTitle("Formulaire").setLinkedSchema("document_form"));
@@ -3018,15 +3017,15 @@ public class RMTestRecords {
 	}
 
 	public FolderType folderTypeEmploye() {
-		return rm.getFolderTypeWithCode("employe");
+		return rm.getFolderTypeByCode("employe");
 	}
 
 	public FolderType folderTypeMeeting() {
-		return rm.getFolderTypeWithCode("meetingFolder");
+		return rm.getFolderTypeByCode("meetingFolder");
 	}
 
 	public FolderType folderTypeOther() {
-		return rm.getFolderTypeWithCode("other");
+		return rm.getFolderTypeByCode("other");
 	}
 
 	public DocumentType documentTypeForm() {

@@ -62,7 +62,6 @@ public class FolderCopyRuleFieldImpl extends CustomField<String> implements Fold
 
 	private class Generator implements ColumnGenerator {
 		public static final String SELECTOR = "selector";
-		public static final String TITLE = "title";
 		public static final String NUMBER = "number";
 		public static final String TYPE = "type";
 		public static final String RULE = "rule";
@@ -71,9 +70,6 @@ public class FolderCopyRuleFieldImpl extends CustomField<String> implements Fold
 			table.addGeneratedColumn(SELECTOR, this);
 			table.setColumnHeader(SELECTOR, "");
 			table.setColumnWidth(SELECTOR, 50);
-
-			table.addGeneratedColumn(TITLE, this);
-			table.setColumnHeader(TITLE, $("FolderCopyRuleField.title"));
 
 			table.addGeneratedColumn(NUMBER, this);
 			table.setColumnHeader(NUMBER, $("FolderCopyRuleField.number"));
@@ -96,8 +92,6 @@ public class FolderCopyRuleFieldImpl extends CustomField<String> implements Fold
 			switch ((String) columnId) {
 			case SELECTOR:
 				return generateSelectorCell(rule);
-			case TITLE:
-				return generateTitleCell(rule);
 			case NUMBER:
 				return generateNumberCell(rule);
 			case TYPE:
@@ -127,10 +121,6 @@ public class FolderCopyRuleFieldImpl extends CustomField<String> implements Fold
 
 		private Object generateNumberCell(CopyRetentionRule rule) {
 			return rule.getCode();
-		}
-
-		private Object generateTitleCell(CopyRetentionRule rule) {
-			return rule.getTitle();
 		}
 
 		private Object generateTypeCell(CopyRetentionRule rule) {

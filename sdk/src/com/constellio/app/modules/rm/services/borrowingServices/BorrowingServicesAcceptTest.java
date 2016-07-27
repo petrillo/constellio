@@ -47,7 +47,7 @@ public class BorrowingServicesAcceptTest extends ConstellioTest {
 						.withFoldersAndContainersOfEveryStatus()
 		);
 
-		rm = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
+		rm = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
 		borrowingServices = new BorrowingServices(zeCollection, getModelLayerFactory());
 		rmEventsSearchServices = new RMEventsSearchServices(getModelLayerFactory(), zeCollection);
 		searchServices = getModelLayerFactory().newSearchServices();

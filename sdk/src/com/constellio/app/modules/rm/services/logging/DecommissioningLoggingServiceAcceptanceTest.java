@@ -67,7 +67,7 @@ public class DecommissioningLoggingServiceAcceptanceTest extends ConstellioTest 
 		getModelLayerFactory().getTaxonomiesManager().addTaxonomy(taxonomy,
 				getModelLayerFactory().getMetadataSchemasManager());
 
-		rm = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
+		rm = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
 		rmEventsSearchServices = new RMEventsSearchServices(getModelLayerFactory(), zeCollection);
 		UserServices userServices = getModelLayerFactory().newUserServices();
 		users.setUp(userServices);

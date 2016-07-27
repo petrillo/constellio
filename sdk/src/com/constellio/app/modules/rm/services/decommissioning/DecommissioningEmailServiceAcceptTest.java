@@ -28,7 +28,7 @@ public class DecommissioningEmailServiceAcceptTest extends ConstellioTest {
 						.withFoldersAndContainersOfEveryStatus()
 		);
 
-		rm = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
+		rm = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
 		decommissioningService = new DecommissioningService(zeCollection, getModelLayerFactory());
 		recordServices = getModelLayerFactory().newRecordServices();
 		service = new DecommissioningEmailService(zeCollection, getModelLayerFactory());

@@ -29,7 +29,6 @@ import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 
 public class DocumentContextMenuImpl extends RecordContextMenu implements DocumentContextMenu {
-	
 	private boolean visible;
 	private RecordVO recordVO;
 	private ContentVersionVO contentVersionVO;
@@ -48,22 +47,18 @@ public class DocumentContextMenuImpl extends RecordContextMenu implements Docume
 	//private boolean cancelCheckOutButtonVisible;
 	private boolean finalizeButtonVisible;
 
-	protected DocumentContextMenuPresenter presenter;
+	private DocumentContextMenuPresenter presenter;
 
 	public DocumentContextMenuImpl() {
 		this(null);
 	}
 
 	public DocumentContextMenuImpl(DocumentVO documentVO) {
-		presenter = newPresenter();
+		presenter = new DocumentContextMenuPresenter(this);
 		setDocumentVO(documentVO);
 		if (documentVO != null) {
 			presenter.setRecordVO(documentVO);
 		}
-	}
-	
-	protected DocumentContextMenuPresenter newPresenter() {
-		return new DocumentContextMenuPresenter(this);
 	}
 
 	public final boolean isVisible() {

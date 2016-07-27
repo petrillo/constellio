@@ -36,8 +36,6 @@ public interface DataLayerConfiguration {
 
 	IdGeneratorType getIdGeneratorType();
 
-	IdGeneratorType getSecondaryIdGeneratorType();
-
 	boolean isSecondTransactionLogEnabled();
 
 	File getSecondTransactionLogBaseFolder();
@@ -55,11 +53,7 @@ public interface DataLayerConfiguration {
 	SecondTransactionLogReplayFilter getSecondTransactionLogReplayFilter();
 
 	void setSecondTransactionLogFolderEnabled(boolean enable);
-
 	boolean isLocalHttpSolrServer();
 
 	boolean isInRollbackTestMode();
-
-	String createRandomUniqueKey();
-
 }

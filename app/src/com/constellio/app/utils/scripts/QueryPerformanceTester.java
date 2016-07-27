@@ -88,7 +88,7 @@ public class QueryPerformanceTester {
 		SearchServices searchServices = modelLayerFactory.newSearchServices();
 		RMSchemasRecordsServices rm = new RMSchemasRecordsServices(collection, modelLayerFactory);
 
-		List<MetadataSchemaType> types = asList(rm.folder.schemaType(), rm.documentSchemaType(), rm.containerRecord.schemaType());
+		List<MetadataSchemaType> types = asList(rm.folderSchemaType(), rm.documentSchemaType(), rm.containerRecordSchemaType());
 		LogicalSearchQuery query = new LogicalSearchQuery(from(types).returnAll())
 				.setFreeTextQuery("agence rap")
 				.filteredWithUser(user)
@@ -97,10 +97,10 @@ public class QueryPerformanceTester {
 				.setNumberOfRows(10)
 				.setHighlighting(true)
 				.setReturnedMetadatas(ReturnedMetadatasFilter
-						.onlyMetadatas(Schemas.TITLE, rm.folder.administrativeUnit(), rm.folder.category(), rm.folder.openingDate(),
-								rm.folder.semiactiveRetentionType(),
-								rm.folder.activeRetentionType(), rm.folder.archivisticStatus(), rm.folder.closingDate(),
-								rm.folder.retentionRule()));
+						.onlyMetadatas(Schemas.TITLE, rm.folderAdministrativeUnit(), rm.folderCategory(), rm.folderOpenDate(),
+								rm.folderSemiActiveRetentionType(),
+								rm.folderActiveRetentionType(), rm.folderArchivisticStatus(), rm.folderCloseDate(),
+								rm.folderRetentionRule()));
 		List<Record> records = searchServices.search(query);
 
 		LogicalSearchQuery facetQuery = new LogicalSearchQuery(from(types).returnAll())
@@ -109,10 +109,10 @@ public class QueryPerformanceTester {
 				.filteredByStatus(StatusFilter.ACTIVES)
 				.setPreferAnalyzedFields(true)
 				.setNumberOfRows(0);
-		facetQuery.addFieldFacet(rm.folder.administrativeUnit().getDataStoreCode());
-		facetQuery.addFieldFacet(rm.folder.category().getDataStoreCode());
+		facetQuery.addFieldFacet(rm.folderAdministrativeUnit().getDataStoreCode());
+		facetQuery.addFieldFacet(rm.folderCategory().getDataStoreCode());
 		facetQuery.addFieldFacet("schema_s");
-		facetQuery.addFieldFacet(rm.folder.archivisticStatus().getDataStoreCode());
+		facetQuery.addFieldFacet(rm.folderArchivisticStatus().getDataStoreCode());
 		searchServices.search(facetQuery);
 	}
 }

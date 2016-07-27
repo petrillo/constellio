@@ -645,13 +645,5 @@ public class Folder extends RMObject {
 		return this;
 	}
 
-	public Folder getCalendarYearEntered() {
-		return get(CALENDAR_YEAR_ENTERED);
-	}
-
-	public Folder setCalendarYearEntered(String year) {
-		set(CALENDAR_YEAR_ENTERED, year);
-		return this;
-	}
 }
 

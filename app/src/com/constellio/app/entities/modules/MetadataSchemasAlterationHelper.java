@@ -24,7 +24,6 @@ public abstract class MetadataSchemasAlterationHelper {
 	protected MetadataSchemaTypesBuilder typesBuilder;
 	protected String collection;
 	protected ModelLayerFactory modelLayerFactory;
-	protected AppLayerFactory appLayerFactory;
 	protected DataLayerFactory dataLayerFactory;
 	protected MigrationResourcesProvider migrationResourcesProvider;
 
@@ -32,7 +31,6 @@ public abstract class MetadataSchemasAlterationHelper {
 			AppLayerFactory appLayerFactory) {
 		this.collection = collection;
 		this.modelLayerFactory = appLayerFactory.getModelLayerFactory();
-		this.appLayerFactory = appLayerFactory;
 		this.dataLayerFactory = modelLayerFactory.getDataLayerFactory();
 		this.migrationResourcesProvider = migrationResourcesProvider;
 	}
@@ -46,7 +44,7 @@ public abstract class MetadataSchemasAlterationHelper {
 			try {
 				applyI18N(typesBuilder);
 			} catch (MigrationResourcesProviderRuntimeException_NoBundle e) {
-				//LOGGER.warn(e.getMessage());
+				LOGGER.warn(e.getMessage());
 			}
 			metadataSchemasManager.saveUpdateSchemaTypes(typesBuilder);
 		} catch (OptimisticLocking e) {

@@ -265,15 +265,12 @@ public class CartViewImpl extends BaseViewImpl implements CartView {
 		TabSheet.Tab folderTab = tabSheet.addTab(folderLayout = new VerticalLayout(buildFolderFilterComponent(),folderTable));
 		folderTab.setCaption($("CartView.foldersTab"));
 		folderLayout.setDescription(Folder.SCHEMA_TYPE);
-		folderTab.setVisible(!folderTable.getContainerDataSource().getItemIds().isEmpty());
 		TabSheet.Tab documentTab = tabSheet.addTab(documentLayout = new VerticalLayout(buildDocumentFilterComponent(),documentTable));
 		documentTab.setCaption($("CartView.documentsTab"));
 		documentLayout.setDescription(Document.SCHEMA_TYPE);
-		documentTab.setVisible(!documentTable.getContainerDataSource().getItemIds().isEmpty());
 		TabSheet.Tab containerTab = tabSheet.addTab(containerLayout = new VerticalLayout(buildContainerFilterComponent(),containerTable));
 		containerTab.setCaption($("CartView.containersTab"));
 		containerLayout.setDescription(ContainerRecord.SCHEMA_TYPE);
-		containerTab.setVisible(!containerTable.getContainerDataSource().getItemIds().isEmpty());
 		mainLayout = new VerticalLayout(reportSelector = new ReportSelector(presenter));
 		mainLayout.setSizeFull();
 		tabSheet.addSelectedTabChangeListener(new TabSheet.SelectedTabChangeListener() {
@@ -286,11 +283,7 @@ public class CartViewImpl extends BaseViewImpl implements CartView {
 				reportSelector = newReportSelector;
 			}
 		});
-		if(!folderTab.isVisible() && !documentTab.isVisible() && !containerTab.isVisible()) {
-			mainLayout.addComponent(new Label($("CartView.emptyCart")));
-		} else {
-			mainLayout.addComponent(tabSheet);
-		}
+		mainLayout.addComponent(tabSheet);
 		return mainLayout;
 	}
 

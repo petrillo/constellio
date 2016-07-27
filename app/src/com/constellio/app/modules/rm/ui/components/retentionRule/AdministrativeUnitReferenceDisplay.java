@@ -32,14 +32,14 @@ public class AdministrativeUnitReferenceDisplay extends ReferenceDisplay {
 		RMSchemasRecordsServices rmSchemasRecordsServices = new RMSchemasRecordsServices(collection, ui);
 
 		Record record = recordServices.getDocumentById(getRecordId());
-		String id = record.get(rmSchemasRecordsServices.administrativeUnit.parent());
+		String id = record.get(rmSchemasRecordsServices.administrativeUnitParent());
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append(caption);
 		while (id != null) {
 			record = recordServices.getDocumentById(id);
 			String value = recordIdToCaptionConverter.convertToPresentation(id, String.class, getLocale()) + SEPARATOR;
 			stringBuilder.insert(0, value);
-			id = record.get(rmSchemasRecordsServices.administrativeUnit.parent());
+			id = record.get(rmSchemasRecordsServices.administrativeUnitParent());
 		}
 		super.setCaption(stringBuilder.toString());
 	}

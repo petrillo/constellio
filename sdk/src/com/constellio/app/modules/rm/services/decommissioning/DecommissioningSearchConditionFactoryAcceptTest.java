@@ -35,7 +35,7 @@ public class DecommissioningSearchConditionFactoryAcceptTest extends ConstellioT
 						.withFoldersAndContainersOfEveryStatus().withDocumentsDecommissioningList()
 		);
 
-		rm = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
+		rm = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
 		factory = new DecommissioningSearchConditionFactory(zeCollection, getModelLayerFactory());
 	}
 

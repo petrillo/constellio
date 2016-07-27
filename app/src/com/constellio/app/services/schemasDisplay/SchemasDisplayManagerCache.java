@@ -2,7 +2,6 @@ package com.constellio.app.services.schemasDisplay;
 
 import static com.constellio.app.services.schemasDisplay.SchemaDisplayUtils.getCustomSchemaDefaultDisplay;
 import static com.constellio.app.services.schemasDisplay.SchemaDisplayUtils.getDefaultSchemaDefaultDisplay;
-import static com.constellio.app.ui.i18n.i18n.$;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,11 +32,9 @@ public class SchemasDisplayManagerCache {
 	private Map<String, SchemaDisplayConfig> schemas = new HashMap<>();
 	private Map<String, MetadataDisplayConfig> metadatas = new HashMap<>();
 	private Set<String> returnedFields;
-	List<Language> languages;
 
-	public SchemasDisplayManagerCache(String collection, List<Language> languages) {
+	public SchemasDisplayManagerCache(String collection) {
 		this.collection = collection;
-		this.languages = languages;
 	}
 
 	void set(SchemaTypesDisplayConfig types) {
@@ -98,10 +95,7 @@ public class SchemasDisplayManagerCache {
 		Map<String, Map<Language, String>> metadataGroup = new HashMap<>();
 		Map<Language, String> label = new HashMap<>();
 		// TODO iterate on all collections' languages
-
-		for (Language language : languages) {
-			label.put(language, $("default", language.getLocale()));
-		}
+		label.put(Language.French, "Default");
 		metadataGroup.put("default", label);
 		return new SchemaTypeDisplayConfig(collection, typeCode, metadataGroup);
 	}
@@ -212,5 +206,4 @@ public class SchemasDisplayManagerCache {
 
 		return types.get(0);
 	}
-
 }

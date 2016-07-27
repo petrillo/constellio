@@ -34,7 +34,7 @@ public class DecommissioningSecurityService {
 			return true;
 		}
 		return searchServices.hasResults(
-				from(rm.decommissioningList.schemaType()).where(rm.decommissioningList.pendingValidations()).isEqualTo(user));
+				from(rm.decommissioningListSchemaType()).where(rm.decommissioningListPendingValidations()).isEqualTo(user));
 	}
 
 	public boolean hasAccessToDecommissioningListPage(DecommissioningList list, User user) {

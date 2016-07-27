@@ -66,7 +66,7 @@ public class EventCategoriesViewAcceptanceTest extends ConstellioTest {
 		);
 		inCollection(zeCollection).giveReadAccessTo(admin).setCollectionTitleTo("Collection de test");
 
-		rm = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
+		rm = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
 		recordServices = getModelLayerFactory().newRecordServices();
 		loggingServices = getModelLayerFactory().newLoggingServices();
 		authorizationsServices = getModelLayerFactory().newAuthorizationsServices();

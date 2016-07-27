@@ -35,7 +35,7 @@ public class GlobalGroupPageAcceptTest extends ConstellioTest {
 						.withFoldersAndContainersOfEveryStatus()
 		);
 
-		rm = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
+		rm = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
 
 		givenCollection("otherCollection");
 

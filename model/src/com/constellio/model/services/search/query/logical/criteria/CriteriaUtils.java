@@ -1,6 +1,5 @@
 package com.constellio.model.services.search.query.logical.criteria;
 
-import org.apache.solr.client.solrj.util.ClientUtils;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
@@ -14,7 +13,9 @@ import com.constellio.model.entities.schemas.DataStoreField;
 public class CriteriaUtils {
 
 	public static String escape(String string) {
-		return ClientUtils.escapeQueryChars(string);
+		//TODO Write tests with the criterion using escapes!
+		return string.replace("\\", "\\\\").replace(" ", "\\ ").replace("/", "\\/").replace("?", "\\?").replace("*", "\\*")
+				.replace("=", "\\=").replace(":", "\\:");
 	}
 
 	public static String toSolrStringValue(Object value, DataStoreField dataStoreField) {

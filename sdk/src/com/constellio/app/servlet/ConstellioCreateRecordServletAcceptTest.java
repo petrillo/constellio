@@ -5,14 +5,9 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
 
-import com.gargoylesoftware.htmlunit.*;
 import org.joda.time.LocalDate;
 import org.jsoup.Jsoup;
 import org.junit.After;
@@ -30,6 +25,10 @@ import com.constellio.model.services.records.RecordServices;
 import com.constellio.model.services.users.UserServices;
 import com.constellio.sdk.tests.ConstellioTest;
 import com.constellio.sdk.tests.setups.Users;
+import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
+import com.gargoylesoftware.htmlunit.Page;
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.WebRequest;
 
 public class ConstellioCreateRecordServletAcceptTest extends ConstellioTest {
 
@@ -50,7 +49,8 @@ public class ConstellioCreateRecordServletAcceptTest extends ConstellioTest {
 	AdministrativeUnit administrativeUnit;
 	LocalDate nowLocalDate = TimeProvider.getLocalDate();
 
-	Map<String, Object> validArgumentsForFolderCreation;
+	String[] validArgumentsForFolderCreation;
+	String[] missingArgumentsForFolderCreation;
 
 	@Before
 	public void setUp()
@@ -61,9 +61,17 @@ public class ConstellioCreateRecordServletAcceptTest extends ConstellioTest {
 		retentionRule = records.getRule1();
 		administrativeUnit = records.getUnit10a();
 
-        validArgumentsForFolderCreation = makeFolderCreationArgumentsMap("Squatre");
+		validArgumentsForFolderCreation = new String[] {
+				"title=Squatre",
+				"categoryEntered=" + category.getCode(),
+				"retentionRuleEntered=" + retentionRule.getCode(),
+				"administrativeUnitEntered=" + administrativeUnit.getCode(),
+				"createdBy=" + bobGratton,
+				"createdOn=" + nowLocalDate,
+				"openingDate=" + nowLocalDate
+		};
 
-		rmSchemasRecordsServices = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
+		rmSchemasRecordsServices = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
 		recordServices = getModelLayerFactory().newRecordServices();
 		userServices = getModelLayerFactory().newUserServices();
 		bobToken = userServices.generateToken(bobGratton);
@@ -84,55 +92,55 @@ public class ConstellioCreateRecordServletAcceptTest extends ConstellioTest {
 			throws Exception {
 
 		try {
-			callCreateFolders(null, null, zeCollection, HttpMethod.GET, validArgumentsForFolderCreation);
+			callCreateFolder(null, null, zeCollection, validArgumentsForFolderCreation);
 			fail("Exception expected");
 		} catch (FailingHttpStatusCodeException e) {
 			assertThat(e.getStatusCode()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 		}
 
 		try {
-			callCreateFolders(bobServiceKey, null, zeCollection, HttpMethod.GET, validArgumentsForFolderCreation);
+			callCreateFolder(bobServiceKey, null, zeCollection, validArgumentsForFolderCreation);
 			fail("Exception expected");
 		} catch (FailingHttpStatusCodeException e) {
 			assertThat(e.getStatusCode()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 		}
 
 		try {
-			callCreateFolders(null, bobToken, zeCollection, HttpMethod.GET, validArgumentsForFolderCreation);
+			callCreateFolder(null, bobToken, zeCollection, validArgumentsForFolderCreation);
 			fail("Exception expected");
 		} catch (FailingHttpStatusCodeException e) {
 			assertThat(e.getStatusCode()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 		}
 
 		try {
-			callCreateFolders(bobServiceKey, "pouet", zeCollection, HttpMethod.GET, validArgumentsForFolderCreation);
+			callCreateFolder(bobServiceKey, "pouet", zeCollection, validArgumentsForFolderCreation);
 			fail("Exception expected");
 		} catch (FailingHttpStatusCodeException e) {
 			assertThat(e.getStatusCode()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 		}
 
 		try {
-			callCreateFolders(bobServiceKey, aliceToken, zeCollection, HttpMethod.GET, validArgumentsForFolderCreation);
+			callCreateFolder(bobServiceKey, aliceToken, zeCollection, validArgumentsForFolderCreation);
 			fail("Exception expected");
 		} catch (FailingHttpStatusCodeException e) {
 			assertThat(e.getStatusCode()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 		}
 
 		try {
-			callCreateFolders(aliceServiceKey, aliceToken, zeCollection, HttpMethod.GET, validArgumentsForFolderCreation);
+			callCreateFolder(aliceServiceKey, aliceToken, zeCollection, validArgumentsForFolderCreation);
 			fail("Exception expected because alice is not sysadmin");
 		} catch (FailingHttpStatusCodeException e) {
 			assertThat(e.getStatusCode()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 		}
 
 		try {
-			callCreateFolders(bobServiceKey, bobToken, null, HttpMethod.GET, validArgumentsForFolderCreation);
+			callCreateFolder(bobServiceKey, bobToken, null, validArgumentsForFolderCreation);
 			fail("Exception expected because collection parameter");
 		} catch (FailingHttpStatusCodeException e) {
 			assertThat(e.getStatusCode()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 		}
 
-		String recordId = callCreateFolders(bobServiceKey, bobToken, zeCollection, HttpMethod.GET, validArgumentsForFolderCreation);
+		String recordId = callCreateFolder(bobServiceKey, bobToken, zeCollection, validArgumentsForFolderCreation);
 		assertThat(recordId).isNotEmpty();
 	}
 
@@ -140,7 +148,7 @@ public class ConstellioCreateRecordServletAcceptTest extends ConstellioTest {
 	public void givenWebServiceIsEnabledAndValidArgumentsWhenExcuteThenCreateFolder()
 			throws Exception {
 
-		String recordId = callCreateFolders(bobServiceKey, bobToken, zeCollection, HttpMethod.GET, validArgumentsForFolderCreation);
+		String recordId = callCreateFolder(bobServiceKey, bobToken, zeCollection, validArgumentsForFolderCreation);
 
 		Folder folder = rmSchemasRecordsServices.getFolder(recordId);
 		assertThat(folder.getTitle()).isEqualTo("Squatre");
@@ -156,79 +164,29 @@ public class ConstellioCreateRecordServletAcceptTest extends ConstellioTest {
 	public void givenWebServiceIsEnabledAndGoodAuthenticationAndMissingRequiredFieldsThenGoodResponse()
 			throws Exception {
 
-        Map<String, Object> missingArgumentsForFolderCreation = new HashMap<String, Object>() {
-            {
-                put("createdBy", bobGratton);
-                put("createdOn", nowLocalDate);
+		missingArgumentsForFolderCreation = new String[] {
+				"createdBy=" + bobGratton,
+				"createdOn=" + nowLocalDate,
+		};
 
-            }
-        };
-
-		String message = callCreateFolders(bobServiceKey, bobToken, zeCollection, HttpMethod.GET, missingArgumentsForFolderCreation);
+		String message = callCreateFolder(bobServiceKey, bobToken, zeCollection, missingArgumentsForFolderCreation);
 
 		assertThat(message).contains("Métadonnée Date d'ouverture requise", "Métadonnée Titre requise");
 	}
 
-    @Test
-    public void givenWebServiceIsEnabledAndValidArgumentsWhenExecuteThenCreateFolders()
-            throws Exception {
+	private String callCreateFolder(String serviceKey, String token, String collection, String... otherParams)
+			throws IOException {
 
-        String resultText = callCreateFolders(bobServiceKey, bobToken, zeCollection, HttpMethod.POST, makeFolderCreationArgumentsMap("Squatre0"), makeFolderCreationArgumentsMap("Squatre1"), makeFolderCreationArgumentsMap("Squatre2"));
+		String url = "http://localhost:7070/constellio/createRecord?schema=folder_default";
 
-        String[] recordsId = resultText.split(" ");
-        assertThat(recordsId).hasSize(3);
-
-        for (int i = 0; i < 3; i++) {
-            Folder folder = rmSchemasRecordsServices.getFolder(recordsId[i]);
-            assertThat(folder.getTitle()).isEqualTo("Squatre" + i);
-            assertThat(folder.getCategoryEntered()).isEqualTo(category.getId());
-            assertThat(folder.getRetentionRuleEntered()).isEqualTo(retentionRule.getId());
-            assertThat(folder.getAdministrativeUnitEntered()).isEqualTo(administrativeUnit.getId());
-            assertThat(folder.getCreatedBy()).isEqualTo(userServices.getUserInCollection(bobGratton, zeCollection).getId());
-            assertThat(folder.getCreatedOn().toLocalDate()).isEqualTo(nowLocalDate);
-            assertThat(folder.getOpenDate()).isEqualTo(nowLocalDate);
-        }
-    }
-
-    private Map<String, Object> makeFolderCreationArgumentsMap(final String title) {
-        return new HashMap<String, Object>() {
-            {
-                put("title", title);
-                put("categoryEntered", category.getCode());
-                put("retentionRuleEntered", retentionRule.getCode());
-                put("administrativeUnitEntered", administrativeUnit.getCode());
-                put("createdBy", bobGratton);
-                put("createdOn", nowLocalDate);
-                put("openingDate", nowLocalDate);
-            }
-        };
-    }
-
-	private String callCreateFolders(String serviceKey, String token, String collection, HttpMethod httpMethod, Map<String, Object> ... otherParamsArray)
-            throws IOException, InterruptedException {
-        StringBuilder url = new StringBuilder("http://localhost:7070/constellio/createRecord?schema=folder_default");
-        StringBuilder body = new StringBuilder("<Folders>");
-        for (Map<String, Object> otherParams : otherParamsArray) {
-            if (HttpMethod.GET.equals(httpMethod)) {
-                for (Map.Entry<String, Object> element : otherParams.entrySet()) {
-                    url.append("&").append(element.getKey()).append("=").append(element.getValue());
-                }
-                break;
-            } else if (HttpMethod.POST.equals(httpMethod)) {
-                body.append("<Folder");
-                for (Map.Entry<String, Object> entry : otherParams.entrySet()) {
-                    body.append(" ").append(entry.getKey()).append("='").append(entry.getValue()).append("'");
-                }
-                body.append("/>");
-            }
-        }
-        body.append("</Folders>");
+		for (String otherParam : otherParams) {
+			url += "&" + otherParam;
+		}
 
 		System.out.println(url);
 
 		WebClient webClient = new WebClient();
-
-		WebRequest webRequest = new WebRequest(new URL(url.toString()), httpMethod);
+		WebRequest webRequest = new WebRequest(new URL(url));
 		if (serviceKey != null) {
 			webRequest.setAdditionalHeader("serviceKey", serviceKey);
 		}
@@ -238,13 +196,10 @@ public class ConstellioCreateRecordServletAcceptTest extends ConstellioTest {
 		if (token != null) {
 			webRequest.setAdditionalHeader("token", token);
 		}
-        if (HttpMethod.POST.equals(httpMethod)) {
-            webRequest.setAdditionalHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML);
-            webRequest.setRequestBody(body.toString());
-        }
 		Page page = webClient.getPage(webRequest);
 		String html = page.getWebResponse().getContentAsString();
-		return Jsoup.parse(html).text();
+		String content = Jsoup.parse(html).text();
+		return content;
 
 	}
 }

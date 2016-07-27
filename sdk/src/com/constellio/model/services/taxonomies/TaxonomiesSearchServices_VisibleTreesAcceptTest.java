@@ -71,7 +71,7 @@ public class TaxonomiesSearchServices_VisibleTreesAcceptTest extends ConstellioT
 
 		inCollection(zeCollection).giveReadAccessTo(admin);
 
-		rm = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
+		rm = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
 		service = getModelLayerFactory().newTaxonomiesSearchService();
 		decommissioningService = new DecommissioningService(zeCollection, getModelLayerFactory());
 		recordServices = getModelLayerFactory().newRecordServices();

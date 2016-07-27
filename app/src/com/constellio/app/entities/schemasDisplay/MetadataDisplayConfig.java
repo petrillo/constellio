@@ -74,9 +74,4 @@ public class MetadataDisplayConfig {
 		return new MetadataDisplayConfig(inheritance.collection, metadataCode, inheritance.visibleInAdvancedSearch,
 				inheritance.inputType, inheritance.highlight, inheritance.metadataGroupCode);
 	}
-
-	public MetadataDisplayConfig withCode(String code) {
-		return new MetadataDisplayConfig(collection, code, visibleInAdvancedSearch, inputType, highlight,
-				metadataGroupCode);
-	}
 }

@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.constellio.app.modules.rm.services.RMSchemasRecordsServices;
 import com.constellio.app.modules.rm.ui.entities.DocumentVO;
-import com.constellio.app.services.factories.AppLayerFactory;
 import com.constellio.app.services.factories.ConstellioFactories;
 import com.constellio.app.ui.entities.MetadataValueVO;
 import com.constellio.app.ui.entities.RecordVO.VIEW_MODE;
@@ -25,7 +24,6 @@ public class DocumentToVOBuilder extends RecordToVOBuilder {
 	transient ParsedContent parsedContent;
 
 	transient ModelLayerFactory modelLayerFactory;
-	transient AppLayerFactory appLayerFactory;
 
 	public DocumentToVOBuilder(ModelLayerFactory modelLayerFactory) {
 		this.modelLayerFactory = modelLayerFactory;
@@ -39,7 +37,6 @@ public class DocumentToVOBuilder extends RecordToVOBuilder {
 
 	private void init() {
 		modelLayerFactory = ConstellioFactories.getInstance().getModelLayerFactory();
-		appLayerFactory = ConstellioFactories.getInstance().getAppLayerFactory();
 	}
 
 	@Override

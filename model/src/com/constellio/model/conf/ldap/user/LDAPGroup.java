@@ -15,16 +15,17 @@ public class LDAPGroup {
 	//requete ldap (&(objectCategory=person)(objectClass=user)(primaryGroupID=XXXX))
 	public static final String MEMBER = "member";
 	public static final String MEMBER_OF = "memberof";
-	public static final String[] FETCHED_ATTRIBUTES = { DISTINGUISHED_NAME, COMMON_NAME, MEMBER, MEMBER_OF };
+	public static final String[] FETCHED_ATTRIBUTES = {DISTINGUISHED_NAME, COMMON_NAME, MEMBER, MEMBER_OF};
 
 	private String distinguishedName;
 	private String simpleName;
 
 	private List<String> ldapUsers = new ArrayList<>();
 
+
 	public LDAPGroup(String simpleName, String distinguishedName) {
 		super();
-		this.simpleName = extractSimpleName(simpleName);
+		this.simpleName = simpleName;
 		this.distinguishedName = distinguishedName;
 	}
 
@@ -34,13 +35,9 @@ public class LDAPGroup {
 		this.distinguishedName = distinguishedName;
 	}
 
-	private String extractSimpleName(String simpleNameOrDN) {
+	private String extractSimpleName(String distinguishedName) {
 		//CN=Denied RODC Password Replication Group,CN=Users,DC=test,DC=doculibre,DC=ca
-		if (simpleNameOrDN.contains("=")) {
-			return StringUtils.substringBetween(simpleNameOrDN, "=", ",");
-		} else {
-			return simpleNameOrDN;
-		}
+		return StringUtils.substringBetween(distinguishedName, "CN=", ",");
 	}
 
 	public String getDistinguishedName() {
@@ -51,8 +48,8 @@ public class LDAPGroup {
 		return simpleName;
 	}
 
-	public void addUser(String userId) {
-		if (!this.ldapUsers.contains(userId)) {
+	public void addUser(String userId){
+		if(!this.ldapUsers.contains(userId)){
 			this.ldapUsers.add(userId);
 		}
 	}
@@ -68,16 +65,12 @@ public class LDAPGroup {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
-			return true;
-		if (o == null || getClass() != o.getClass())
-			return false;
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
 
 		LDAPGroup ldapGroup = (LDAPGroup) o;
 
-		if (distinguishedName != null ?
-				!distinguishedName.equals(ldapGroup.distinguishedName) :
-				ldapGroup.distinguishedName != null)
+		if (distinguishedName != null ? !distinguishedName.equals(ldapGroup.distinguishedName) : ldapGroup.distinguishedName != null)
 			return false;
 
 		return true;

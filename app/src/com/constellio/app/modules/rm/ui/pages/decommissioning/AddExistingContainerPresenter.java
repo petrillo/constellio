@@ -123,7 +123,6 @@ public class AddExistingContainerPresenter extends SearchPresenter<AddExistingCo
 		}
 		this.pageNumber = search.getPageNumber();
 		this.setFacetSelections(search.getSelectedFacets());
-		this.setSelectedPageLength(search.getPageLength());
 	}
 
 	@Override
@@ -219,22 +218,22 @@ public class AddExistingContainerPresenter extends SearchPresenter<AddExistingCo
 
 	private LogicalSearchCondition selectByDecommissioningListProperties() {
 		if (rmConfigs().areMixedContainersAllowed()) {
-			return from(rmRecordServices().containerRecord.schemaType())
-					.where(rmRecordServices().containerRecord.decommissioningType()).isEqualTo(decommissioningType);
+			return from(rmRecordServices().containerRecordSchemaType())
+					.where(rmRecordServices().containerDecommissioningType()).isEqualTo(decommissioningType);
 		}
-		return from(rmRecordServices().containerRecord.schemaType())
-				.where(rmRecordServices().containerRecord.administrativeUnit()).isEqualTo(adminUnitId)
-				.andWhere(rmRecordServices().containerRecord.decommissioningType()).isEqualTo(decommissioningType);
+		return from(rmRecordServices().containerRecordSchemaType())
+				.where(rmRecordServices().containerAdministrativeUnit()).isEqualTo(adminUnitId)
+				.andWhere(rmRecordServices().containerDecommissioningType()).isEqualTo(decommissioningType);
 	}
 
 	private LogicalSearchCondition selectByAdvancedSearchCriteria(List<Criterion> criteria)
 			throws ConditionException {
-		return new ConditionBuilder(rmRecordServices().containerRecord.schemaType()).build(criteria);
+		return new ConditionBuilder(rmRecordServices().containerRecordSchemaType()).build(criteria);
 	}
 
 	private RMSchemasRecordsServices rmRecordServices() {
 		if (rmRecordServices == null) {
-			rmRecordServices = new RMSchemasRecordsServices(view.getCollection(), appLayerFactory);
+			rmRecordServices = new RMSchemasRecordsServices(view.getCollection(), modelLayerFactory);
 		}
 		return rmRecordServices;
 	}
@@ -260,8 +259,7 @@ public class AddExistingContainerPresenter extends SearchPresenter<AddExistingCo
 				.setTemporary(true)
 				.setAdvancedSearch(view.getSearchCriteria())
 				.setPageNumber(pageNumber)
-				.setSelectedFacets(this.getFacetSelections().getNestedMap())
-				.setPageLength(getSelectedPageLength());
+				.setSelectedFacets(this.getFacetSelections().getNestedMap());
 		try {
 			recordServices().update(search);
 			if (refreshPage) {

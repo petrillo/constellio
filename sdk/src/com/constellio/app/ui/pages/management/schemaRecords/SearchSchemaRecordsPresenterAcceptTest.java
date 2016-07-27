@@ -3,7 +3,6 @@ package com.constellio.app.ui.pages.management.schemaRecords;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -21,6 +20,7 @@ import com.constellio.app.ui.pages.base.SessionContext;
 import com.constellio.app.ui.params.ParamUtils;
 import com.constellio.model.services.records.RecordServices;
 import com.constellio.sdk.tests.ConstellioTest;
+import com.google.gwt.dev.util.collect.HashMap;
 
 public class SearchSchemaRecordsPresenterAcceptTest extends ConstellioTest {
 

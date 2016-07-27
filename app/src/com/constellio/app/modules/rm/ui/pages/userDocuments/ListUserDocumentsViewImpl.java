@@ -240,15 +240,8 @@ public class ListUserDocumentsViewImpl extends BaseViewImpl implements ListUserD
 	}
 
 	protected Component newCaptionComponent(UserDocumentVO userDocumentVO) {
-		Component captionComponent;
 		ContentVersionVO contentVersionVO = userDocumentVO.getContent();
-		if (contentVersionVO != null) {
-			String filename = contentVersionVO.getFileName();
-			captionComponent = new ContentVersionDisplay(userDocumentVO, contentVersionVO, filename);
-		} else {
-			captionComponent = new Label("");
-		}
-		return captionComponent;
+		return new ContentVersionDisplay(userDocumentVO, contentVersionVO, contentVersionVO.getFileName());
 	}
 
 	@SuppressWarnings("unchecked")

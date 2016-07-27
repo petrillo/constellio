@@ -9,7 +9,6 @@ import org.apache.commons.io.FileUtils;
 import com.constellio.app.entities.modules.MigrationResourcesProvider;
 import com.constellio.app.entities.modules.MigrationScript;
 import com.constellio.app.services.factories.AppLayerFactory;
-import com.constellio.data.conf.DataLayerConfiguration;
 import com.constellio.data.dao.services.bigVault.solr.BigVaultException;
 import com.constellio.data.dao.services.factories.DataLayerFactory;
 import com.constellio.model.conf.ModelLayerConfiguration;
@@ -35,13 +34,13 @@ public class CoreMigrationTo_5_1_3 implements MigrationScript {
 		appLayerFactory.getSystemGlobalConfigsManager().setReindexingRequired(true);
 	}
 
-	public static void initEncryption(String collection, MigrationResourcesProvider provider, AppLayerFactory appLayerFactory) {
+	private void initEncryption(String collection, MigrationResourcesProvider provider, AppLayerFactory appLayerFactory) {
 		ModelLayerFactory modelLayerFactory = appLayerFactory.getModelLayerFactory();
 		DataLayerFactory dataLayerFactory = modelLayerFactory.getDataLayerFactory();
 		EncryptionServices encryptionServices;
 		try {
 			if (isFirstInit(dataLayerFactory)) {
-				createKeyFile(modelLayerFactory.getConfiguration(), dataLayerFactory.getDataLayerConfiguration());
+				createKeyFile(modelLayerFactory.getConfiguration());
 				createKeyDocument(dataLayerFactory);
 				encryptionServices = modelLayerFactory.newEncryptionServices();
 				encryptLdapPassword(modelLayerFactory, encryptionServices);
@@ -55,7 +54,7 @@ public class CoreMigrationTo_5_1_3 implements MigrationScript {
 		}
 	}
 
-	private static void encryptEmailServerPassword(EmailConfigurationsManager emailManager,
+	private void encryptEmailServerPassword(EmailConfigurationsManager emailManager,
 			String collection) {
 		EmailServerConfiguration config = emailManager.getEmailConfiguration(collection, false);
 		if (config != null) {
@@ -63,11 +62,11 @@ public class CoreMigrationTo_5_1_3 implements MigrationScript {
 		}
 	}
 
-	private static void encryptUserTokens(UserCredentialsManager userCredentialsManager) {
+	private void encryptUserTokens(UserCredentialsManager userCredentialsManager) {
 		userCredentialsManager.rewrite();
 	}
 
-	private static void encryptLdapPassword(ModelLayerFactory modelLayerFactory, EncryptionServices encryptionServices) {
+	private void encryptLdapPassword(ModelLayerFactory modelLayerFactory, EncryptionServices encryptionServices) {
 		LDAPConfigurationManager ldapConfigManager = modelLayerFactory
 				.getLdapConfigurationManager();
 		LDAPServerConfiguration serverConfiguration = ldapConfigManager.getLDAPServerConfiguration();
@@ -78,21 +77,21 @@ public class CoreMigrationTo_5_1_3 implements MigrationScript {
 		}
 	}
 
-	private static void createKeyDocument(DataLayerFactory dataLayerFactory) {
+	private void createKeyDocument(DataLayerFactory dataLayerFactory) {
 		dataLayerFactory.saveEncryptionKey();
 	}
 
-	private static void createKeyFile(ModelLayerConfiguration modelLayerConfiguration, DataLayerConfiguration dataLayerConfiguration)
+	private void createKeyFile(ModelLayerConfiguration modelLayerConfiguration)
 			throws IOException {
 		File encryptionFile = modelLayerConfiguration.getConstellioEncryptionFile();
 
 		Random random = new Random();
 		String fileKeyPart =
-				"constellio_" + dataLayerConfiguration.createRandomUniqueKey() + "_ext";
+				"constellio_" + random.nextInt(1000) + "-" + random.nextInt(1000) + "-" + random.nextInt(1000) + "_ext";
 		FileUtils.writeByteArrayToFile(encryptionFile, fileKeyPart.getBytes());
 	}
 
-	private static boolean isFirstInit(DataLayerFactory dataLayerFactory) {
+	private boolean isFirstInit(DataLayerFactory dataLayerFactory) {
 		try {
 			dataLayerFactory.readEncryptionKey();
 			return false;

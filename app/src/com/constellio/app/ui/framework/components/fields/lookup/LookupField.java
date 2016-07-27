@@ -238,9 +238,7 @@ public abstract class LookupField<T extends Serializable> extends CustomField<T>
 	public void validate()
 			throws InvalidValueException {
 		try {
-			if (autoCompleteField != null) {
-				autoCompleteField.validate();
-			}
+			autoCompleteField.validate();
 			super.validate();
 			removeStyleName(ERROR_STYLE_NAME);
 		} catch (InvalidValueException e) {

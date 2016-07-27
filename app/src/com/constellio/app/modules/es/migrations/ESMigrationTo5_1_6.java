@@ -23,6 +23,7 @@ import static com.constellio.model.entities.schemas.MetadataValueType.STRUCTURE;
 import static com.constellio.model.entities.schemas.MetadataValueType.TEXT;
 import static java.util.Arrays.asList;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -94,27 +95,39 @@ public class ESMigrationTo5_1_6 extends MigrationHelper implements MigrationScri
 		return "5.1.6";
 	}
 
+	Map<String, Map<Language, String>> groups;
 	String configurationTab;
 	String executionTab;
 	String credentialsTab;
 	String ldapUserTab;
-	Map<String, Map<Language, String>> groups;
 
 	@Override
 	public void migrate(String collection, MigrationResourcesProvider migrationResourcesProvider,
 			AppLayerFactory appLayerFactory)
 			throws Exception {
 		this.migrationResourcesProvider = migrationResourcesProvider;
+		Language language = migrationResourcesProvider.getLanguage();
+		groups = new HashMap<>();
+		Map<Language, String> labels = new HashMap<>();
 
-		configurationTab = "default:connectors.configurationTab";
+		configurationTab = migrationResourcesProvider.get("connectors.configurationTab");
+		labels.put(language, configurationTab);
+		groups.put("connectors.configurationTab", labels);
 
-		executionTab = "connectors.executionTab";
+		executionTab = migrationResourcesProvider.get("connectors.executionTab");
+		labels = new HashMap<>();
+		labels.put(language, executionTab);
+		groups.put("connectors.executionTab", labels);
 
-		credentialsTab = "connectors.credentialsTab";
+		credentialsTab = migrationResourcesProvider.get("connectors.credentialsTab");
+		labels = new HashMap<>();
+		labels.put(language, credentialsTab);
+		groups.put("connectors.credentialsTab", labels);
 
-		ldapUserTab = "connectors.ldapUserTab";
-		groups = migrationResourcesProvider
-				.getLanguageMap(asList(configurationTab, executionTab, credentialsTab, ldapUserTab));
+		ldapUserTab = migrationResourcesProvider.get("connectors.ldapUserTab");
+		labels = new HashMap<>();
+		labels.put(language, ldapUserTab);
+		groups.put("connectors.ldapUserTab", labels);
 
 		clearExistingRecordsAndSchemas(collection, appLayerFactory);
 		deleteESFacets(collection, appLayerFactory);
@@ -623,7 +636,7 @@ public class ESMigrationTo5_1_6 extends MigrationHelper implements MigrationScri
 		facet.withLabel(mimetype, this.migrationResourcesProvider.get("init.facet.mimetype." + mimetype));
 	}
 
-	public static void createSmbFoldersTaxonomy(String collection, ModelLayerFactory modelLayerFactory,
+	private void createSmbFoldersTaxonomy(String collection, ModelLayerFactory modelLayerFactory,
 			MigrationResourcesProvider migrationResourcesProvider) {
 		String title = migrationResourcesProvider.getDefaultLanguageString("init.taxoSmbFolders");
 		Taxonomy taxonomy = Taxonomy.createPublic(ESTaxonomies.SMB_FOLDERS, title, collection, ConnectorSmbFolder.SCHEMA_TYPE);

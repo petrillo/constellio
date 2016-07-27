@@ -159,7 +159,6 @@ public class AddEditMetadataPresenter extends SingleSchemaBasePresenter<AddEditM
 			builder.addLabel(Language.withCode(entry.getKey()), entry.getValue());
 		}
 		builder.setDefaultRequirement(formMetadataVO.isRequired());
-		builder.setDuplicable(formMetadataVO.isDuplicable());
 
 		try {
 			schemasManager.saveUpdateSchemaTypes(types);

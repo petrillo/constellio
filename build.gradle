@@ -28,12 +28,6 @@ allprojects {
         options.encoding = 'UTF-8'
     }
 
-    repositories {
-        flatDir {
-            dirs "${rootDir}/libs", "libs/"
-        }
-    }
-
     ext {
         version_mime = "0.7.2"
     }
@@ -64,6 +58,10 @@ allprojects {
         maven {
             name "sonatype vaadin"
             url "https://oss.sonatype.org/content/repositories/vaadin/"
+        }
+
+        flatDir {
+            dirs 'libs/'
         }
     }
 
@@ -105,17 +103,18 @@ allprojects {
 
     configurations {
         compile.exclude module: "asm-debug-all"
+//		compile.exclude module: "asm"
         compile.exclude module: "org.objectweb.asm"
     }
 
     jar {
-        version = '6.4.2.1'
+        version = '6.3.43'
     }
 }
 
 war {
     baseName = "constellio"
-    version = "6.4.2.1"
+    version = "6.3.43"
 
     webInf {
         from("resources_i18n/") {

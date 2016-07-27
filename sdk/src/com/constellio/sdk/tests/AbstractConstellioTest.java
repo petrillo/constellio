@@ -124,7 +124,6 @@ public abstract class AbstractConstellioTest implements FailureDetectionTestWatc
 	protected String bobGratton = "bob";
 	protected String chuckNorris = "chuck";
 	protected String charlesFrancoisXavier = "charles";
-	protected String charles = "charles";
 	protected String dakota = "dakota";
 	protected String edouard = "edouard";
 	protected String gandalf = "gandalf";
@@ -947,7 +946,7 @@ public abstract class AbstractConstellioTest implements FailureDetectionTestWatc
 	}
 
 	protected void givenTransactionLogIsEnabled(final SecondTransactionLogReplayFilter filter) {
-		final File logTempFolder = getCurrentTestSession().getFileSystemTestFeatures().newTempFolderWithName( "tLog");
+		final File logTempFolder = getCurrentTestSession().getFileSystemTestFeatures().newTempFolderWithName("tLog");
 		configure(new DataLayerConfigurationAlteration() {
 			@Override
 			public void alter(DataLayerConfiguration configuration) {

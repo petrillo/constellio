@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.constellio.model.entities.records.Transaction;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
@@ -30,7 +31,6 @@ import com.constellio.app.modules.rm.services.borrowingServices.BorrowingType;
 import com.constellio.app.modules.rm.services.decommissioning.DecommissioningService;
 import com.constellio.app.modules.rm.ui.builders.DocumentToVOBuilder;
 import com.constellio.app.modules.rm.ui.builders.FolderToVOBuilder;
-import com.constellio.app.modules.rm.ui.components.breadcrumb.FolderDocumentBreadcrumbTrail;
 import com.constellio.app.modules.rm.ui.entities.DocumentVO;
 import com.constellio.app.modules.rm.ui.entities.FolderVO;
 import com.constellio.app.modules.rm.ui.util.ConstellioAgentUtils;
@@ -58,7 +58,6 @@ import com.constellio.app.ui.pages.base.SessionContext;
 import com.constellio.app.ui.pages.base.SingleSchemaBasePresenter;
 import com.constellio.data.utils.TimeProvider;
 import com.constellio.model.entities.records.Record;
-import com.constellio.model.entities.records.Transaction;
 import com.constellio.model.entities.records.wrappers.EmailToSend;
 import com.constellio.model.entities.records.wrappers.User;
 import com.constellio.model.entities.schemas.Metadata;
@@ -111,7 +110,7 @@ public class DisplayFolderPresenter extends SingleSchemaBasePresenter<DisplayFol
 	}
 
 	private void initTransientObjects() {
-		rmSchemasRecordsServices = new RMSchemasRecordsServices(collection, appLayerFactory);
+		rmSchemasRecordsServices = new RMSchemasRecordsServices(collection, modelLayerFactory);
 		borrowingServices = new BorrowingServices(collection, modelLayerFactory);
 		folderVOBuilder = new FolderToVOBuilder();
 		documentVOBuilder = new DocumentToVOBuilder(modelLayerFactory);
@@ -127,11 +126,7 @@ public class DisplayFolderPresenter extends SingleSchemaBasePresenter<DisplayFol
 	}
 
 	public void forParams(String params) {
-		String id = params;
-		String taxonomyCode = view.getUIContext().getAttribute(FolderDocumentBreadcrumbTrail.TAXONOMY_CODE);
-		view.setTaxonomyCode(taxonomyCode);
-		
-		Record record = getRecord(id);
+		Record record = getRecord(params);
 		this.folderVO = folderVOBuilder.build(record, VIEW_MODE.DISPLAY, view.getSessionContext());
 		setSchemaCode(record.getSchemaCode());
 		view.setRecord(folderVO);
@@ -359,16 +354,13 @@ public class DisplayFolderPresenter extends SingleSchemaBasePresenter<DisplayFol
 		return ComponentState.visibleIf(user.has(RMPermissionsTo.MANAGE_FOLDER_AUTHORIZATIONS).on(folder));
 	}
 
-	ComponentState getShareButtonState(User user, Folder folder) {
+	private ComponentState getShareButtonState(User user, Folder folder) {
 		if (user.has(RMPermissionsTo.SHARE_FOLDER).on(folder)) {
 			if (folder.getPermissionStatus().isInactive()) {
 				return ComponentState.visibleIf(user.has(RMPermissionsTo.SHARE_A_INACTIVE_FOLDER).on(folder));
 			}
 			if (folder.getPermissionStatus().isSemiActive()) {
 				return ComponentState.visibleIf(user.has(RMPermissionsTo.SHARE_A_SEMIACTIVE_FOLDER).on(folder));
-			}
-			if(StringUtils.isNotBlank(folder.getLegacyId())) {
-				return ComponentState.visibleIf(user.has(RMPermissionsTo.SHARE_A_IMPORTED_FOLDER).on(folder));
 			}
 			return ComponentState.ENABLED;
 		}
@@ -401,13 +393,8 @@ public class DisplayFolderPresenter extends SingleSchemaBasePresenter<DisplayFol
 	}
 
 	ComponentState getEditButtonState(User user, Folder folder) {
-		if(StringUtils.isBlank(folder.getLegacyId())||
-				(StringUtils.isNotBlank(folder.getLegacyId()) && user.has(RMPermissionsTo.MODIFY_IMPORTED_FOLDERS).on(folder))) {
-			return ComponentState.INVISIBLE;
-		}
 		return ComponentState.visibleIf(user.hasWriteAccess().on(folder)
 				&& extensions.isRecordModifiableBy(folder.getWrappedRecord(), user));
-
 	}
 
 	ComponentState getAddFolderButtonState(User user, Folder folder) {
@@ -479,7 +466,7 @@ public class DisplayFolderPresenter extends SingleSchemaBasePresenter<DisplayFol
 		view.setSubFolders(subFoldersDataProvider);
 		view.setTasks(tasksDataProvider);
 
-		RMSchemasRecordsServices schemas = new RMSchemasRecordsServices(collection, appLayerFactory);
+		RMSchemasRecordsServices schemas = new RMSchemasRecordsServices(collection, modelLayerFactory);
 		Folder folder = schemas.wrapFolder(toRecord(folderVO));
 		disableMenuItems(folder);
 		modelLayerFactory.newLoggingServices().logRecordView(folder.getWrappedRecord(), getCurrentUser());
@@ -514,12 +501,15 @@ public class DisplayFolderPresenter extends SingleSchemaBasePresenter<DisplayFol
 
 	public void duplicateFolderButtonClicked() {
 		Folder folder = rmSchemasRecordsServices().getFolder(folderVO.getId());
-		view.navigate().to(RMViews.class).duplicateFolder(folder.getId(), false);
+		Folder duplicatedFolder = decommissioningService().duplicateAndSave(folder, getCurrentUser());
+		view.navigate().to(RMViews.class).editFolder(duplicatedFolder.getId());
 	}
 
 	public void duplicateStructureButtonClicked() {
 		Folder folder = rmSchemasRecordsServices().getFolder(folderVO.getId());
-		view.navigate().to(RMViews.class).duplicateFolder(folder.getId(), true);
+		Folder duplicatedFolder = decommissioningService().duplicateStructureAndSave(folder, getCurrentUser());
+		view.navigate().to(RMViews.class).displayFolder(duplicatedFolder.getId());
+		view.showMessage($("DisplayFolderView.duplicated"));
 	}
 
 	public void linkToFolderButtonClicked() {
@@ -575,7 +565,7 @@ public class DisplayFolderPresenter extends SingleSchemaBasePresenter<DisplayFol
 	}
 
 	private RMSchemasRecordsServices rmSchemasRecordsServices() {
-		return new RMSchemasRecordsServices(getCurrentUser().getCollection(), appLayerFactory);
+		return new RMSchemasRecordsServices(getCurrentUser().getCollection(), modelLayerFactory);
 	}
 
 	private boolean documentExists(String fileName) {
@@ -711,7 +701,7 @@ public class DisplayFolderPresenter extends SingleSchemaBasePresenter<DisplayFol
 
 	public void alertWhenAvailable() {
 		try {
-			RMSchemasRecordsServices schemas = new RMSchemasRecordsServices(view.getCollection(), appLayerFactory);
+			RMSchemasRecordsServices schemas = new RMSchemasRecordsServices(view.getCollection(), modelLayerFactory);
 			Folder folder = schemas.getFolder(folderVO.getId());
 			List<String> usersToAlert = folder.getAlertUsersWhenAvailable();
 			String currentUserId = getCurrentUser().getId();
@@ -831,7 +821,7 @@ public class DisplayFolderPresenter extends SingleSchemaBasePresenter<DisplayFol
 
 	public void parentFolderButtonClicked(String parentId)
 			throws RecordServicesException {
-		RMSchemasRecordsServices rmSchemas = new RMSchemasRecordsServices(collection, appLayerFactory);
+		RMSchemasRecordsServices rmSchemas = new RMSchemasRecordsServices(collection, modelLayerFactory);
 
 		String currentFolderId = folderVO.getId();
 		if (StringUtils.isNotBlank(parentId)) {

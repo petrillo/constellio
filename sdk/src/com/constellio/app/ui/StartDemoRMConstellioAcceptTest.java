@@ -8,7 +8,6 @@ import java.io.File;
 import java.util.Arrays;
 
 import com.constellio.model.entities.records.wrappers.User;
-import com.constellio.model.entities.schemas.Schemas;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -152,7 +151,7 @@ public class StartDemoRMConstellioAcceptTest extends ConstellioTest {
 		schemaDisplayManager
 				.saveSchema(schemaDisplayManager.getSchema(zeCollection, "userTask_test2").withNewFormMetadata("toto"));
 
-		RMSchemasRecordsServices rm = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
+		RMSchemasRecordsServices rm = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
 		TasksSchemasRecordsServices tasks = new TasksSchemasRecordsServices(zeCollection, getAppLayerFactory());
 		try {
 			Transaction transaction = new Transaction();

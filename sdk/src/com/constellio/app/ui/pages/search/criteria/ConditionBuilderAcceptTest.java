@@ -47,7 +47,7 @@ public class ConditionBuilderAcceptTest extends ConstellioTest {
 		searchServices = getModelLayerFactory().newSearchServices();
 		recordServices = getModelLayerFactory().newRecordServices();
 
-		rm = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
+		rm = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
 		folderConditionBuilder = new ConditionBuilder(rm.folderSchemaType());
 	}
 

@@ -52,7 +52,7 @@ public class RecordsImportServicesLoadTest extends ConstellioTest {
 
 		admin = getModelLayerFactory().newUserServices().getUserInCollection("admin", zeCollection);
 
-		rm = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
+		rm = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
 
 		searchServices = getModelLayerFactory().newSearchServices();
 	}

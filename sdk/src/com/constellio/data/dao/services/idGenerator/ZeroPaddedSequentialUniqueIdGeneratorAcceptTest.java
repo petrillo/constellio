@@ -16,8 +16,6 @@ import com.constellio.sdk.tests.ConstellioTest;
 
 public class ZeroPaddedSequentialUniqueIdGeneratorAcceptTest extends ConstellioTest {
 
-	private static final String CONFIG_PATH = "/sequence.properties";
-
 	ZeroPaddedSequentialUniqueIdGenerator zeroPaddedSequentialUniqueIdGenerator;
 
 	@Before
@@ -25,7 +23,8 @@ public class ZeroPaddedSequentialUniqueIdGeneratorAcceptTest extends ConstellioT
 			throws Exception {
 		notAUnitItest = true;
 		zeroPaddedSequentialUniqueIdGenerator = new ZeroPaddedSequentialUniqueIdGenerator(
-				getDataLayerFactory().getConfigManager(), CONFIG_PATH, 10);
+				getDataLayerFactory().getConfigManager(),
+				10);
 	}
 
 	@Test
@@ -42,7 +41,7 @@ public class ZeroPaddedSequentialUniqueIdGeneratorAcceptTest extends ConstellioT
 				@Override
 				public void run() {
 					ZeroPaddedSequentialUniqueIdGenerator generator = new ZeroPaddedSequentialUniqueIdGenerator(
-							getDataLayerFactory().getConfigManager(), CONFIG_PATH);
+							getDataLayerFactory().getConfigManager());
 					Set<String> ids = new HashSet<String>();
 					for (int j = 0; j < 1000; j++) {
 						ids.add(generator.next());
@@ -103,9 +102,9 @@ public class ZeroPaddedSequentialUniqueIdGeneratorAcceptTest extends ConstellioT
 			throws Exception {
 
 		ZeroPaddedSequentialUniqueIdGenerator generator1 = new ZeroPaddedSequentialUniqueIdGenerator(
-				getDataLayerFactory().getConfigManager(), CONFIG_PATH, 3);
+				getDataLayerFactory().getConfigManager(), 3);
 		ZeroPaddedSequentialUniqueIdGenerator generator2 = new ZeroPaddedSequentialUniqueIdGenerator(
-				getDataLayerFactory().getConfigManager(), CONFIG_PATH, 3);
+				getDataLayerFactory().getConfigManager(), 3);
 
 		assertThat(generator1.next()).isEqualTo("00000001001");
 		assertThat(generator2.next()).isEqualTo("00000001004");

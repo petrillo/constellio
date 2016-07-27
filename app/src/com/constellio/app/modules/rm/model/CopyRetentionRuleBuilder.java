@@ -98,7 +98,7 @@ public class CopyRetentionRuleBuilder {
 	}
 
 	public static CopyRetentionRuleBuilder sequential(DataLayerFactory dataLayerFactory) {
-		final UniqueIdGenerator layerUniqueIdGenerator = dataLayerFactory.getSecondaryUniqueIdGenerator();
+		final UniqueIdGenerator layerUniqueIdGenerator = dataLayerFactory.getUniqueIdGenerator();
 		UniqueIdGenerator uniqueIdGenerator = layerUniqueIdGenerator;
 		if (layerUniqueIdGenerator instanceof ZeroPaddedSequentialUniqueIdGenerator) {
 			uniqueIdGenerator = new UniqueIdGenerator() {

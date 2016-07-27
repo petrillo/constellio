@@ -34,7 +34,7 @@ public class UserCredentialPageAcceptTest extends ConstellioTest {
 				withCollection("otherCollection")
 		);
 
-		schemas = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
+		schemas = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
 
 		userServices = getModelLayerFactory().newUserServices();
 

@@ -28,7 +28,6 @@ import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.assertj.core.api.ListAssert;
-import org.assertj.core.api.ObjectAssert;
 import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,7 +42,6 @@ import com.constellio.app.modules.complementary.esRmRobots.actions.ClassifyConne
 import com.constellio.app.modules.complementary.esRmRobots.model.ClassifyConnectorFolderDirectlyInThePlanActionParameters;
 import com.constellio.app.modules.complementary.esRmRobots.model.ClassifyConnectorFolderInParentFolderActionParameters;
 import com.constellio.app.modules.complementary.esRmRobots.model.ClassifyConnectorFolderInTaxonomyActionParameters;
-import com.constellio.app.modules.complementary.esRmRobots.services.ClassifyConnectorHelper.ClassifiedRecordPathInfo;
 import com.constellio.app.modules.es.connectors.smb.ConnectorSmb;
 import com.constellio.app.modules.es.connectors.smb.ConnectorSmbRuntimeException.ConnectorSmbRuntimeException_CannotDownloadSmbDocument;
 import com.constellio.app.modules.es.connectors.spi.Connector;
@@ -57,7 +55,6 @@ import com.constellio.app.modules.es.services.ESSchemasRecordsServices;
 import com.constellio.app.modules.rm.RMTestRecords;
 import com.constellio.app.modules.rm.model.enums.CopyType;
 import com.constellio.app.modules.rm.services.RMSchemasRecordsServices;
-import com.constellio.app.modules.rm.wrappers.AdministrativeUnit;
 import com.constellio.app.modules.rm.wrappers.Document;
 import com.constellio.app.modules.rm.wrappers.Folder;
 import com.constellio.app.modules.robots.model.wrappers.RobotLog;
@@ -174,7 +171,7 @@ public class ClassifyConnectorTaxonomyActionExecutorAcceptanceTest extends Const
 		prepareSystem(withZeCollection().withConstellioRMModule().withConstellioESModule().withRobotsModule().withAllTest(users)
 				.withRMTest(records).withFoldersAndContainersOfEveryStatus());
 
-		rm = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
+		rm = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
 		recordServices = getModelLayerFactory().newRecordServices();
 		searchServices = getModelLayerFactory().newSearchServices();
 		contentManager = getModelLayerFactory().getContentManager();
@@ -251,65 +248,6 @@ public class ClassifyConnectorTaxonomyActionExecutorAcceptanceTest extends Const
 						.setDefaultRequirement(true);
 			}
 		});
-	}
-
-	@Test
-	public void whenGetPathPartsThenOnlyNonConceptParts()
-			throws Exception {
-		givenFetchedTaxonomyWithValidFoldersButNoDocuments();
-
-		assertThatPathPartsForClassification("smb://AU1 Admin Unit1/AU11 Admin Unit11/").isNull();
-
-		assertThatPathPartsForClassification("smb://AU1 Admin Unit1/AU11 Admin Unit11/Dossier A/")
-				.isEqualToComparingFieldByField(new ClassifiedRecordPathInfo(unitRecord("AU11"), "Dossier A"));
-
-		assertThatPathPartsForClassification("smb://AU1 Admin Unit1/AU11 Admin Unit11/A/")
-				.isEqualToComparingFieldByField(new ClassifiedRecordPathInfo(unitRecord("AU11"), "A"));
-
-		assertThatPathPartsForClassification("smb://AU1 Admin Unit1/AU11 Admin Unit11/A/AB/")
-				.isEqualToComparingFieldByField(new ClassifiedRecordPathInfo(null, "AB"));
-
-		assertThatPathPartsForClassification("smb://AU1 Admin Unit1/AU11 Admin Unit11/A/AB/8.txt")
-				.isEqualToComparingFieldByField(new ClassifiedRecordPathInfo(null, "8.txt"));
-
-		assertThatPathPartsForClassification("smb://AU1 Admin Unit1/AU11 Admin Unit11/Dossier A/")
-				.isEqualToComparingFieldByField(new ClassifiedRecordPathInfo(unitRecord("AU11"), "Dossier A"));
-
-		assertThatPathPartsForClassification("smb://AU1 Admin Unit1/AU11 Admin Unit11/Dossier A/Sous-dossier AB/")
-				.isEqualToComparingFieldByField(new ClassifiedRecordPathInfo(null, "Sous-dossier AB"));
-
-		assertThatPathPartsForClassification("smb://AU1 Admin Unit1/AU11 Admin Unit11/Dossier A/Sous-dossier AB/6.txt")
-				.isEqualToComparingFieldByField(new ClassifiedRecordPathInfo(null, "6.txt"));
-
-		assertThatPathPartsForClassification("smb://AU1 Admin Unit1/AU11 Admin Unit11/AU11/")
-				.isEqualToComparingFieldByField(new ClassifiedRecordPathInfo(unitRecord("AU11"), "AU11"));
-
-		assertThatPathPartsForClassification("smb://AU1 Admin Unit1/AU11 Admin Unit11/AU11 Mon dossier/")
-				.isEqualToComparingFieldByField(new ClassifiedRecordPathInfo(unitRecord("AU11"), "AU11 Mon dossier"));
-
-		assertThatPathPartsForClassification("smb://AU1 Admin Unit1/AU11 Admin Unit11/AU11 Mon dossier/8.txt")
-				.isEqualToComparingFieldByField(new ClassifiedRecordPathInfo(null, "8.txt"));
-
-		//		assertThatPathPartsForClassification("smb://AU1 Admin Unit1/AU11 Admin Unit11/A/AA/").isEqualTo("A");
-		//		assertThatPathPartsForClassification("smb://AU1 Admin Unit1/AU11 Admin Unit11/A/AA/AAB").isEqualTo("AAB");
-		//		assertThatPathPartsForClassification("smb://AU1 Admin Unit1/AU11 Admin Unit11/A/AA/AAB/").isEqualTo("AAB");
-		//		assertThatPathPartsForClassification("smb://AU1 Admin Unit1/AU11 Admin Unit11/A/AA/AAB/7.txt").isEqualTo("7.txt");
-		//
-		//		assertThatPathPartsForClassification("smb://AU1 Admin Unit1/AU11 Admin Unit11/A/1.txt").isEqualTo("1.txt");
-		//
-		//		assertThatPathPartsForClassification("smb://AU1 Admin Unit1/AU11 Admin Unit11/A/AU1 test/1.txt").isEqualTo("1.txt");
-	}
-
-	private Record unitRecord(String code) {
-		return rm.getAdministrativeUnitWithCode(code).getWrappedRecord();
-	}
-
-	private ObjectAssert<ClassifiedRecordPathInfo> assertThatPathPartsForClassification(String url) {
-		String metadataCode = AdministrativeUnit.DEFAULT_SCHEMA + "_" + Schemas.CODE.getLocalCode();
-		Metadata codeMetadata = rm.getTypes().getMetadata(metadataCode);
-
-		ClassifyConnectorHelper helper = new ClassifyConnectorHelper(getModelLayerFactory().newRecordServices());
-		return assertThat(helper.extractInfoFromPath(url, "smb://", " ", codeMetadata));
 	}
 
 	@Test
@@ -613,8 +551,8 @@ public class ClassifyConnectorTaxonomyActionExecutorAcceptanceTest extends Const
 				);
 
 		//2- Logically delete two folders and one document
-		recordServices.logicallyDelete(rm.getFolderWithLegacyId(folderAANoTaxoURL).getWrappedRecord(), User.GOD);
-		recordServices.logicallyDelete(rm.getFolderWithLegacyId(folderBNoTaxoURL).getWrappedRecord(), User.GOD);
+		recordServices.logicallyDelete(rm.getFolderByLegacyId(folderAANoTaxoURL).getWrappedRecord(), User.GOD);
+		recordServices.logicallyDelete(rm.getFolderByLegacyId(folderBNoTaxoURL).getWrappedRecord(), User.GOD);
 		recordServices.logicallyDelete(rm.getDocumentByLegacyId(documentA1NoTaxoURL).getWrappedRecord(), User.GOD);
 		assertThat(rm.searchFolders(where(LEGACY_ID).isNotNull().andWhere(LOGICALLY_DELETED_STATUS).isFalseOrNull()))
 				.extracting("legacyId", "title").containsOnly(
@@ -1226,12 +1164,12 @@ public class ClassifyConnectorTaxonomyActionExecutorAcceptanceTest extends Const
 		assertThatRecord(recordServices.getDocumentById(folderB))
 				.hasMetadataValue(Schemas.FETCHED, true).hasNoMetadataValue(Schemas.LOGICALLY_DELETED_STATUS);
 
-		assertThat(rm.getFolderWithLegacyId(folderATaxoURL)).isNull();
-		assertThat(rm.getFolderWithLegacyId(folderAATaxoURL)).isNull();
-		assertThat(rm.getFolderWithLegacyId(folderAAATaxoURL)).isNull();
-		assertThat(rm.getFolderWithLegacyId(folderAABTaxoURL)).isNull();
-		assertThat(rm.getFolderWithLegacyId(folderABTaxoURL)).isNull();
-		assertThat(rm.getFolderWithLegacyId(folderBTaxoURL)).isNull();
+		assertThat(rm.getFolderByLegacyId(folderATaxoURL)).isNull();
+		assertThat(rm.getFolderByLegacyId(folderAATaxoURL)).isNull();
+		assertThat(rm.getFolderByLegacyId(folderAAATaxoURL)).isNull();
+		assertThat(rm.getFolderByLegacyId(folderAABTaxoURL)).isNull();
+		assertThat(rm.getFolderByLegacyId(folderABTaxoURL)).isNull();
+		assertThat(rm.getFolderByLegacyId(folderBTaxoURL)).isNull();
 
 		verify(connectorSmb, never()).deleteFile(any(ConnectorDocument.class));
 	}
@@ -1277,12 +1215,12 @@ public class ClassifyConnectorTaxonomyActionExecutorAcceptanceTest extends Const
 		assertThatRecord(recordServices.getDocumentById(folderB))
 				.hasMetadataValue(Schemas.FETCHED, true).hasNoMetadataValue(Schemas.LOGICALLY_DELETED_STATUS);
 
-		assertThat(rm.getFolderWithLegacyId(folderATaxoURL)).isNull();
-		assertThat(rm.getFolderWithLegacyId(folderAATaxoURL)).isNull();
-		assertThat(rm.getFolderWithLegacyId(folderAAATaxoURL)).isNull();
-		assertThat(rm.getFolderWithLegacyId(folderAABTaxoURL)).isNull();
-		assertThat(rm.getFolderWithLegacyId(folderABTaxoURL)).isNull();
-		assertThat(rm.getFolderWithLegacyId(folderBTaxoURL)).isNull();
+		assertThat(rm.getFolderByLegacyId(folderATaxoURL)).isNull();
+		assertThat(rm.getFolderByLegacyId(folderAATaxoURL)).isNull();
+		assertThat(rm.getFolderByLegacyId(folderAAATaxoURL)).isNull();
+		assertThat(rm.getFolderByLegacyId(folderAABTaxoURL)).isNull();
+		assertThat(rm.getFolderByLegacyId(folderABTaxoURL)).isNull();
+		assertThat(rm.getFolderByLegacyId(folderBTaxoURL)).isNull();
 
 		verify(connectorSmb, never()).deleteFile(any(ConnectorDocument.class));
 	}
@@ -1747,37 +1685,37 @@ public class ClassifyConnectorTaxonomyActionExecutorAcceptanceTest extends Const
 		List<RobotLog> loggedErrors = getRobotLogsForRobot("terminator");
 		assertThat(loggedErrors.size()).isEqualTo(1);
 
-		assertThatRecord(rm.getFolderWithLegacyId("smb://AU1 Ze admin unit/")).isNull();
-		assertThatRecord(rm.getFolderWithLegacyId("smb://AU1 Ze admin unit/AU11 Ze child admin unit/")).isNull();
+		assertThatRecord(rm.getFolderByLegacyId("smb://AU1 Ze admin unit/")).isNull();
+		assertThatRecord(rm.getFolderByLegacyId("smb://AU1 Ze admin unit/AU11 Ze child admin unit/")).isNull();
 
-		Folder classifiedSmbFolder4 = rm.getFolderWithLegacyId("smb://AU1 Ze admin unit/Folder A/");
-		Folder classifiedSmbFolder5 = rm.getFolderWithLegacyId(
+		Folder classifiedSmbFolder4 = rm.getFolderByLegacyId("smb://AU1 Ze admin unit/Folder A/");
+		Folder classifiedSmbFolder5 = rm.getFolderByLegacyId(
 				"smb://AU1 Ze admin unit/Folder A/Sub folder in A/");
 		Folder classifiedSmbFolder6 = rm
-				.getFolderWithLegacyId("smb://AU1 Ze admin unit/Folder A/Sub folder in A/Sub sub folder in A/");
-		Folder classifiedSmbFolder7 = rm.getFolderWithLegacyId("smb://AU1 Ze admin unit/Folder A/AU1 Another sub folder in A/");
+				.getFolderByLegacyId("smb://AU1 Ze admin unit/Folder A/Sub folder in A/Sub sub folder in A/");
+		Folder classifiedSmbFolder7 = rm.getFolderByLegacyId("smb://AU1 Ze admin unit/Folder A/AU1 Another sub folder in A/");
 		Folder classifiedSmbFolder8 = rm
-				.getFolderWithLegacyId("smb://AU1 Ze admin unit/Folder A/AU1 Another sub folder in A/AU1 Ze folder/");
+				.getFolderByLegacyId("smb://AU1 Ze admin unit/Folder A/AU1 Another sub folder in A/AU1 Ze folder/");
 
 		assertThatRecord(classifiedSmbFolder4)
-				.hasMetadata(rm.folder.parentFolder(), null)
-				.hasMetadata(rm.folder.administrativeUnit(), adminUnit1);
+				.hasMetadata(rm.folderParentFolder(), null)
+				.hasMetadata(rm.folderAdministrativeUnit(), adminUnit1);
 
 		assertThatRecord(classifiedSmbFolder5)
-				.hasMetadata(rm.folder.parentFolder(), classifiedSmbFolder4.getId())
-				.hasMetadata(rm.folder.administrativeUnit(), adminUnit1);
+				.hasMetadata(rm.folderParentFolder(), classifiedSmbFolder4.getId())
+				.hasMetadata(rm.folderAdministrativeUnit(), adminUnit1);
 
 		assertThatRecord(classifiedSmbFolder6)
-				.hasMetadata(rm.folder.parentFolder(), classifiedSmbFolder5.getId())
-				.hasMetadata(rm.folder.administrativeUnit(), adminUnit1);
+				.hasMetadata(rm.folderParentFolder(), classifiedSmbFolder5.getId())
+				.hasMetadata(rm.folderAdministrativeUnit(), adminUnit1);
 
 		assertThatRecord(classifiedSmbFolder7)
-				.hasMetadata(rm.folder.parentFolder(), classifiedSmbFolder4.getId())
-				.hasMetadata(rm.folder.administrativeUnit(), adminUnit1);
+				.hasMetadata(rm.folderParentFolder(), classifiedSmbFolder4.getId())
+				.hasMetadata(rm.folderAdministrativeUnit(), adminUnit1);
 
 		assertThatRecord(classifiedSmbFolder8)
-				.hasMetadata(rm.folder.parentFolder(), classifiedSmbFolder7.getId())
-				.hasMetadata(rm.folder.administrativeUnit(), adminUnit1);
+				.hasMetadata(rm.folderParentFolder(), classifiedSmbFolder7.getId())
+				.hasMetadata(rm.folderAdministrativeUnit(), adminUnit1);
 	}
 
 	//When delete, given error in transaction, then not deleted

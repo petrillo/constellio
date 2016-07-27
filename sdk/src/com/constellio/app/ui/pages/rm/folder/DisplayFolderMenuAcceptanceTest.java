@@ -15,8 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.constellio.app.modules.rm.navigation.RMNavigationConfiguration;
-import com.constellio.model.entities.schemas.Schemas;
-import com.constellio.model.services.records.RecordServicesException;
 import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.By;
@@ -55,7 +53,7 @@ public class DisplayFolderMenuAcceptanceTest extends ConstellioTest {
 		inCollection(zeCollection).setCollectionTitleTo("Collection de test");
 
 		recordServices = getModelLayerFactory().newRecordServices();
-		recordServices.update(record(records.folder_A22).set(Schemas.LEGACY_ID,"legacyChouette"));
+
 	}
 
 	@Test
@@ -162,7 +160,7 @@ public class DisplayFolderMenuAcceptanceTest extends ConstellioTest {
 	/** Dakota is a MANAGER
 	 *  Dakota can READ/WRITE/DELETE  in UA 10, 11, 12
 	 */
-	public void givenDakotaThenDisplayFolderMenuIsOk() throws Exception {
+	public void givenDakotaThenDisplayFolderMenuIsOk() {
 		logAs(dakota);
 
 		navigateToDestroyedFolderInUA10();
@@ -174,9 +172,6 @@ public class DisplayFolderMenuAcceptanceTest extends ConstellioTest {
 
 		navigateToSemiActiveFolderInUA10();
 		assertThatOnlyAvailableActionsAre(DELETE, MANAGE_AUTHORIZATIONS, SHARE);
-
-		navigateToImportedFolderInUA10();
-		assertThatAllAreEnabled();
 	}
 
 	@Test
@@ -267,11 +262,6 @@ public class DisplayFolderMenuAcceptanceTest extends ConstellioTest {
 
 	private void navigateToDestroyedFolderInUA10() {
 		String id = recordIdWithTitleInCollection("Souris", zeCollection);
-		driver.navigateTo().url(RMNavigationConfiguration.DISPLAY_FOLDER + "/" + id);
-	}
-
-	private void navigateToImportedFolderInUA10() throws RecordServicesException {
-		String id = recordIdWithTitleInCollection("Chouette", zeCollection);
 		driver.navigateTo().url(RMNavigationConfiguration.DISPLAY_FOLDER + "/" + id);
 	}
 

@@ -53,19 +53,12 @@ import com.constellio.model.entities.schemas.entries.DataEntryType;
 import com.constellio.model.services.search.StatusFilter;
 
 public class AddEditFolderPresenter extends SingleSchemaBasePresenter<AddEditFolderView> {
-    private static final String ID = "id";
-    private static final String PARENT_ID = "parentId";
-    private static final String DUPLICATE = "duplicate";
-    private static final String STRUCTURE = "structure";
-
-    private FolderToVOBuilder voBuilder = new FolderToVOBuilder();
+	private FolderToVOBuilder voBuilder = new FolderToVOBuilder();
 	private boolean addView;
 	private boolean folderHadAParent;
-    private String currentSchemaCode;
+	private String currentSchemaCode;
 	private FolderVO folderVO;
 	private Map<CustomFolderField<?>, Object> customContainerDependencyFields = new HashMap<>();
-    boolean isDuplicateAction;
-    boolean isDuplicateStructureAction;
 
 	private transient RMSchemasRecordsServices rmSchemasRecordsServices;
 
@@ -81,7 +74,7 @@ public class AddEditFolderPresenter extends SingleSchemaBasePresenter<AddEditFol
 	}
 
 	private void initTransientObjects() {
-		rmSchemasRecordsServices = new RMSchemasRecordsServices(collection, appLayerFactory);
+		rmSchemasRecordsServices = new RMSchemasRecordsServices(collection, modelLayerFactory);
 	}
 
 	@Override
@@ -91,10 +84,10 @@ public class AddEditFolderPresenter extends SingleSchemaBasePresenter<AddEditFol
 
 	public void forParams(String params) {
 		Map<String, String> paramsMap = ParamUtils.getParamsMap(params);
-		String id = paramsMap.get(ID);
-		String parentId = paramsMap.get(PARENT_ID);
+		String id = paramsMap.get("id");
+		String parentId = paramsMap.get("parentId");
 
-        Record record;
+		Record record;
 		if (StringUtils.isNotBlank(id)) {
 			record = getRecord(id);
 			addView = false;
@@ -102,26 +95,14 @@ public class AddEditFolderPresenter extends SingleSchemaBasePresenter<AddEditFol
 			record = newRecord();
 			addView = true;
 		} else {
-			Folder folder = new RMSchemasRecordsServices(collection, appLayerFactory).getFolder(parentId);
+			Folder folder = new RMSchemasRecordsServices(collection, modelLayerFactory).getFolder(parentId);
 			record = new DecommissioningService(collection, modelLayerFactory).newSubFolderIn(folder).getWrappedRecord();
 			addView = true;
 		}
-
-        isDuplicateAction = paramsMap.containsKey(DUPLICATE);
-        isDuplicateStructureAction = isDuplicateAction && paramsMap.containsKey(STRUCTURE);
-        if (isDuplicateStructureAction) {
-            Folder folder = rmSchemas().wrapFolder(record);
-            record = decommissioningService().duplicateStructure(folder, getCurrentUser(), false).getWrappedRecord();
-        } else if (isDuplicateAction) {
-            Folder folder = rmSchemas().wrapFolder(record);
-            record = decommissioningService().duplicate(folder, getCurrentUser(), false).getWrappedRecord();
-        }
-
-        folderVO = voBuilder.build(record, VIEW_MODE.FORM, view.getSessionContext());
+		folderVO = voBuilder.build(record, VIEW_MODE.FORM, view.getSessionContext());
 		folderHadAParent = folderVO.getParentFolder() != null;
-		currentSchemaCode = folderVO.getSchema().getCode();
+		this.currentSchemaCode = folderVO.getSchema().getCode();
 		setSchemaCode(currentSchemaCode);
-
 		view.setRecord(folderVO);
 	}
 
@@ -167,17 +148,13 @@ public class AddEditFolderPresenter extends SingleSchemaBasePresenter<AddEditFol
 	@Override
 	protected List<String> getRestrictedRecordIds(String params) {
 		Map<String, String> paramsMap = ParamUtils.getParamsMap(params);
-		String parentId = paramsMap.get(PARENT_ID);
+		String parentId = paramsMap.get("parentId");
 		List<String> ids = new ArrayList<>();
-		if (addView) {
-            if (parentId != null) {
-                ids.add(parentId);
-            }
-		} else if (isDuplicateAction) {
-			ids.add(paramsMap.get(ID));
-		} else {
-            ids.add(folderVO.getId());
-        }
+		if (!addView) {
+			ids.add(folderVO.getId());
+		} else if (parentId != null) {
+			ids.add(parentId);
+		}
 		return ids;
 	}
 
@@ -513,13 +490,17 @@ public class AddEditFolderPresenter extends SingleSchemaBasePresenter<AddEditFol
 		if (field == null) {
 			return;
 		}
-		commitForm();
-		Folder folder = rmSchemas().wrapFolder(toRecord(folderVO));
-		recordServices().recalculate(folder);
-		List<CopyRetentionRule> rules = folder.getApplicableCopyRules();
-		folderVO.set(Folder.APPLICABLE_COPY_RULES, rules);
-		field.setFieldChoices(rules);
-		field.setVisible(rules.size() > 1);
+		if (areDocumentRetentionRulesEnabled()) {
+			commitForm();
+			Folder folder = rmSchemas().wrapFolder(toRecord(folderVO));
+			recordServices().recalculate(folder);
+			List<CopyRetentionRule> rules = folder.getApplicableCopyRules();
+			folderVO.set(Folder.APPLICABLE_COPY_RULES, rules);
+			field.setFieldChoices(rules);
+			field.setVisible(rules.size() > 1);
+		} else {
+			field.setVisible(false);
+		}
 	}
 
 	boolean isTransferDateInputPossibleForUser() {
@@ -684,7 +665,7 @@ public class AddEditFolderPresenter extends SingleSchemaBasePresenter<AddEditFol
 	}
 
 	private RMSchemasRecordsServices rmSchemas() {
-		return new RMSchemasRecordsServices(collection, appLayerFactory);
+		return new RMSchemasRecordsServices(collection, modelLayerFactory);
 	}
 
 	private boolean areDocumentRetentionRulesEnabled() {

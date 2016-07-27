@@ -125,7 +125,7 @@ public class GetChildrenRequest extends CmisCollectionRequest<ObjectInFolderList
 		ContentCmisDocument contentDocument = ContentCmisDocument
 				.createForVersionSeenBy(content, record, metadata.getLocalCode(), user);
 		ObjectData contentObject = newContentObjectDataBuilder()
-				.build(appLayerFactory, context, contentDocument, filter, includeAllowableActions, false, objectInfo);
+				.build(context, contentDocument, filter, includeAllowableActions, false, objectInfo);
 		children.getObjects().add(new ObjectInFolderDataImpl(contentObject));
 	}
 

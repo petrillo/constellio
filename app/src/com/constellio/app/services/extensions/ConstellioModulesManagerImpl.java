@@ -233,7 +233,7 @@ public class ConstellioModulesManagerImpl implements ConstellioModulesManager, S
 			try {
 				//FIXME FB since module has just been installed it may be not enabled
 				//enableComplementaryModules(collection);
-				returnList.addAll(migrationServices.migrate(collection, null, true));
+				returnList.addAll(migrationServices.migrate(collection, null));
 			} catch (OptimisticLockingConfiguration optimisticLockingConfiguration) {
 				throw new RuntimeException(optimisticLockingConfiguration);
 			}
@@ -270,7 +270,7 @@ public class ConstellioModulesManagerImpl implements ConstellioModulesManager, S
 	@Override
 	public Set<String> enableValidModuleAndGetInvalidOnes(String collection, Module module) {
 		markAsEnabled(module, collection);
-		Set<String> returnList = applyModuleMigrations(collection, true);
+		Set<String> returnList = applyModuleMigrations(collection);
 		if (startModule(collection, module)) {
 			if (!module.isComplementary()) {
 				returnList.addAll(enableComplementaryModules(collection));
@@ -319,11 +319,11 @@ public class ConstellioModulesManagerImpl implements ConstellioModulesManager, S
 		return complementaryModules;
 	}
 
-	private Set<String> applyModuleMigrations(String collection, boolean newModule) {
+	private Set<String> applyModuleMigrations(String collection) {
 		MigrationServices migrationServices = migrationServicesDelayed.get();
 
 		try {
-			return migrationServices.migrate(collection, null, newModule);
+			return migrationServices.migrate(collection, null);
 		} catch (OptimisticLockingConfiguration e) {
 			// TODO: Handle this
 		}

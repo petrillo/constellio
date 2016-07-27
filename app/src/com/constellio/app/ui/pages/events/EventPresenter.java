@@ -111,7 +111,7 @@ public class EventPresenter extends SingleSchemaBasePresenter<EventView> {
 
 	private RMSchemasRecordsServices rmSchemasRecordsServices() {
 		if (rmSchemasRecordsServices == null) {
-			rmSchemasRecordsServices = new RMSchemasRecordsServices(view.getCollection(), appLayerFactory);
+			rmSchemasRecordsServices = new RMSchemasRecordsServices(view.getCollection(), modelLayerFactory);
 		}
 		return rmSchemasRecordsServices;
 	}
@@ -244,7 +244,7 @@ public class EventPresenter extends SingleSchemaBasePresenter<EventView> {
 			@Override
 			public RecordVO build(Record record, VIEW_MODE viewMode, MetadataSchemaVO schemaVO,
 					SessionContext sessionContext) {
-				MetadataSchema folderSchema = schemas().folder.schema();
+				MetadataSchema folderSchema = schemas().defaultFolderSchema();
 				Metadata borrowDateMetadata = folderSchema.getMetadata(Folder.BORROW_DATE);
 				LocalDateTime eventTime = record.get(borrowDateMetadata);
 
@@ -256,7 +256,7 @@ public class EventPresenter extends SingleSchemaBasePresenter<EventView> {
 				Metadata borrowedMetadata = folderSchema.getMetadata(Folder.BORROWED);
 				LocalDateTime borrowDateValue = record.get(borrowDateMetadata);
 
-				LogicalSearchCondition logicalSearchCondition = LogicalSearchQueryOperators.from(schemas().folder.schema())
+				LogicalSearchCondition logicalSearchCondition = LogicalSearchQueryOperators.from(schemas().defaultFolderSchema())
 						.where(borrowedMetadata).isTrue()
 						.andWhere(borrowDateMetadata).isEqualTo(
 								borrowDateValue).andWhere(recordIdMetadata).isEqualTo(recordId);
@@ -269,7 +269,7 @@ public class EventPresenter extends SingleSchemaBasePresenter<EventView> {
 
 			private RMSchemasRecordsServices schemas() {
 				if (schemas == null) {
-					schemas = new RMSchemasRecordsServices(collection, appLayerFactory);
+					schemas = new RMSchemasRecordsServices(collection, modelLayerFactory);
 				}
 				return schemas;
 			}
@@ -309,7 +309,7 @@ public class EventPresenter extends SingleSchemaBasePresenter<EventView> {
 
 			private RMSchemasRecordsServices schemas() {
 				if (schemas == null) {
-					schemas = new RMSchemasRecordsServices(collection, appLayerFactory);
+					schemas = new RMSchemasRecordsServices(collection, modelLayerFactory);
 				}
 				return schemas;
 			}

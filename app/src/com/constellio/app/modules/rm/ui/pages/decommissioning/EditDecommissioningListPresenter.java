@@ -64,7 +64,7 @@ public class EditDecommissioningListPresenter extends SingleSchemaBasePresenter<
 	}
 
 	private RMSchemasRecordsServices rmRecordsServices() {
-		return new RMSchemasRecordsServices(collection, appLayerFactory);
+		return new RMSchemasRecordsServices(collection, modelLayerFactory);
 	}
 
 	public void cancelButtonClicked(RecordVO recordVO) {

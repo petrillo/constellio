@@ -2,7 +2,7 @@ package com.constellio.app.ui.framework.components.table;
 
 import static com.constellio.app.ui.i18n.i18n.$;
 
-import com.constellio.app.ui.framework.components.SearchResultDetailedTable;
+import com.constellio.app.ui.framework.components.SearchResultTable;
 import com.jensjansson.pagedtable.PagedTable;
 import com.vaadin.data.Container;
 import com.vaadin.data.Property;
@@ -19,18 +19,17 @@ import com.vaadin.ui.themes.ValoTheme;
 
 public class BasePagedTable<T extends Container> extends PagedTable {
 	protected T container;
-	protected ComboBox itemsPerPage;
 
 	public BasePagedTable(T container) {
 		this.container = container;
-		itemsPerPage = new ComboBox();
 	}
 
 	public HorizontalLayout createControls() {
 		HorizontalLayout pageSize;
 
 		Label itemsPerPageLabel = new Label($("SearchResultTable.itemsPerPage"));
-		itemsPerPage.addItem(SearchResultDetailedTable.DEFAULT_PAGE_LENGTH);
+		final ComboBox itemsPerPage = new ComboBox();
+		itemsPerPage.addItem(SearchResultTable.DEFAULT_PAGE_LENGTH);
 		if (container.size() >= 10) {
 			itemsPerPage.addItem(10);
 		}
@@ -45,7 +44,7 @@ public class BasePagedTable<T extends Container> extends PagedTable {
 		}
 		itemsPerPage.setNullSelectionAllowed(false);
 		itemsPerPage.setWidth("85px");
-
+		itemsPerPage.setValue(SearchResultTable.DEFAULT_PAGE_LENGTH);
 		itemsPerPage.addValueChangeListener(new ValueChangeListener() {
 			@Override
 			public void valueChange(Property.ValueChangeEvent event) {
@@ -128,7 +127,7 @@ public class BasePagedTable<T extends Container> extends PagedTable {
 		controlBar.setExpandRatio(pageSize, 1);
 		controlBar.setWidth("100%");
 
-		addListener(new SearchResultDetailedTable.PageChangeListener() {
+		addListener(new SearchResultTable.PageChangeListener() {
 			public void pageChanged(PagedTableChangeEvent event) {
 				first.setEnabled(getCurrentPage() > 1);
 				previous.setEnabled(getCurrentPage() > 1);
@@ -141,13 +140,5 @@ public class BasePagedTable<T extends Container> extends PagedTable {
 		});
 
 		return controlBar;
-	}
-
-	public ComboBox getItemsPerPage() {
-		return itemsPerPage;
-	}
-
-	public void setItemsPerPageValue(int value) {
-		itemsPerPage.setValue(value);
 	}
 }

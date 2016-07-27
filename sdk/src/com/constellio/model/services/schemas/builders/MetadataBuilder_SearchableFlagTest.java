@@ -68,7 +68,7 @@ public class MetadataBuilder_SearchableFlagTest extends MetadataBuilderTest {
 	}
 
 	@Test
-	public void givenSearchableFlagOnMetadataWithInheritanceWhenBuildingThenSetToInheritedValue()
+	public void givenMutlivalueFlagOnMetadataWithInheritanceWhenBuildingThenSetToInheritedValue()
 			throws Exception {
 		inheritedMetadataBuilder.setType(STRING).setSearchable(true);
 

@@ -45,7 +45,7 @@ public class RetentionRulesRecordsImportServicesAcceptanceTest extends Constelli
 
 		admin = getModelLayerFactory().newUserServices().getUserInCollection("admin", zeCollection);
 
-		rm = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
+		rm = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
 	}
 
 	@Test

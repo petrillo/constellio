@@ -61,7 +61,7 @@ public class NewFilePresenterAcceptTest extends ConstellioTest {
 		);
 		inCollection(zeCollection).giveWriteAccessTo(aliceWonderland);
 
-		schemasRecordsServices = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
+		schemasRecordsServices = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
 		recordServices = getModelLayerFactory().newRecordServices();
 		metadataSchemasManager = getModelLayerFactory().getMetadataSchemasManager();
 		searchServices = getModelLayerFactory().newSearchServices();

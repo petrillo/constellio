@@ -299,7 +299,7 @@ public class DecommissioningListPresenter extends SingleSchemaBasePresenter<Deco
 
 	RMSchemasRecordsServices rmRecordsServices() {
 		if (rmRecordsServices == null) {
-			rmRecordsServices = new RMSchemasRecordsServices(view.getCollection(), appLayerFactory);
+			rmRecordsServices = new RMSchemasRecordsServices(view.getCollection(), modelLayerFactory);
 		}
 		return rmRecordsServices;
 	}

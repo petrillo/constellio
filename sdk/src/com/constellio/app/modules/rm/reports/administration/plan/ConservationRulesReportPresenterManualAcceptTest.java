@@ -39,7 +39,7 @@ public class ConservationRulesReportPresenterManualAcceptTest extends ReportBuil
 	RMSchemasRecordsServices rm;
 	RecordServices recordServices;
 
-	CopyRetentionRuleBuilder copyBuilder;
+	CopyRetentionRuleBuilder copyBuilder = CopyRetentionRuleBuilder.UUID();
 
 	@Before
 	public void setUp()
@@ -48,10 +48,10 @@ public class ConservationRulesReportPresenterManualAcceptTest extends ReportBuil
 		prepareSystem(
 				withZeCollection().withConstellioRMModule().withRMTest(records).withFoldersAndContainersOfEveryStatus()
 		);
-		copyBuilder = CopyRetentionRuleBuilder.sequential(getDataLayerFactory());
+
 		recordServices = getModelLayerFactory().newRecordServices();
 		presenter = new ConservationRulesReportPresenter(zeCollection, getModelLayerFactory());
-		rm = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
+		rm = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
 	}
 
 	@Test

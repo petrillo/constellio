@@ -8,14 +8,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.LocalDateTime;
 import org.joda.time.ReadableDuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.constellio.data.dao.services.idGenerator.UniqueIdGenerator;
 import com.constellio.data.utils.ImpossibleRuntimeException;
 import com.constellio.data.utils.LangUtils;
 import com.constellio.data.utils.LangUtils.ListComparisonResults;
@@ -35,7 +33,6 @@ import com.constellio.model.entities.security.global.GlobalGroupStatus;
 import com.constellio.model.entities.security.global.UserCredential;
 import com.constellio.model.entities.security.global.UserCredentialStatus;
 import com.constellio.model.services.collections.CollectionsListManager;
-import com.constellio.model.services.factories.ModelLayerFactory;
 import com.constellio.model.services.records.RecordServices;
 import com.constellio.model.services.records.RecordServicesException;
 import com.constellio.model.services.schemas.MetadataSchemasManager;
@@ -61,7 +58,6 @@ import com.constellio.model.services.users.UserServicesRuntimeException.UserServ
 
 public class UserServices {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(UserServices.class);
 	public static final String ADMIN = "admin";
 	private final UserCredentialsManager userCredentialsManager;
 	private final GlobalGroupsManager globalGroupsManager;
@@ -73,20 +69,22 @@ public class UserServices {
 	private final LDAPConfigurationManager ldapConfigurationManager;
 	private final RolesManager rolesManager;
 	private final ModelLayerConfiguration modelLayerConfiguration;
-	private final UniqueIdGenerator secondaryUniqueIdGenerator;
 
-	public UserServices(ModelLayerFactory modelLayerFactory) {
-		this.userCredentialsManager = modelLayerFactory.getUserCredentialsManager();
-		this.globalGroupsManager = modelLayerFactory.getGlobalGroupsManager();
-		this.collectionsListManager = modelLayerFactory.getCollectionsListManager();
-		this.recordServices = modelLayerFactory.newRecordServices();
-		this.searchServices = modelLayerFactory.newSearchServices();
-		this.metadataSchemasManager = modelLayerFactory.getMetadataSchemasManager();
-		this.authenticationService = modelLayerFactory.newAuthenticationService();
-		this.modelLayerConfiguration = modelLayerFactory.getConfiguration();
-		this.ldapConfigurationManager = modelLayerFactory.getLdapConfigurationManager();
-		this.rolesManager = modelLayerFactory.getRolesManager();
-		this.secondaryUniqueIdGenerator = modelLayerFactory.getDataLayerFactory().getSecondaryUniqueIdGenerator();
+	public UserServices(UserCredentialsManager userCredentialsManager, GlobalGroupsManager globalGroupsManager,
+			CollectionsListManager collectionsListManager, RecordServices recordServices, SearchServices searchServices,
+			MetadataSchemasManager metadataSchemasManager, AuthenticationService authenticationService, RolesManager rolesManager,
+			ModelLayerConfiguration modelLayerConfiguration,
+			LDAPConfigurationManager ldapConfigurationManager) {
+		this.userCredentialsManager = userCredentialsManager;
+		this.globalGroupsManager = globalGroupsManager;
+		this.collectionsListManager = collectionsListManager;
+		this.recordServices = recordServices;
+		this.searchServices = searchServices;
+		this.metadataSchemasManager = metadataSchemasManager;
+		this.authenticationService = authenticationService;
+		this.modelLayerConfiguration = modelLayerConfiguration;
+		this.ldapConfigurationManager = ldapConfigurationManager;
+		this.rolesManager = rolesManager;
 	}
 
 	public UserCredential createUserCredential(String username, String firstName, String lastName, String email,
@@ -119,7 +117,6 @@ public class UserServices {
 	}
 
 	public void addUpdateUserCredential(UserCredential userCredential) {
-		List<String> collections = collectionsListManager.getCollectionsExcludingSystem();
 		validateAdminIsActive(userCredential);
 		UserCredential savedUserCredential = userCredential;
 		for (String groupCode : userCredential.getGlobalGroups()) {
@@ -128,9 +125,7 @@ public class UserServices {
 				throw new UserServicesRuntimeException_InvalidGroup(groupCode);
 			}
 			for (String collection : group.getUsersAutomaticallyAddedToCollections()) {
-				if (collections.contains(collection)) {
-					savedUserCredential = savedUserCredential.withNewCollection(collection);
-				}
+				savedUserCredential = savedUserCredential.withNewCollection(collection);
 			}
 		}
 		userCredentialsManager.addUpdate(savedUserCredential);
@@ -407,33 +402,20 @@ public class UserServices {
 	}
 
 	public String giveNewServiceToken(UserCredential user) {
-		UserCredential modifiedUser = user.withServiceKey(secondaryUniqueIdGenerator.next());
+		UserCredential modifiedUser = user.withNewServiceKey();
 		addUpdateUserCredential(modifiedUser);
 		return modifiedUser.getServiceKey();
 	}
 
 	public void sync(UserCredential user) {
-		List<String> availableCollections = collectionsListManager.getCollectionsExcludingSystem();
-		List<String> removedCollections = new ArrayList<>();
 		for (String collection : user.getCollections()) {
-			if (availableCollections.contains(collection)) {
-				Transaction transaction = new Transaction().setSkippingReferenceToLogicallyDeletedValidation(true);
-				sync(user, collection, transaction);
-				try {
-					recordServices.execute(transaction);
-				} catch (RecordServicesException e) {
-					throw new UserServicesRuntimeException_CannotExcuteTransaction(e);
-				}
-			} else {
-				removedCollections.add(collection);
-				LOGGER.warn("User '" + user.getUsername() + "' is in invalid collection '" + collection + "'");
+			Transaction transaction = new Transaction().setSkippingReferenceToLogicallyDeletedValidation(true);
+			sync(user, collection, transaction);
+			try {
+				recordServices.execute(transaction);
+			} catch (RecordServicesException e) {
+				throw new UserServicesRuntimeException_CannotExcuteTransaction(e);
 			}
-		}
-
-		if (!removedCollections.isEmpty()) {
-			List<String> collections = new ArrayList<>(user.getCollections());
-			collections.removeAll(removedCollections);
-			addUpdateUserCredential(user.withCollections(collections));
 		}
 	}
 
@@ -661,9 +643,7 @@ public class UserServices {
 			LogicalSearchCondition condition = from(types.getSchemaType(Group.SCHEMA_TYPE))
 					.where(groupCodeMetadata(collection)).isEqualTo(group);
 			Record recordGroup = searchServices.searchSingleResult(condition);
-			if (recordGroup != null) {
-				recordServices.logicallyDelete(recordGroup, User.GOD);
-			}
+			recordServices.logicallyDelete(recordGroup, User.GOD);
 		}
 	}
 
@@ -718,7 +698,7 @@ public class UserServices {
 	}
 
 	public String generateToken(String username, ReadableDuration duration) {
-		String token = secondaryUniqueIdGenerator.next();
+		String token = UUID.randomUUID().toString();
 		LocalDateTime expiry = TimeProvider.getLocalDateTime().plus(duration);
 		UserCredential userCredential = getUser(username).withAccessToken(token, expiry);
 		userCredentialsManager.addUpdate(userCredential);
@@ -726,7 +706,7 @@ public class UserServices {
 	}
 
 	public String generateToken(String username, String unitTime, int duration) {
-		String token = secondaryUniqueIdGenerator.next();
+		String token = UUID.randomUUID().toString();
 		LocalDateTime expiry = unitTime.equals("hours") ?
 				TimeProvider.getLocalDateTime().plusHours(duration) :
 				TimeProvider.getLocalDateTime().plusDays(duration);

@@ -10,7 +10,6 @@ import com.constellio.model.entities.configs.SystemConfigurationGroup;
 import com.constellio.model.entities.configs.core.listeners.UserTitlePatternConfigScript;
 import com.constellio.model.entities.enums.BatchProcessingMode;
 import com.constellio.model.entities.enums.MetadataPopulatePriority;
-import com.constellio.model.entities.enums.SearchSortType;
 import com.constellio.model.entities.enums.TitleMetadataPopulatePriority;
 import com.constellio.model.services.configs.SystemConfigurationsManager;
 
@@ -36,10 +35,6 @@ public class ConstellioEIMConfigs {
 
 	public static final SystemConfiguration DATE_FORMAT;
 	public static final SystemConfiguration DATE_TIME_FORMAT;
-
-	public static final SystemConfiguration MAX_SELECTABLE_SEARCH_RESULTS;
-
-	public static final SystemConfiguration SEARCH_SORT_TYPE;
 
 	static {
 		SystemConfigurationGroup others = new SystemConfigurationGroup(null, "others");
@@ -73,11 +68,6 @@ public class ConstellioEIMConfigs {
 		add(IN_UPDATE_PROCESS = hiddenSystemConfigs.createBooleanFalseByDefault("inUpdateProcess").whichIsHidden());
 		add(BATCH_PROCESSING_MODE = others.createEnum("batchProcessingMode", BatchProcessingMode.class)
 				.withDefaultValue(BatchProcessingMode.ALL_METADATA_OF_SCHEMA));
-
-		SystemConfigurationGroup search = new SystemConfigurationGroup(null, "search");
-		add(SEARCH_SORT_TYPE = search.createEnum("sortType", SearchSortType.class).withDefaultValue(SearchSortType.RELEVENCE));
-
-		add(MAX_SELECTABLE_SEARCH_RESULTS = advanced.createInteger("maxSelectableSearchResults").withDefaultValue(500));
 
 		configurations = Collections.unmodifiableList(modifiableConfigs);
 	}
@@ -130,10 +120,6 @@ public class ConstellioEIMConfigs {
 
 	public BatchProcessingMode getBatchProcessingMode() {
 		return manager.getValue(BATCH_PROCESSING_MODE);
-	}
-
-	public SearchSortType getSearchSortType() {
-		return manager.getValue(SEARCH_SORT_TYPE);
 	}
 
 	public static Collection<? extends SystemConfiguration> getCoreConfigs() {

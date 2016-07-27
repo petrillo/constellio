@@ -75,7 +75,7 @@ public class ExtractImportationLogsScript {
         CollectionsListManager collectionsListManager = modelLayerFactory.getCollectionsListManager();
         for (String collection : collectionsListManager.getCollections()) {
             currentCollection = collection;
-            rm = new RMSchemasRecordsServices(collection, appLayerFactory);
+            rm = new RMSchemasRecordsServices(collection, modelLayerFactory);
             runScriptForCurrentCollection();
         }
 

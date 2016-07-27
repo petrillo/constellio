@@ -5,6 +5,7 @@ import static com.constellio.app.modules.complementary.esRmRobots.model.Classify
 import static com.constellio.app.modules.complementary.esRmRobots.model.ClassifyConnectorDocumentInFolderActionParameters.MAJOR_VERSIONS;
 import static java.util.Arrays.asList;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import com.constellio.app.entities.modules.MetadataSchemasAlterationHelper;
@@ -73,11 +74,18 @@ public class ESRMRobotsMigrationTo5_1_9 implements MigrationScript {
 			MigrationResourcesProvider migrationResourcesProvider,
 			AppLayerFactory appLayerFactory) {
 
-		String defaultValuesTab = "tab.defaultValues";
-		String optionsTab = "tab.options";
+		Language language = migrationResourcesProvider.getLanguage();
+		Map<String, Map<Language, String>> groups = new HashMap<>();
 
-		Map<String, Map<Language, String>> groups = migrationResourcesProvider.getLanguageMap(
-				asList(defaultValuesTab, optionsTab));
+		String defaultValuesTab = migrationResourcesProvider.get("tab.defaultValues");
+		Map<Language, String> labelsDefaultValues = new HashMap<>();
+		labelsDefaultValues.put(language, defaultValuesTab);
+		groups.put("tab.defaultValues", labelsDefaultValues);
+
+		String optionsTab = migrationResourcesProvider.get("tab.options");
+		Map<Language, String> labelsOptionsTab = new HashMap<>();
+		labelsDefaultValues.put(language, optionsTab);
+		groups.put("tab.options", labelsOptionsTab);
 
 		String parametersSchema = ClassifyConnectorDocumentInFolderActionParameters.SCHEMA;
 

@@ -66,7 +66,7 @@ public class RetentionRulesAcceptanceTest extends ConstellioTest {
 				withZeCollection().withConstellioRMModule()
 		);
 
-		rm = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
+		rm = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
 		assertThat(getModelLayerFactory().getTaxonomiesManager().getPrincipalTaxonomy(zeCollection).getCode())
 				.isEqualTo(RMTaxonomies.ADMINISTRATIVE_UNITS);
 

@@ -33,7 +33,7 @@ public class DecommissioningListReportBuilderManualAcceptTest extends ReportBuil
 		);
 
 		types = getModelLayerFactory().getMetadataSchemasManager().getSchemaTypes(zeCollection);
-		rm = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
+		rm = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
 	}
 
 	@Test

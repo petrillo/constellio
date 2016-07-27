@@ -50,10 +50,6 @@ public class TestConstellioFactoriesDecorator extends ConstellioFactoriesDecorat
 		doReturn(checkRollback).when(spiedDataLayerConfiguration).isInRollbackTestMode();
 		doReturn(transactionLogWorkFolder).when(spiedDataLayerConfiguration).getSecondTransactionLogBaseFolder();
 
-		if (transactionLogWorkFolder != null) {
-			doReturn(true).when(spiedDataLayerConfiguration).isSecondTransactionLogEnabled();
-		}
-
 		for (DataLayerConfigurationAlteration alteration : dataLayerConfigurationAlterations) {
 			alteration.alter(spiedDataLayerConfiguration);
 		}

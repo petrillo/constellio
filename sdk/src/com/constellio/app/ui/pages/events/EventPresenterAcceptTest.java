@@ -54,7 +54,7 @@ public class EventPresenterAcceptTest extends ConstellioTest {
 		inCollection(zeCollection).setCollectionTitleTo("Collection de test");
 
 		rmEventsSearchServices = new RMEventsSearchServices(getModelLayerFactory(), zeCollection);
-		rm = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
+		rm = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
 
 		sessionContext = FakeSessionContext.adminInCollection(zeCollection);
 		sessionContext.setCurrentLocale(Locale.FRENCH);

@@ -122,9 +122,9 @@ public class ContainerRecordReportPresenter {
 	}
 
 	private List<Folder> getFolders(String containerId) {
-		MetadataSchemaType folderSchemaType = rm.folder.schemaType();
+		MetadataSchemaType folderSchemaType = rm.folderSchemaType();
 
-		Metadata folderMetadata = rm.folder.schemaType().getDefaultSchema()
+		Metadata folderMetadata = rm.folderSchemaType().getDefaultSchema()
 				.getMetadata(Folder.CONTAINER);
 
 		LogicalSearchQuery foldersQuery = new LogicalSearchQuery(LogicalSearchQueryOperators.from(folderSchemaType)

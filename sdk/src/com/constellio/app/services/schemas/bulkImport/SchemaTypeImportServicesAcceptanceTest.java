@@ -58,7 +58,7 @@ public class SchemaTypeImportServicesAcceptanceTest extends ConstellioTest {
 		searchServices = getModelLayerFactory().newSearchServices();
 		userServices = getModelLayerFactory().newUserServices();
 		schemasDisplayManager = getAppLayerFactory().getMetadataSchemasDisplayManager();
-		rm = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
+		rm = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
 	}
 
 	@Test

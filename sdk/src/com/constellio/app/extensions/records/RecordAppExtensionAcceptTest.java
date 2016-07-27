@@ -64,7 +64,7 @@ public class RecordAppExtensionAcceptTest extends ConstellioTest {
 
 		inCollection(zeCollection).setCollectionTitleTo("Collection de test");
 
-		rmSchemasRecordsServices = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
+		rmSchemasRecordsServices = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
 
 		recordServices = getModelLayerFactory().newRecordServices();
 		es = new ESSchemasRecordsServices(zeCollection, getAppLayerFactory());

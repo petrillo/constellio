@@ -75,24 +75,8 @@ public class MetadataBuilder {
 	private MetadataPopulateConfigsBuilder populateConfigsBuilder;
 	private ClassProvider classProvider;
 	private String inputMask;
-	private Boolean duplicable;
 
 	MetadataBuilder() {
-	}
-
-	static MetadataBuilder createCustomMetadataFromOriginalCustomMetadata(MetadataBuilder customMetadata, String codeSchema) {
-		MetadataBuilder copy;
-
-		if (customMetadata.getInheritance() == null) {
-			copy = modifyMetadataWithoutInheritance(customMetadata.getOriginalMetadata(), customMetadata.getClassProvider());
-		} else {
-			MetadataBuilder inheritanceCopy = MetadataBuilder.modifyMetadataWithoutInheritance(
-					customMetadata.getInheritance().getOriginalMetadata(), customMetadata.getClassProvider());
-			copy = modifyMetadataWithInheritance(customMetadata.getOriginalMetadata(), inheritanceCopy);
-		}
-		copy.setCode(codeSchema + "_" + copy.getLocalCode());
-
-		return copy;
 	}
 
 	static MetadataBuilder createCustomMetadataFromDefault(MetadataBuilder defaultMetadata, String codeSchema) {
@@ -136,7 +120,6 @@ public class MetadataBuilder {
 		builder.recordMetadataValidators = new ClassListBuilder<>(builder.classProvider, RecordMetadataValidator.class);
 		builder.accessRestrictionBuilder = MetadataAccessRestrictionBuilder.create();
 		builder.populateConfigsBuilder = MetadataPopulateConfigsBuilder.create();
-		builder.setDuplicable(false);
 		return builder;
 	}
 
@@ -192,7 +175,6 @@ public class MetadataBuilder {
 			builder.allowedReferencesBuilder = new AllowedReferencesBuilder(metadata.getAllowedReferences());
 		}
 		builder.populateConfigsBuilder = MetadataPopulateConfigsBuilder.modify(metadata.getPopulateConfigs());
-		builder.duplicable = metadata.isDuplicable();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -251,9 +233,6 @@ public class MetadataBuilder {
 			builder.setDefaultRequirement(null);
 		}
 		builder.populateConfigsBuilder = MetadataPopulateConfigsBuilder.modify(metadata.getPopulateConfigs());
-		if (inheritanceMetadata.isDuplicable() != null && !inheritanceMetadata.isDuplicable().equals(metadata.isDuplicable())) {
-			builder.duplicable = metadata.isDuplicable();
-		}
 	}
 
 	public MetadataBuilder getInheritance() {
@@ -524,15 +503,6 @@ public class MetadataBuilder {
 		return this;
 	}
 
-	public Boolean isDuplicable() {
-		return duplicable;
-	}
-
-	public MetadataBuilder setDuplicable(Boolean duplicable) {
-		this.duplicable = duplicable;
-		return this;
-	}
-
 	public AllowedReferencesBuilder defineReferences() {
 		ensureCanModify("defineReferences");
 		if (type == null) {
@@ -637,12 +607,8 @@ public class MetadataBuilder {
 			}
 		}
 
-		if (duplicable == null) {
-			duplicable = inheritance.isDuplicable();
-		}
-
 		return new Metadata(inheritance, this.getLabels(), this.getEnabled(), this.getDefaultRequirement(), this.code,
-				this.recordMetadataValidators.build(), this.defaultValue, this.inputMask, populateConfigs, duplicable);
+				this.recordMetadataValidators.build(), this.defaultValue, this.inputMask, populateConfigs);
 	}
 
 	Metadata buildWithoutInheritance(DataStoreTypesFactory typesFactory, final ModelLayerFactory modelLayerFactory) {
@@ -686,14 +652,10 @@ public class MetadataBuilder {
 			}
 		};
 
-		if (duplicable == null) {
-			duplicable = false;
-		}
-
 		return new Metadata(localCode, this.getCode(), collection, this.getLabels(), this.getEnabled(), behaviors,
 				this.type, references, this.getDefaultRequirement(), this.dataEntry, validators, dataStoreType,
 				accessRestriction, structureFactory, enumClass, defaultValue, inputMask, populateConfigsBuilder.build(),
-				encryptionServicesFactory, duplicable);
+				encryptionServicesFactory);
 	}
 
 	private void validateNotReferencingTaxonomy(String typeWithAllowedSchemas, TaxonomiesManager taxonomiesManager) {
@@ -754,7 +716,7 @@ public class MetadataBuilder {
 		return "MetadataBuilder [inheritance=" + inheritance + ", localCode=" + localCode + ", code=" + code + ", enabled="
 				+ enabled + ", type=" + type + ", allowedReferencesBuilder=" + allowedReferencesBuilder
 				+ ", undeletable=" + undeletable + ", defaultRequirement=" + defaultRequirement + ", dataEntry=" + dataEntry
-				+ ", duplicable=" + duplicable + "]";
+				+ "]";
 	}
 
 	public MetadataBuilder addValidator(Class<? extends RecordMetadataValidator> clazz) {

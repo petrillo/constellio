@@ -71,7 +71,7 @@ public class CreateFolderAcceptanceTest extends ConstellioTest {
 		//filingSpaceFinder = filingSpaceFinderB;
 		retentionRule = "1";
 
-		rm = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
+		rm = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
 		getConfigurationManager().setValue(RMConfigs.COPY_RULE_PRINCIPAL_REQUIRED, false);
 
 		recordServices = getModelLayerFactory().newRecordServices();

@@ -285,7 +285,6 @@ public class FactoriesTestFeatures {
 			} else {
 				pluginsFolder = fileSystemTestFeatures.newTempFolderWithName("plugins");
 			}
-			File tlogWorkFolder = fileSystemTestFeatures.newTempFolderWithName("tlogWorkFolder");
 
 			decorator.setDataLayerConfigurationAlterations(dataLayerConfigurationAlterations);
 			decorator.setModelLayerConfigurationAlterations(modelLayerConfigurationAlterations);
@@ -297,7 +296,6 @@ public class FactoriesTestFeatures {
 			decorator.setContentFolder(contentFolder);
 			decorator.setPluginsFolder(pluginsFolder)
 					.setPluginsToMoveOnStartupFile(fileSystemTestFeatures.newTempFileWithContent(""));
-			decorator.setTransactionLogWorkFolder(tlogWorkFolder);
 			decorator.setSystemLanguage(systemLanguage);
 
 			if (initialState != null) {
@@ -306,7 +304,7 @@ public class FactoriesTestFeatures {
 					try {
 						SaveStateFeature
 								.loadStateFrom(initialState, tempFolder, configManagerFolder, contentFolder, pluginsFolder,
-										tlogWorkFolder, dummyPasswords);
+										dummyPasswords);
 					} catch (Exception e) {
 						throw new RuntimeException(e);
 					}

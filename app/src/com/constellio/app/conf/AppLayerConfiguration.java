@@ -14,6 +14,4 @@ public interface AppLayerConfiguration {
 
 	File getSetupProperties();
 
-	boolean isFastMigrationsEnabled();
-
 }

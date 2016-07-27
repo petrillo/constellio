@@ -102,7 +102,8 @@ public class AddEditRetentionRuleViewImpl extends BaseViewImpl implements AddEdi
 		}
 
 		@Override
-		protected void saveButtonClick(RecordVO record) {
+		protected void saveButtonClick(RecordVO record)
+				throws ValidationException {
 			presenter.saveButtonClicked();
 		}
 

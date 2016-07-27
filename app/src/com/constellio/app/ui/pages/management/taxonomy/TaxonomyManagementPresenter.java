@@ -72,7 +72,7 @@ public class TaxonomyManagementPresenter extends BasePresenter<TaxonomyManagemen
 			currentSchema = schema(getCurrentConcept().getSchema().getCode());
 		}
 		for (String schemaType : taxonomy.getSchemaTypes()) {
-			for (MetadataSchema schema : schemaTypes.getSchemaType(schemaType).getAllSchemasSortedByCode()) {
+			for (MetadataSchema schema : schemaTypes.getSchemaType(schemaType).getAllSchemas()) {
 				createDataProviderIfSchemaCanBeChildOfCurrentConcept(dataProviders, currentSchema, schema);
 			}
 		}

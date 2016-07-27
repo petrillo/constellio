@@ -72,7 +72,7 @@ public class TaxonomiesSearchServices_LinkableTreesAcceptTest extends Constellio
 
 		givenRule3IsDisabled();
 
-		rm = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
+		rm = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
 		service = getModelLayerFactory().newTaxonomiesSearchService();
 		decommissioningService = new DecommissioningService(zeCollection, getModelLayerFactory());
 

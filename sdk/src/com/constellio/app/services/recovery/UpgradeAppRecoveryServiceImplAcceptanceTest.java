@@ -58,7 +58,7 @@ public class UpgradeAppRecoveryServiceImplAcceptanceTest extends ConstellioTest 
 						.withFoldersAndContainersOfEveryStatus()
 		);
 		upgradeAppRecoveryService = new UpgradeAppRecoveryServiceImpl(getAppLayerFactory(), getIOLayerFactory().newIOServices());
-		rm = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
+		rm = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
 		recordServices = getModelLayerFactory().newRecordServices();
 	}
 

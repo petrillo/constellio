@@ -133,7 +133,7 @@ public class ESRMRobotsServicesAcceptanceTest extends ConstellioTest {
 		prepareSystem(withZeCollection().withConstellioRMModule().withConstellioESModule().withRobotsModule().withAllTest(users)
 				.withRMTest(records).withFoldersAndContainersOfEveryStatus());
 
-		rm = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
+		rm = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
 		recordServices = getModelLayerFactory().newRecordServices();
 		searchServices = getModelLayerFactory().newSearchServices();
 		contentManager = getModelLayerFactory().getContentManager();

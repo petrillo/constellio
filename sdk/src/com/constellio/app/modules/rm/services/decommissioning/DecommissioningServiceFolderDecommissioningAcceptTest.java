@@ -41,7 +41,7 @@ public class DecommissioningServiceFolderDecommissioningAcceptTest extends Const
 				withZeCollection().withConstellioRMModule().withAllTestUsers().withRMTest(records)
 						.withFoldersAndContainersOfEveryStatus().withDocumentsHavingContent()
 		);
-		rm = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
+		rm = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
 		service = new DecommissioningService(zeCollection, getModelLayerFactory());
 		recordServices = getModelLayerFactory().newRecordServices();
 	}

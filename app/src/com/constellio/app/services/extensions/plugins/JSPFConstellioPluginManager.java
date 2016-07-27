@@ -22,6 +22,7 @@ import static com.constellio.app.services.extensions.plugins.pluginInfo.Constell
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -52,6 +53,7 @@ import com.constellio.app.services.extensions.plugins.PluginServices.PluginsRepl
 import com.constellio.app.services.extensions.plugins.pluginInfo.ConstellioPluginInfo;
 import com.constellio.app.services.extensions.plugins.pluginInfo.ConstellioPluginStatus;
 import com.constellio.app.services.extensions.plugins.utils.PluginManagementUtils;
+import com.constellio.app.start.MainConstellio;
 import com.constellio.data.dao.managers.StatefulService;
 import com.constellio.data.io.services.facades.IOServices;
 import com.constellio.model.conf.FoldersLocator;
@@ -209,13 +211,6 @@ public class JSPFConstellioPluginManager implements StatefulService, ConstellioP
 		if (plugin != null) {
 			validateId(plugin.getId());
 			registeredModules.put(plugin.getId(), plugin);
-		}
-	}
-
-	public void unregisterModule(InstallableModule plugin)
-			throws InvalidId {
-		if (plugin != null) {
-			registeredModules.remove(plugin.getId());
 		}
 	}
 

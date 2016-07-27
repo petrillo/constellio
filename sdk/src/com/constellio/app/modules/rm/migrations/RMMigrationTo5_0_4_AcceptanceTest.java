@@ -62,14 +62,14 @@ public class RMMigrationTo5_0_4_AcceptanceTest extends ConstellioTest {
 			throws OptimisticLockingConfiguration {
 		givenDisabledAfterTestValidations();
 		givenSystemAtVersion5_0_3();
-		getAppLayerFactory().newMigrationServices().migrate(zeCollection, false);
+		getAppLayerFactory().newMigrationServices().migrate(zeCollection);
 
 		SearchServices searchServices = getModelLayerFactory().newSearchServices();
 		assertThat(searchServices.getResultsCount(
-				from(new RMSchemasRecordsServices(zeCollection, getAppLayerFactory()).folderSchemaType())
+				from(new RMSchemasRecordsServices(zeCollection, getModelLayerFactory()).folderSchemaType())
 						.returnAll())).isGreaterThan(0);
 		assertThat(searchServices.getResultsCount(
-				from(new RMSchemasRecordsServices(zeCollection, getAppLayerFactory()).folderSchemaType())
+				from(new RMSchemasRecordsServices(zeCollection, getModelLayerFactory()).folderSchemaType())
 						.where(Schemas.VISIBLE_IN_TREES).isTrueOrNull())).isGreaterThan(0);
 	}
 

@@ -47,7 +47,6 @@ public class DecommissioningBuilderPresenter extends SearchPresenter<Decommissio
 	private transient RMSchemasRecordsServices rmRecordServices;
 	private transient DecommissioningService decommissioningService;
 
-
 	SearchType searchType;
 	String adminUnitId;
 	boolean displayResults;
@@ -114,7 +113,6 @@ public class DecommissioningBuilderPresenter extends SearchPresenter<Decommissio
 		this.pageNumber = search.getPageNumber();
 		this.setFacetSelections(search.getSelectedFacets());
 		this.adminUnitId = search.getFreeTextSearch();
-		setSelectedPageLength(search.getPageLength());
 		view.setAdministrativeUnit(this.adminUnitId);
 	}
 
@@ -150,7 +148,6 @@ public class DecommissioningBuilderPresenter extends SearchPresenter<Decommissio
 				view.navigate().to(RMViews.class).displayDocumentDecommissioningList(decommissioningList.getId());
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error while creating decommissioning list", e);
 			view.showErrorMessage($("DecommissioningBuilderView.unableToSave"));
 		}
 	}
@@ -229,7 +226,7 @@ public class DecommissioningBuilderPresenter extends SearchPresenter<Decommissio
 	private LogicalSearchCondition selectByAdvancedSearchCriteria(List<Criterion> criteria)
 			throws ConditionException {
 		MetadataSchemaType type = searchType.isFolderSearch() ?
-				rmRecordServices().folder.schemaType() : rmRecordServices().documentSchemaType();
+				rmRecordServices().folderSchemaType() : rmRecordServices().documentSchemaType();
 		return new ConditionBuilder(type).build(criteria);
 	}
 
@@ -242,7 +239,7 @@ public class DecommissioningBuilderPresenter extends SearchPresenter<Decommissio
 
 	private RMSchemasRecordsServices rmRecordServices() {
 		if (rmRecordServices == null) {
-			rmRecordServices = new RMSchemasRecordsServices(view.getCollection(), appLayerFactory);
+			rmRecordServices = new RMSchemasRecordsServices(view.getCollection(), modelLayerFactory);
 		}
 		return rmRecordServices;
 	}
@@ -281,8 +278,7 @@ public class DecommissioningBuilderPresenter extends SearchPresenter<Decommissio
 				.setFreeTextSearch(adminUnitId)
 				.setAdvancedSearch(view.getSearchCriteria())
 				.setPageNumber(pageNumber)
-				.setSelectedFacets(this.getFacetSelections().getNestedMap())
-				.setPageLength(getSelectedPageLength());
+				.setSelectedFacets(this.getFacetSelections().getNestedMap());
 		try {
 			recordServices().update(search);
 			if (refreshPage) {

@@ -1,8 +1,7 @@
 package com.constellio.app.modules.rm.migrations;
 
-import static java.util.Arrays.asList;
-
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -148,11 +147,15 @@ public class RMMigrationTo5_0_2 implements MigrationScript {
 		for (MetadataSchemaType schemaType : rmTypes) {
 			SchemaTypeDisplayConfig typeConfig = schemasDisplayManager.getType(types.getCollection(), schemaType.getCode());
 
-			Map<String, Map<Language, String>> groups;
+			Language language = migrationResourcesProvider.getLanguage();
+			Map<String, Map<Language, String>> groups = new HashMap<>();
+			Map<Language, String> labels = new HashMap<>();
+			labels.put(language, groupLabel);
+			groups.put("defaultGroupLabel", labels);
 			if (schemaType.getCode().equals(Folder.SCHEMA_TYPE) || schemaType.getCode().equals(Document.SCHEMA_TYPE)) {
-				groups = migrationResourcesProvider.getLanguageMap(asList("default:defaultGroupLabel", "classifiedInGroupLabel"));
-			} else {
-				groups = migrationResourcesProvider.getLanguageMap(asList("default:defaultGroupLabel"));
+				labels = new HashMap<>();
+				labels.put(language, classifiedInLabel);
+				groups.put("classifiedInGroupLabel", labels);
 			}
 
 			transaction.getModifiedTypes().add(typeConfig.withMetadataGroup(groups));

@@ -1244,7 +1244,7 @@ public class RecordPopulateServicesAcceptTest extends ConstellioTest {
 				.withAllTest(users));
 		admin = users.adminIn(zeCollection);
 
-		rm = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
+		rm = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
 		services = getModelLayerFactory().newRecordPopulateServices();
 		recordServices = getModelLayerFactory().newRecordServices();
 		contentManager = getModelLayerFactory().getContentManager();

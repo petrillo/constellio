@@ -62,8 +62,6 @@ public class AddEditMetadataViewImpl extends BaseViewImpl implements AddEditMeta
 	private Field<?> defaultValueField;
 	@PropertyId("inputMask")
 	private BaseTextField inputMask;
-	@PropertyId("duplicable")
-	private CheckBox duplicableField;
 
 	private MetadataForm metadataForm;
 	private FormMetadataVO formMetadataVO;
@@ -364,13 +362,6 @@ public class AddEditMetadataViewImpl extends BaseViewImpl implements AddEditMeta
 		autocomplete.addStyleName("autocomplete");
 		autocomplete.setEnabled(!inherited);
 
-		duplicableField = new CheckBox();
-		duplicableField.setCaption($("AddEditMetadataView.duplicable"));
-		duplicableField.setRequired(false);
-		duplicableField.setId("duplicable");
-		duplicableField.addStyleName("duplicable");
-		duplicableField.setEnabled(true);
-
 		MetadataFieldFactory factory = new MetadataFieldFactory();
 
 		MetadataVO defaultValueMetadataVO = presenter.getDefaultValueMetadataVO(formMetadataVO);
@@ -405,7 +396,7 @@ public class AddEditMetadataViewImpl extends BaseViewImpl implements AddEditMeta
 
 		metadataForm = new MetadataForm(formMetadataVO, this, localcodeField, labelsField, valueType, multivalueType,
 				inputType, inputMask, metadataGroup, refType, requiredField, enabledField, searchableField, sortableField,
-				advancedSearchField, highlight, autocomplete, defaultValueField, duplicableField) {
+				advancedSearchField, highlight, autocomplete, defaultValueField) {
 
 			@Override
 			public void reload() {

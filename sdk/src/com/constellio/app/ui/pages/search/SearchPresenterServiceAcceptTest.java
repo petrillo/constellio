@@ -57,7 +57,7 @@ public class SearchPresenterServiceAcceptTest extends ConstellioTest {
 				.withFoldersAndContainersOfEveryStatus().withDocumentsHavingContent());
 		recordServices = getModelLayerFactory().newRecordServices();
 		searchServices = getModelLayerFactory().newSearchServices();
-		rm = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
+		rm = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
 		searchPresenterService = new SearchPresenterService(zeCollection, getModelLayerFactory());
 
 		allFolders = new LogicalSearchQuery(from(rm.folderSchemaType()).returnAll());
@@ -229,7 +229,6 @@ public class SearchPresenterServiceAcceptTest extends ConstellioTest {
 		assertThat(facets.get(0).isOpen()).isTrue();
 	}
 
-
 	// ----------------------------------------------------
 
 	//	private Condition<? super FacetVO> dataStoreCode(final String expectedDataStoreCode) {
@@ -244,13 +243,13 @@ public class SearchPresenterServiceAcceptTest extends ConstellioTest {
 
 	private ExpectedFacetValue value(RetentionRule retentionRule) {
 		int count = (int) searchServices.getResultsCount(from(rm.folderSchemaType())
-				.where(rm.folder.retentionRule()).isEqualTo(retentionRule));
+				.where(rm.folderRetentionRule()).isEqualTo(retentionRule));
 		return new ExpectedFacetValue(retentionRule.getId(), retentionRule.getTitle(), -1);
 	}
 
 	private ExpectedFacetValue value(AdministrativeUnit unit) {
 		int count = (int) searchServices.getResultsCount(from(rm.folderSchemaType())
-				.where(rm.folder.administrativeUnit()).isEqualTo(unit));
+				.where(rm.folderAdministrativeUnit()).isEqualTo(unit));
 		return new ExpectedFacetValue(unit.getId(), unit.getTitle(), -1);
 	}
 

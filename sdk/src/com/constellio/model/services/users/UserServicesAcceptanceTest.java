@@ -185,18 +185,6 @@ public class UserServicesAcceptanceTest extends ConstellioTest {
 	}
 
 	@Test
-	public void whenCreatingUserInInvalidCollectionThenNotSetted()
-			throws Exception {
-
-		givenCollection1();
-		givenUserWith(noGroups, and(collection1, "invalidCollection"));
-
-		assertThatUserIsOnlyInCollections(user, collection1);
-
-	}
-
-
-	@Test
 	public void givenExistingUserWhenUpdatingWithCollectionsThenAdded()
 			throws Exception {
 

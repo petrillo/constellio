@@ -51,7 +51,7 @@ public class AddEmailAttachmentsToFolderPresenter extends SingleSchemaBasePresen
 	private void initTransientObjects() {
 		recordServices = modelLayerFactory.newRecordServices();
 		contentManager = modelLayerFactory.getContentManager();
-		rmSchemasRecordsServices = new RMSchemasRecordsServices(collection, appLayerFactory);
+		rmSchemasRecordsServices = new RMSchemasRecordsServices(collection, modelLayerFactory);
 	}
 
 	@Override

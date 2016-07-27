@@ -45,7 +45,7 @@ public class DocumentTypeTextInputDataProviderAcceptTest extends ConstellioTest 
 						.withFoldersAndContainersOfEveryStatus().withEvents()
 		);
 		inCollection(zeCollection).setCollectionTitleTo("Collection de test");
-		rmSchemasRecordsServices = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
+		rmSchemasRecordsServices = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
 		recordServices = getModelLayerFactory().newRecordServices();
 		sessionContext = FakeSessionContext.chuckNorrisInCollection(zeCollection);
 		sessionContext.setCurrentLocale(Locale.FRENCH);

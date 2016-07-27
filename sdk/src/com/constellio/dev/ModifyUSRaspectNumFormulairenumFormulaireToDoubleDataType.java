@@ -130,7 +130,7 @@ public class ModifyUSRaspectNumFormulairenumFormulaireToDoubleDataType {
 
         for (String collection : modelLayerFactory.getCollectionsListManager().getCollections()) {
             currentCollection = collection;
-            rm = new RMSchemasRecordsServices(collection, appLayerFactory);
+            rm = new RMSchemasRecordsServices(collection, modelLayerFactory);
             runScriptForCurrentCollection();
         }
 

@@ -57,7 +57,7 @@ public class SaveStateFeature {
 	}
 
 	public static void loadStateFrom(File file, File tempFolder, File settingsFolder, File contentFolder, File pluginsFolder,
-			File tlogWorkFolder, boolean resetPasswords)
+			boolean resetPasswords)
 			throws Exception {
 
 		File folder;
@@ -73,7 +73,6 @@ public class SaveStateFeature {
 		File tempUnzipContentFolder = new File(folder, "content");
 		File tempUnzipSettingsFolder = new File(folder, "settings");
 		File tempUnzipPluginsFolder = new File(folder, "plugins");
-		File tempUnzipTlogWorkFolder = new File(folder, "tlog-work");
 
 		if (resetPasswords) {
 			File authenticationFile = new File(tempUnzipSettingsFolder, "authentification.properties");
@@ -100,10 +99,6 @@ public class SaveStateFeature {
 		FileUtils.copyDirectory(tempUnzipContentFolder, contentFolder);
 		if (tempUnzipPluginsFolder.exists()) {
 			FileUtils.copyDirectory(tempUnzipPluginsFolder, pluginsFolder);
-		}
-
-		if (tempUnzipTlogWorkFolder.exists()) {
-			FileUtils.copyDirectory(tempUnzipTlogWorkFolder, tlogWorkFolder);
 		}
 
 	}

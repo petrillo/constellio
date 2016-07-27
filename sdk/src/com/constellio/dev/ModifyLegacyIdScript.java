@@ -37,7 +37,7 @@ public class ModifyLegacyIdScript {
 		ModelLayerFactory modelLayerFactory = appLayerFactory.getModelLayerFactory();
 		SearchServices searchServices = modelLayerFactory.newSearchServices();
 		RecordServices recordServices = modelLayerFactory.newRecordServices();
-		RMSchemasRecordsServices rm = new RMSchemasRecordsServices(COLLECTION, appLayerFactory);
+		RMSchemasRecordsServices rm = new RMSchemasRecordsServices(COLLECTION, modelLayerFactory);
 
 		modelLayerFactory.getRecordsCaches().getCache(COLLECTION).removeCache(rm.documentSchemaType().getCode());
 

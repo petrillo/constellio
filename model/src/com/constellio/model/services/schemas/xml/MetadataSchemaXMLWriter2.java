@@ -161,12 +161,8 @@ public class MetadataSchemaXMLWriter2 {
 	}
 
 	private void writeLabels(Element schemaElement, Map<Language, String> labels) {
-
-		for (Language language : Language.values()) {
-
-			if (labels.containsKey(language)) {
-				schemaElement.setAttribute("label_" + language.getCode(), labels.get(language));
-			}
+		for (Map.Entry<Language, String> labelEntry : labels.entrySet()) {
+			schemaElement.setAttribute("label_" + labelEntry.getKey().getCode(), labelEntry.getValue());
 		}
 	}
 
@@ -281,9 +277,6 @@ public class MetadataSchemaXMLWriter2 {
 		}
 		if (!metadata.getPopulateConfigs().isEmpty()) {
 			metadataElement.addContent(toPopulateConfigsElement(metadata.getPopulateConfigs()));
-		}
-		if (metadata.isDuplicable()) {
-			metadataElement.setAttribute("duplicable", writeBoolean(metadata.isDuplicable()));
 		}
 	}
 
@@ -408,10 +401,6 @@ public class MetadataSchemaXMLWriter2 {
 			metadataElement.addContent(toPopulateConfigsElement(metadata.getPopulateConfigs()));
 			different = true;
 		}
-		if (globalMetadataInCollection.isDuplicable() != metadata.isDuplicable()) {
-			metadataElement.setAttribute("duplicable", writeBoolean(metadata.isDuplicable()));
-			different = true;
-		}
 
 		return different;
 	}
@@ -447,10 +436,6 @@ public class MetadataSchemaXMLWriter2 {
 				.equals(metadata.getInheritance().getDefaultValue())) {
 			ParametrizedInstanceUtils utils = new ParametrizedInstanceUtils();
 			utils.toElement(metadata.getDefaultValue(), metadataElement, "defaultValue");
-			differentFromInheritance = true;
-		}
-		if (metadata.getInheritance().isDuplicable() != metadata.isDuplicable()) {
-			metadataElement.setAttribute("duplicable", writeBoolean(metadata.isDuplicable()));
 			differentFromInheritance = true;
 		}
 		return differentFromInheritance;

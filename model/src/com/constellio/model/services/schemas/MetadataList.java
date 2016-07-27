@@ -16,7 +16,6 @@ import java.util.Map;
 import com.constellio.model.entities.Language;
 import com.constellio.model.entities.schemas.Metadata;
 import com.constellio.model.entities.schemas.MetadataValueType;
-import com.constellio.model.entities.schemas.Schemas;
 import com.constellio.model.entities.schemas.entries.DataEntryType;
 
 public class MetadataList implements List<Metadata> {
@@ -496,16 +495,6 @@ public class MetadataList implements List<Metadata> {
 		return new MetadataList(filteredMetadatasList).unModifiable();
 	}
 
-	public MetadataList onlyNotGlobals() {
-		List<Metadata> filteredMetadatasList = new ArrayList<>();
-		for (Metadata metadata : nestedList) {
-			if (!Schemas.isGlobalMetadata(metadata.getLocalCode())) {
-				filteredMetadatasList.add(metadata);
-			}
-		}
-		return new MetadataList(filteredMetadatasList).unModifiable();
-	}
-
 	public List<Metadata> onlyWithoutInheritance() {
 		List<Metadata> filteredMetadatasList = new ArrayList<>();
 		for (Metadata metadata : nestedList) {
@@ -544,15 +533,4 @@ public class MetadataList implements List<Metadata> {
 	public boolean containsMetadataWithLocalCode(String localCode) {
 		return localCodeIndex.containsKey(localCode);
 	}
-
-	public MetadataList onlyDuplicable() {
-		List<Metadata> filteredMetadatasList = new ArrayList<>();
-		for (Metadata metadata : nestedList) {
-			if (metadata.isDuplicable()) {
-				filteredMetadatasList.add(metadata);
-			}
-		}
-		return new MetadataList(filteredMetadatasList).unModifiable();
-	}
-
 }

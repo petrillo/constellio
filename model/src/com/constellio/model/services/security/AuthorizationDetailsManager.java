@@ -191,8 +191,4 @@ public class AuthorizationDetailsManager
 		}
 		return null;
 	}
-
-	public String fileFor(String collection) {
-		return oneXMLConfigPerCollectionManager.getConfigPath(collection);
-	}
 }

@@ -29,7 +29,7 @@ public class CollectionManagementViewImplAcceptanceTest extends ConstellioTest {
 	@Before
 	public void setUp()
 			throws Exception {
-		schemas = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
+		schemas = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
 
 		prepareSystem(
 				withZeCollection().withConstellioRMModule().withAllTestUsers()

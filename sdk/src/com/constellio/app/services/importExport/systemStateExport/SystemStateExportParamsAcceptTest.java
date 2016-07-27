@@ -55,7 +55,7 @@ public class SystemStateExportParamsAcceptTest extends ConstellioTest {
 		getModelLayerFactory().newReindexingServices().reindexCollections(ReindexationMode.REWRITE);
 
 		User admin = getModelLayerFactory().newUserServices().getUserInCollection("admin", zeCollection);
-		rm = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
+		rm = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
 
 		ContentManager contentManager = getModelLayerFactory().getContentManager();
 

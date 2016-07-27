@@ -6,8 +6,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.constellio.model.entities.enums.SearchSortType;
-import com.constellio.model.services.migrations.ConstellioEIMConfigs;
 import com.constellio.sdk.tests.MockedNavigation;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,8 +36,6 @@ public class AdvancedSearchPresenterTest extends ConstellioTest {
 	MockedFactories factories = new MockedFactories();
 
 	AdvancedSearchPresenter presenter;
-	@Mock
-	private ConstellioEIMConfigs mockedConfigs;
 
 	@Before
 	public void setUp()
@@ -58,8 +54,6 @@ public class AdvancedSearchPresenterTest extends ConstellioTest {
 		when(factories.getModelLayerFactory().newSearchServices()).thenReturn(searchServices);
 
 		when(view.getSchemaType()).thenReturn("zeSchemaType");
-		when(factories.getModelLayerFactory().getSystemConfigs()).thenReturn(mockedConfigs);
-		when(mockedConfigs.getSearchSortType()).thenReturn(SearchSortType.RELEVENCE);
 
 		presenter = spy(new AdvancedSearchPresenter(view));
 

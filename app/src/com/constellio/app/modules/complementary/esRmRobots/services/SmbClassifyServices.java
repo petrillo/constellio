@@ -63,7 +63,7 @@ public class SmbClassifyServices {
 	private transient ConnectorServicesFactory connectorServicesFactory;
 
 	public SmbClassifyServices(String collection, AppLayerFactory appLayerFactory, User currentUser) {
-		rmSchemasRecordsServices = new RMSchemasRecordsServices(collection, appLayerFactory);
+		rmSchemasRecordsServices = new RMSchemasRecordsServices(collection, appLayerFactory.getModelLayerFactory());
 		es = new ESSchemasRecordsServices(collection, appLayerFactory);
 		recordServices = appLayerFactory.getModelLayerFactory().newRecordServices();
 		searchServices = appLayerFactory.getModelLayerFactory().newSearchServices();

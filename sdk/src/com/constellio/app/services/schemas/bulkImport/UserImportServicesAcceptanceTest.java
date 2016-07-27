@@ -49,7 +49,7 @@ public class UserImportServicesAcceptanceTest extends ConstellioTest {
 
 		admin = getModelLayerFactory().newUserServices().getUserInCollection("admin", zeCollection);
 
-		rm = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
+		rm = new RMSchemasRecordsServices(zeCollection, getModelLayerFactory());
 	}
 
 	@Test

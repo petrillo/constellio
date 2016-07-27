@@ -32,8 +32,7 @@ public class FolderCopyRulesExpectedDestructionDatesCalculatorTest extends Const
 	FolderStatus archivisticStatus;
 	LocalDate decommissioningDate;
 	List<LocalDate> copyRulesExpectedTransferDate;
-	int semiActiveConfigNumberOfYearWhenVariableDelay = 0;
-	int inactiveConfigNumberOfYearWhenVariableDelay = 0;
+	int configNumberOfYearWhenVariableDelay = 0;
 
 	List<CopyRetentionRule> applicableCopyRules;
 	int confiRequiredDaysBeforeYearEnd = 0;
@@ -72,7 +71,7 @@ public class FolderCopyRulesExpectedDestructionDatesCalculatorTest extends Const
 	@Test
 	public void whenCalculatingOnActiveFolderWithFixedSemiActivePeriodThenReturnExpectedTransferDatePlusFixedPeriod()
 			throws Exception {
-		inactiveConfigNumberOfYearWhenVariableDelay = 666;
+		configNumberOfYearWhenVariableDelay = 666;
 		archivisticStatus = FolderStatus.ACTIVE;
 		decommissioningDate = new LocalDate(1995, 4, 5);
 		copyRulesExpectedTransferDate = asList(new LocalDate(1995, 4, 5), new LocalDate(1997, 4, 5));
@@ -83,7 +82,7 @@ public class FolderCopyRulesExpectedDestructionDatesCalculatorTest extends Const
 	@Test
 	public void whenCalculatingOnActiveFolderWithFixedSemiActivePeriodAndDepositDisposalThenReturnNull()
 			throws Exception {
-		inactiveConfigNumberOfYearWhenVariableDelay = 666;
+		configNumberOfYearWhenVariableDelay = 666;
 		archivisticStatus = FolderStatus.ACTIVE;
 		decommissioningDate = new LocalDate(1995, 4, 5);
 		copyRulesExpectedTransferDate = asList(new LocalDate(1995, 4, 5), new LocalDate(1997, 4, 5));
@@ -94,7 +93,7 @@ public class FolderCopyRulesExpectedDestructionDatesCalculatorTest extends Const
 	@Test
 	public void whenCalculatingOnActiveFolderWithFixedSemiActivePeriodAndSortDisposalThenReturnExpectedTransferDatePlusFixedPeriod()
 			throws Exception {
-		inactiveConfigNumberOfYearWhenVariableDelay = 666;
+		configNumberOfYearWhenVariableDelay = 666;
 		archivisticStatus = FolderStatus.ACTIVE;
 		decommissioningDate = new LocalDate(1995, 4, 5);
 		copyRulesExpectedTransferDate = asList(new LocalDate(1995, 4, 5), new LocalDate(1997, 4, 5));
@@ -105,7 +104,7 @@ public class FolderCopyRulesExpectedDestructionDatesCalculatorTest extends Const
 	@Test
 	public void whenCalculatingOnSemiActiveFolderWithFixedSemiActivePeriodThenReturnDecommissioningDatePlusFixedPeriod()
 			throws Exception {
-		inactiveConfigNumberOfYearWhenVariableDelay = 666;
+		configNumberOfYearWhenVariableDelay = 666;
 		archivisticStatus = FolderStatus.SEMI_ACTIVE;
 		decommissioningDate = new LocalDate(1998, 4, 5);
 		copyRulesExpectedTransferDate = asList(new LocalDate(1995, 4, 5), new LocalDate(1997, 4, 5));
@@ -116,7 +115,7 @@ public class FolderCopyRulesExpectedDestructionDatesCalculatorTest extends Const
 	@Test
 	public void givenNotCalculatedWhenVariablePeriodwhenCalculatingOnActiveFolderWithVariableSemiActivePeriodThenReturnNull()
 			throws Exception {
-		inactiveConfigNumberOfYearWhenVariableDelay = -1;
+		configNumberOfYearWhenVariableDelay = -1;
 		archivisticStatus = FolderStatus.ACTIVE;
 		decommissioningDate = new LocalDate(1994, 4, 5);
 		copyRulesExpectedTransferDate = asList(new LocalDate(1995, 4, 5), new LocalDate(1997, 4, 5));
@@ -127,7 +126,7 @@ public class FolderCopyRulesExpectedDestructionDatesCalculatorTest extends Const
 	@Test
 	public void givenNotCalculatedWhenVariablePeriodwhenCalculatingOnSemiActiveFolderWithVariableSemiActivePeriodThenReturnNull()
 			throws Exception {
-		inactiveConfigNumberOfYearWhenVariableDelay = -1;
+		configNumberOfYearWhenVariableDelay = -1;
 		archivisticStatus = FolderStatus.SEMI_ACTIVE;
 		decommissioningDate = new LocalDate(1998, 4, 5);
 		copyRulesExpectedTransferDate = asList(new LocalDate(1995, 4, 5), new LocalDate(1997, 4, 5));
@@ -138,7 +137,7 @@ public class FolderCopyRulesExpectedDestructionDatesCalculatorTest extends Const
 	@Test
 	public void givenCalculatedWhenVariablePeriodwhenCalculatingOnActiveFolderWithVariableSemiActivePeriodThenReturnExpectedPeriodPlusConfigValue()
 			throws Exception {
-		inactiveConfigNumberOfYearWhenVariableDelay = 7;
+		configNumberOfYearWhenVariableDelay = 7;
 		archivisticStatus = FolderStatus.ACTIVE;
 		decommissioningDate = new LocalDate(1994, 4, 5);
 		copyRulesExpectedTransferDate = asList(new LocalDate(1995, 4, 5), new LocalDate(1997, 4, 5));
@@ -149,7 +148,7 @@ public class FolderCopyRulesExpectedDestructionDatesCalculatorTest extends Const
 	@Test
 	public void givenCalculatedWhenVariablePeriodwhenCalculatingOnSemiActiveFolderWithVariableSemiActivePeriodThenReturnActualTransferPlusConfigValue()
 			throws Exception {
-		inactiveConfigNumberOfYearWhenVariableDelay = 7;
+		configNumberOfYearWhenVariableDelay = 7;
 		archivisticStatus = FolderStatus.SEMI_ACTIVE;
 		decommissioningDate = new LocalDate(1998, 4, 5);
 		copyRulesExpectedTransferDate = asList(new LocalDate(1995, 4, 5), new LocalDate(1997, 4, 5));
@@ -164,10 +163,8 @@ public class FolderCopyRulesExpectedDestructionDatesCalculatorTest extends Const
 	private LocalDate calculateFor(int index, CopyRetentionRule copy) {
 
 		when(params.get(calculator.archivisticStatusParam)).thenReturn(archivisticStatus);
-		when(params.get(calculator.configSemiActiveNumberOfYearWhenVariableDelayPeriodParam))
-				.thenReturn(semiActiveConfigNumberOfYearWhenVariableDelay);
-		when(params.get(calculator.configInactiveNumberOfYearWhenVariableDelayPeriodParam))
-				.thenReturn(inactiveConfigNumberOfYearWhenVariableDelay);
+		when(params.get(calculator.configNumberOfYearWhenVariableDelayPeriodParam))
+				.thenReturn(configNumberOfYearWhenVariableDelay);
 		when(params.get(calculator.copyRulesExpectedTransferDateParam)).thenReturn(copyRulesExpectedTransferDate);
 		when(params.get(calculator.decommissioningDateParam)).thenReturn(decommissioningDate);
 		when(params.get(calculator.datesAndDateTimesParam)).thenReturn(dynamicDependencyValues);
@@ -179,10 +176,8 @@ public class FolderCopyRulesExpectedDestructionDatesCalculatorTest extends Const
 
 		when(params.get(calculator.archivisticStatusParam)).thenReturn(archivisticStatus);
 		when(params.get(calculator.applicableCopyRulesParam)).thenReturn(applicableCopyRules);
-		when(params.get(calculator.configSemiActiveNumberOfYearWhenVariableDelayPeriodParam))
-				.thenReturn(semiActiveConfigNumberOfYearWhenVariableDelay);
-		when(params.get(calculator.configInactiveNumberOfYearWhenVariableDelayPeriodParam))
-				.thenReturn(inactiveConfigNumberOfYearWhenVariableDelay);
+		when(params.get(calculator.configNumberOfYearWhenVariableDelayPeriodParam))
+				.thenReturn(configNumberOfYearWhenVariableDelay);
 		when(params.get(calculator.copyRulesExpectedTransferDateParam)).thenReturn(copyRulesExpectedTransferDate);
 		when(params.get(calculator.decommissioningDateParam)).thenReturn(decommissioningDate);
 		when(params.get(calculator.configYearEndParam)).thenReturn(configYearEnd);
