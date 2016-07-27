@@ -83,27 +83,31 @@ public class FactoriesTestFeatures {
 	public void afterTest() {
 
 		if (instanciated) {
-			factoriesInstance = getConstellioFactories();
-			DataLayerConfiguration conf = factoriesInstance.getDataLayerConfiguration();
-			for (BigVaultServer server : factoriesInstance.getDataLayerFactory().getSolrServers().getServers()) {
-				deleteServerRecords(server);
-			}
-
-			if (ContentDaoType.HADOOP == conf.getContentDaoType()) {
-				deleteFromHadoop(conf.getContentDaoHadoopUser(), conf.getContentDaoHadoopUrl());
-
-			}
-
-			if (ConfigManagerType.ZOOKEEPER == conf.getSettingsConfigType()) {
-				deleteFromZooKeeper(conf.getSettingsZookeeperAddress());
-			}
-
-			i18n.clearBundles();
+			clear();
 		}
 
 		ConstellioFactories.clear();
 		factoriesInstance = null;
 
+	}
+
+	public void clear() {
+		factoriesInstance = getConstellioFactories();
+		DataLayerConfiguration conf = factoriesInstance.getDataLayerConfiguration();
+		for (BigVaultServer server : factoriesInstance.getDataLayerFactory().getSolrServers().getServers()) {
+			deleteServerRecords(server);
+		}
+
+		if (ContentDaoType.HADOOP == conf.getContentDaoType()) {
+			deleteFromHadoop(conf.getContentDaoHadoopUser(), conf.getContentDaoHadoopUrl());
+
+		}
+
+		if (ConfigManagerType.ZOOKEEPER == conf.getSettingsConfigType()) {
+			deleteFromZooKeeper(conf.getSettingsZookeeperAddress());
+		}
+
+		i18n.clearBundles();
 	}
 
 	private void deleteFromZooKeeper(String address) {
@@ -183,6 +187,15 @@ public class FactoriesTestFeatures {
 					if (!loggingOfRecords.isEmpty()) {
 						dataLayerFactory.getDataLayerLogger().setMonitoredIds(loggingOfRecords);
 					}
+
+					dataLayerFactory.getExtensions().getSystemWideExtensions().getTransactionLogExtensions()
+							.add(new TransactionLogExtension() {
+								@Override
+								public ExtensionBooleanResult isDocumentFieldLoggedInTransactionLog(String field, String schema,
+										String collection) {
+									return ExtensionBooleanResult.FORCE_TRUE;
+								}
+							});
 
 					if (spiedClasses.isEmpty()) {
 						return dataLayerFactory;
@@ -336,15 +349,6 @@ public class FactoriesTestFeatures {
 
 		factoriesInstance = ConstellioFactories.getInstance(propertyFile, decorator);
 
-		factoriesInstance.getDataLayerFactory().getExtensions().getSystemWideExtensions().getTransactionLogExtensions()
-				.add(new TransactionLogExtension() {
-					@Override
-					public ExtensionBooleanResult isDocumentFieldLoggedInTransactionLog(String field, String schema,
-							String collection) {
-						return ExtensionBooleanResult.FORCE_TRUE;
-					}
-				});
-
 		return factoriesInstance;
 	}
 
@@ -438,4 +442,5 @@ public class FactoriesTestFeatures {
 	public boolean isCheckRollback() {
 		return checkRollback;
 	}
+
 }

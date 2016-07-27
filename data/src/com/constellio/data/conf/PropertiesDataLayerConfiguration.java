@@ -64,6 +64,16 @@ public class PropertiesDataLayerConfiguration extends PropertiesConfiguration im
 		return getRequiredFile("dao.contents.filesystem.folder");
 	}
 
+	@Override
+	public DigitSeparatorMode getContentDaoFileSystemDigitsSeparatorMode() {
+		return (DigitSeparatorMode) getEnum("dao.contents.filesystem.separatormode", DigitSeparatorMode.TWO_DIGITS);
+	}
+
+	@Override
+	public void setContentDaoFileSystemDigitsSeparatorMode(DigitSeparatorMode mode) {
+		setString("dao.contents.filesystem.separatormode", mode == null ? null : mode.name());
+	}
+
 	public String getSettingsZookeeperAddress() {
 		return getRequiredString("dao.settings.server.address");
 	}
@@ -154,6 +164,21 @@ public class PropertiesDataLayerConfiguration extends PropertiesConfiguration im
 	}
 
 	@Override
+	public boolean isWriteZZRecords() {
+		return getBoolean("writeZZRecords", false);
+	}
+
+	@Override
+	public HashingEncoding getHashingEncoding() {
+		return (HashingEncoding) getEnum("hashing.encoding", HashingEncoding.BASE64);
+	}
+
+	@Override
+	public void setWriteZZRecords(boolean enable) {
+		setBoolean("writeZZRecords", enable);
+	}
+
+	@Override
 	public boolean isLocalHttpSolrServer() {
 		return getRecordsDaoSolrServerType().equals(HTTP) &&
 				(getRecordsDaoHttpSolrServerUrl().contains("localhost") || getRecordsDaoHttpSolrServerUrl()
@@ -172,6 +197,11 @@ public class PropertiesDataLayerConfiguration extends PropertiesConfiguration im
 	public String createRandomUniqueKey() {
 		Random random = new Random();
 		return random.nextInt(1000) + "-" + random.nextInt(1000) + "-" + random.nextInt(1000);
+	}
+
+	@Override
+	public void setHashingEncoding(HashingEncoding encoding) {
+		setString("hashing.encoding", encoding == null ? null : encoding.name());
 	}
 
 }
