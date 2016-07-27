@@ -1,22 +1,5 @@
 package com.constellio.app.ui.pages.search;
 
-import static com.constellio.app.ui.i18n.i18n.$;
-import static com.constellio.model.entities.schemas.Schemas.IDENTIFIER;
-import static com.constellio.model.services.search.query.logical.LogicalSearchQueryOperators.from;
-import static com.constellio.model.services.search.query.logical.LogicalSearchQueryOperators.fromAllSchemasIn;
-
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.constellio.app.entities.schemasDisplay.MetadataDisplayConfig;
 import com.constellio.app.entities.schemasDisplay.enums.MetadataInputType;
 import com.constellio.app.extensions.AppLayerCollectionExtensions;
@@ -70,10 +53,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.InputStream;
+import java.util.*;
 
 import static com.constellio.app.ui.i18n.i18n.$;
 import static com.constellio.model.entities.schemas.Schemas.IDENTIFIER;
@@ -86,12 +67,9 @@ public class AdvancedSearchPresenter extends SearchPresenter<AdvancedSearchView>
 	String searchExpression;
 	String schemaTypeCode;
 	private int pageNumber;
-	private boolean returnSimilarDocuments;
-	private List<Criterion> similarityCriteria;
 	private String searchID;
 
 	private transient LogicalSearchCondition condition;
-	private transient LogicalSearchCondition queryCondition;
 
 	private transient BatchProcessingPresenterService batchProcessingPresenterService;
 
@@ -122,7 +100,6 @@ public class AdvancedSearchPresenter extends SearchPresenter<AdvancedSearchView>
 		return this;
 	}
 
-
 	private void setSavedSearch(SavedSearch search) {
 		searchExpression = search.getFreeTextSearch();
 		facetSelections.putAll(search.getSelectedFacets());
@@ -132,8 +109,6 @@ public class AdvancedSearchPresenter extends SearchPresenter<AdvancedSearchView>
 		pageNumber = search.getPageNumber();
 		resultsViewMode = search.getResultsViewMode() != null ? search.getResultsViewMode():SearchResultsViewMode.DETAILED;
 		setSelectedPageLength(search.getPageLength());
-		returnSimilarDocuments = search.isReturnSimilarDocs();
-		similarityCriteria = search.getSimilaritySearch();
 
 		view.setSchemaType(schemaTypeCode);
 		view.setSearchExpression(searchExpression);
@@ -169,6 +144,8 @@ public class AdvancedSearchPresenter extends SearchPresenter<AdvancedSearchView>
 		}
 		return false;
 	}
+
+
 
 	@Override
 	public void suggestionSelected(String suggestion) {

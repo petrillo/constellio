@@ -23,8 +23,6 @@ public class SavedSearch extends RecordWrapper {
 	public static final String SORT_ORDER = "sortOrder";
 	public static final String TEMPORARY = "temporary";
 	public static final String PAGE_NUMBER = "pageNumber";
-	public static final String RETURN_SIMILAR_DOCS = "returnSimilarDocs";
-	public static final String SIMILARITY_SEARCH = "similaritySearch";
 	public static final String RESULTS_VIEW_MODE = "resultsViewMode";
 	public static final String PAGE_LENGTH = "pageLength";
 
@@ -181,5 +179,4 @@ public class SavedSearch extends RecordWrapper {
 			return code;
 		}
 	}
-
 }

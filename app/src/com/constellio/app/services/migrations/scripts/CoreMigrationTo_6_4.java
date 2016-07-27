@@ -1,8 +1,5 @@
 package com.constellio.app.services.migrations.scripts;
 
-import static com.constellio.model.entities.schemas.MetadataValueType.NUMBER;
-import static java.util.Arrays.asList;
-
 import com.constellio.app.entities.modules.MetadataSchemasAlterationHelper;
 import com.constellio.app.entities.modules.MigrationResourcesProvider;
 import com.constellio.app.entities.modules.MigrationScript;
@@ -14,6 +11,9 @@ import com.constellio.model.entities.records.wrappers.SavedSearch;
 import com.constellio.model.entities.schemas.MetadataValueType;
 import com.constellio.model.services.schemas.builders.MetadataSchemaBuilder;
 import com.constellio.model.services.schemas.builders.MetadataSchemaTypesBuilder;
+
+import static com.constellio.model.entities.schemas.MetadataValueType.NUMBER;
+import static java.util.Arrays.asList;
 
 public class CoreMigrationTo_6_4 implements MigrationScript {
 	@Override
@@ -44,12 +44,6 @@ public class CoreMigrationTo_6_4 implements MigrationScript {
 
 			MetadataSchemaBuilder defaultSchema = typesBuilder.getSchemaType(SavedSearch.SCHEMA_TYPE).getDefaultSchema();
 			defaultSchema.createUndeletable(SavedSearch.PAGE_LENGTH).setType(NUMBER);
-
-			MetadataSchemaTypeBuilder type = typesBuilder.getSchemaType(SavedSearch.SCHEMA_TYPE);
-			MetadataSchemaBuilder defaultSchema = type.getDefaultSchema();
-			defaultSchema.createUndeletable(SavedSearch.RETURN_SIMILAR_DOCS).setType(BOOLEAN);
-			defaultSchema.createUndeletable(SavedSearch.SIMILARITY_SEARCH).setType(STRUCTURE)
-					.defineStructureFactory(CriterionFactory.class).setMultivalue(true);
 
 		}
 	}

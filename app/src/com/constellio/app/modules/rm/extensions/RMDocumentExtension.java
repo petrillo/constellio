@@ -82,28 +82,29 @@ public class RMDocumentExtension extends RecordExtension {
 		User user = params.getUser();
 		if (params.isSchemaType(Document.SCHEMA_TYPE)) {
 			Document document = rm.wrapDocument(params.getRecord());
-			Folder parentFolder = rm.getFolder(document.getFolder());
+			if (document.getFolder() != null) {
+				Folder parentFolder = rm.getFolder(document.getFolder());
 
-			if (user.hasWriteAccess().on(document)) {
-				if (parentFolder.getArchivisticStatus().isInactive()) {
-					if (parentFolder.getBorrowed() != null && parentFolder.getBorrowed()) {
-						return ExtensionBooleanResult
-								.trueIf(user.has(RMPermissionsTo.MODIFY_INACTIVE_BORROWED_FOLDER).on(parentFolder)
-										&& user.has(RMPermissionsTo.MODIFY_INACTIVE_DOCUMENT).on(document));
+				if (user.hasWriteAccess().on(document)) {
+					if (parentFolder.getArchivisticStatus().isInactive()) {
+						if (parentFolder.getBorrowed() != null && parentFolder.getBorrowed()) {
+							return ExtensionBooleanResult
+									.trueIf(user.has(RMPermissionsTo.MODIFY_INACTIVE_BORROWED_FOLDER).on(parentFolder)
+											&& user.has(RMPermissionsTo.MODIFY_INACTIVE_DOCUMENT).on(document));
+						}
+						return ExtensionBooleanResult.trueIf(user.has(RMPermissionsTo.MODIFY_INACTIVE_DOCUMENT).on(document));
 					}
-					return ExtensionBooleanResult.trueIf(user.has(RMPermissionsTo.MODIFY_INACTIVE_DOCUMENT).on(document));
-				}
-				if (parentFolder.getArchivisticStatus().isSemiActive()) {
-					if (parentFolder.getBorrowed() != null && parentFolder.getBorrowed()) {
-						return ExtensionBooleanResult
-								.trueIf(user.has(RMPermissionsTo.MODIFY_SEMIACTIVE_BORROWED_FOLDER).on(parentFolder)
-										&& user.has(RMPermissionsTo.MODIFY_SEMIACTIVE_DOCUMENT).on(document));
+					if (parentFolder.getArchivisticStatus().isSemiActive()) {
+						if (parentFolder.getBorrowed() != null && parentFolder.getBorrowed()) {
+							return ExtensionBooleanResult
+									.trueIf(user.has(RMPermissionsTo.MODIFY_SEMIACTIVE_BORROWED_FOLDER).on(parentFolder)
+											&& user.has(RMPermissionsTo.MODIFY_SEMIACTIVE_DOCUMENT).on(document));
+						}
+						return ExtensionBooleanResult.trueIf(user.has(RMPermissionsTo.MODIFY_SEMIACTIVE_DOCUMENT).on(document));
 					}
-					return ExtensionBooleanResult.trueIf(user.has(RMPermissionsTo.MODIFY_SEMIACTIVE_DOCUMENT).on(document));
+					return ExtensionBooleanResult.TRUE;
 				}
-				return ExtensionBooleanResult.TRUE;
 			}
-
 			return ExtensionBooleanResult.FALSE;
 		}
 		return ExtensionBooleanResult.NOT_APPLICABLE;

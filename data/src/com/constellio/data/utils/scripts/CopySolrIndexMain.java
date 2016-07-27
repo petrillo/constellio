@@ -33,8 +33,6 @@ public class CopySolrIndexMain {
 
 		inputClient.commit();
 		outputClient.commit();
-		LinkedBlockingQueue<ReindexSolrIndexesMainTask> queue = new LinkedBlockingQueue<>(NUMBER_OF_THREADS);
-		startAddThreads(outputClient, queue);
 		LinkedBlockingQueue<ReindexSolrIndexesMainTask> queue = new LinkedBlockingQueue<>(nbThreads);
 		startAddThreads(outputClient, queue, nbThreads);
 
