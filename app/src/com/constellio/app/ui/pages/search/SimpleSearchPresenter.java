@@ -6,6 +6,9 @@ import static com.constellio.model.services.search.query.logical.LogicalSearchQu
 import java.util.ArrayList;
 import java.util.List;
 
+import com.constellio.app.modules.es.model.connectors.ConnectorDocument;
+import com.constellio.model.entities.schemas.Metadata;
+import com.constellio.model.entities.schemas.Schemas;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,10 +109,17 @@ public class SimpleSearchPresenter extends SearchPresenter<SimpleSearchView> {
 
 	private List<MetadataVO> getCommonMetadataAllowedInSort(List<MetadataSchemaType> schemaTypes) {
 		List<MetadataVO> result = new ArrayList<>();
-		for (MetadataVO metadata : getMetadataAllowedInSort(schemaTypes.get(0))) {
-			String localCode = MetadataVO.getCodeWithoutPrefix(metadata.getCode());
-			if (isMetadataInAllTypes(localCode, schemaTypes)) {
-				result.add(metadata);
+		outer : for (MetadataSchemaType metadataSchemaType : schemaTypes) {
+			for (MetadataVO metadata : getMetadataAllowedInSort(metadataSchemaType)) {
+				String localCode = MetadataVO.getCodeWithoutPrefix(metadata.getCode());
+				//FIXME DO NOT COMMIT
+				//if (isMetadataInAllTypes(localCode, schemaTypes)) {
+				if (Schemas.TITLE_CODE.toString().equals(localCode) || ConnectorDocument.LAST_MODIFIED.toString().equals(localCode)) {
+					result.add(metadata);
+				}
+				if (result.size() == 2) {
+					break outer;
+				}
 			}
 		}
 		return result;

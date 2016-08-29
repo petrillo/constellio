@@ -89,7 +89,8 @@ public class HomePresenter extends BasePresenter<HomeView> {
                         String smbPath = record.get(smbUrlMetadata);
                         SystemConfigurationsManager systemConfigurationsManager = modelLayerFactory.getSystemConfigurationsManager();
                         RMConfigs rmConfigs = new RMConfigs(systemConfigurationsManager);
-                        if (rmConfigs.isAgentEnabled()) {
+						//FIXME DO NOT COMMIT
+                        if (false) {//rmConfigs.isAgentEnabled()) {
                             String agentSmbPath = ConstellioAgentUtils.getAgentSmbURL(smbPath);
                             view.openURL(agentSmbPath);
                         } else {

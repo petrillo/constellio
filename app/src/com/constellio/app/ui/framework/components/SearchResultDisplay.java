@@ -79,6 +79,14 @@ public class SearchResultDisplay extends VerticalLayout {
 				continue;
 			}
 
+			//FIXME DO NOT COMMIT
+			String valueStr = metadataValue.getValue().toString();
+			if (StringUtils.startsWith(valueStr, "smb://")) {
+				valueStr = StringUtils.removeStart(valueStr, "smb:");
+				valueStr = StringUtils.replace(valueStr, "/", "\\");
+				metadataValue.setValue(valueStr);
+			}
+
 			Component value = componentFactory.build(recordVO, metadataValue);
 			if (value == null) {
 				continue;
