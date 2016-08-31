@@ -195,39 +195,50 @@ class ConnectorHttpFetchJob extends ConnectorJob {
 
 	private void parseHtml(ConnectorHttpDocument httpDocument, HtmlPage page)
 			throws ConnectorHttpDocumentFetchException {
-		HtmlPageParserResults results = pageParser.parse(httpDocument.getURL(), (HtmlPage) page);
 
 		List<ConnectorDocument> savedDocuments = new ArrayList<>();
-		List<String> urls = new ArrayList<>(results.getLinkedUrls());
-		int linksLevel = httpDocument.getLevel() + 1;
-		if (linksLevel <= maxLevel)
-			for (String url : urls) {
-				if (context.isNewUrl(url)) {
-					context.markAsFetched(url);
+		savedDocuments.add(httpDocument);
 
-					savedDocuments.add(connectorHttp.newUnfetchedURLDocument(url, linksLevel));
+		try {
+			HtmlPageParserResults results = pageParser.parse(httpDocument.getURL(), (HtmlPage) page);
+
+			List<String> urls = new ArrayList<>(results.getLinkedUrls());
+			int linksLevel = httpDocument.getLevel() + 1;
+			if (linksLevel <= maxLevel)
+				for (String url : urls) {
+					if (context.isNewUrl(url)) {
+						context.markAsFetched(url);
+
+						savedDocuments.add(connectorHttp.newUnfetchedURLDocument(url, linksLevel));
+					}
 				}
-			}
 
-		ensureNotStopped();
-		setJobStep("Fetching " + httpDocument.getURL());
+			ensureNotStopped();
+			setJobStep("Fetching " + httpDocument.getURL());
 
-		String title = results.getTitle() == null ? extractFilename(httpDocument.getURL()) : results.getTitle();
+			String title = results.getTitle() == null ? extractFilename(httpDocument.getURL()) : results.getTitle();
 
-		httpDocument.setManualTokens(Record.PUBLIC_TOKEN);
-		savedDocuments.add(httpDocument
-				.setTitle(title)
-				.setErrorCode(null)
-				.setErrorMessage(null)
-				.setErrorStackTrace(null)
-				.resetErrorsCount()
-				.setParsedContent(results.getParsedContent())
-				.setDigest(results.getDigest())
-				//.setOutlinks(urls)
-				.setMimetype(results.getMimetype())
-				.addStringProperty("lastModified", page.getWebResponse().getResponseHeaderValue("Last-Modified"))
-				.addStringProperty("charset", page.getWebResponse().getContentCharset())
-				.addStringProperty("language", results.getLanguage()));
+			httpDocument.setManualTokens(Record.PUBLIC_TOKEN);
+			httpDocument
+					.setTitle(title)
+					.setErrorCode(null)
+					.setErrorMessage(null)
+					.setErrorStackTrace(null)
+					.resetErrorsCount()
+					.setParsedContent(results.getParsedContent())
+					.setDigest(results.getDigest())
+					//.setOutlinks(urls)
+					.setMimetype(results.getMimetype())
+					.addStringProperty("lastModified", page.getWebResponse().getResponseHeaderValue("Last-Modified"))
+					.addStringProperty("charset", page.getWebResponse().getContentCharset())
+					.addStringProperty("language", results.getLanguage());
+
+		} catch (Exception e) {
+			httpDocument.setErrorCode(ConnectorHttpFetchJob.class.getSimpleName() + ".parseHtml()")
+				.setErrorMessage(ExceptionUtils.getMessage(e))
+				.setErrorStackTrace(ExceptionUtils.getFullStackTrace(e))
+				.incrementErrorsCount();
+		}
 
 		saveDocumentDigestAndDetectCopy(httpDocument);
 		connectorHttp.getEventObserver().push(savedDocuments);

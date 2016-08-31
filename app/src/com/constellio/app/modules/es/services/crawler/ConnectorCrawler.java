@@ -85,13 +85,14 @@ public class ConnectorCrawler {
 		for (CrawledConnector crawledConnector : crawledConnectors) {
 
 			ConnectorInstance instance = es.getConnectorInstance(crawledConnector.connectorInstance.getId());
-			if (instance.isCurrentlyRunning()) {
+			boolean hasRunningJob = jobCrawler.hasActiveJobsFor(crawledConnector.connector);
+			if (instance.isCurrentlyRunning() && !hasRunningJob) {
 				LOGGER.info("**** Get jobs of '" + crawledConnector.connectorInstance.getIdTitle() + "' ****");
 				List<ConnectorJob> jobs = crawledConnector.connector.getJobs();
 
 				if (!jobs.isEmpty()) {
 					try {
-						jobCrawler.crawl(jobs);
+						jobCrawler.crawl(crawledConnector.connector, jobs, eventObserver);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -103,14 +104,11 @@ public class ConnectorCrawler {
 					} catch (RecordServicesException e) {
 						LOGGER.warn("last traversal date not updated", e);
 					}
-					waitSinceNoJobs();
 				}
 			}
-
 		}
-		eventObserver.flush();
 
-		if (crawledConnectors.isEmpty()) {
+		if (!executedJobs) {
 			waitSinceNoJobs();
 		}
 

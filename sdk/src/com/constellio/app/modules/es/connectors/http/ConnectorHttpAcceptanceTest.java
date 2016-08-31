@@ -1282,7 +1282,7 @@ public class ConnectorHttpAcceptanceTest extends ConstellioTest {
 	private static final String INDEX_COPY_DIGEST_V3 = "6We6PJ/pwevIIzXKIELZtEYUX4Y=";
 	private static final String SINGES_DIGEST_V3 = "bYljEwL34ycnskhqnDYbY1GLMDg=";
 	private static final String SINGES_PDF_DIGEST_V3 = "nkKGz5voDPtR+h510qfkdyTY5mk=";
-	private static final String SINGES_TEXT_DIGEST_V3 = "qBpsYTysp2dnSNEh2cRhRJSh/3M=";
+	private static final String SINGES_TEXT_DIGEST_V3 = "G+AGA7EvtKhVbj5SAz4l9fy2+/E=";
 	private static final String PARESSEUX_DIGEST_V3 = "NyjsogOzzRBBU/n30HSG6W6TkuE=";
 	private static final String ELEPHANT_DIGEST_V3 = "DX9eskZsdNQDUxHwWUsKWT92ujU=";
 	private static final String SINGES_GORILLE_AND_DK_DIGEST_V3 = "TUnkhbiXTfUjJd8qMU9BTlhtXQA=";
@@ -1291,8 +1291,8 @@ public class ConnectorHttpAcceptanceTest extends ConstellioTest {
 	private static final String SINGES_GORILLE_DIGEST_V4 = "TUnkhbiXTfUjJd8qMU9BTlhtXQA=";
 	private static final String SINGES_DK_DIGEST_V4 = "66PqN2bX2oMrXoQxI0aXu3Q0c4U=";
 
-	private static final String SINGES_TEXT_DIGEST_V4 = "rV1iSsaGrJgCyrMM0GgfH5zMBHk=";
-	private static final String SINGES_TEXT_COPY_DIGEST_V4 = "qBpsYTysp2dnSNEh2cRhRJSh/3M=";
+	private static final String SINGES_TEXT_DIGEST_V4 = "isIgzA9azVe8zRU71jbiPKQEro8=";
+	private static final String SINGES_TEXT_COPY_DIGEST_V4 = "G+AGA7EvtKhVbj5SAz4l9fy2+/E=";
 
 	private String idOf(String url) {
 		return es.getConnectorHttpDocumentByUrl(url).getId();

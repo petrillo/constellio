@@ -30,6 +30,11 @@ public class HttpURLFetchingService implements AutoCloseable {
 		webClient.getOptions().setCssEnabled(false);
 		webClient.getOptions().setTimeout(timeout);
 		webClient.getOptions().setThrowExceptionOnScriptError(false);
+		webClient.getCache().setMaxSize(0);
+		webClient.setRefreshHandler(new RefreshHandler() {
+			@Override
+			public void handleRefresh(Page page, URL url, int seconds) throws IOException {}
+		});
 		if (credentialsProvider != null) {
 			webClient.setCredentialsProvider(credentialsProvider);
 		}
