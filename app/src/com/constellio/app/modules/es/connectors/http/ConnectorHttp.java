@@ -171,7 +171,6 @@ public class ConnectorHttp extends Connector {
 		if (configManager.folderExist(configFolderPath)) {
 			configManager.deleteFolder(configFolderPath);
 		}
-		if (context != null) context.clear();
 	}
 
 	@Override

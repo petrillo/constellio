@@ -40,11 +40,6 @@ public class ConnectorHttpContext implements Serializable {
 		documentUrlsClassifiedByDigests.put(digest, url);
 	}
 
-	public synchronized void clear() {
-		fetchedUrls.clear();
-		documentUrlsClassifiedByDigests.clear();
-	}
-
 	ConnectorHttpContext(String connectorId) {
 		this.connectorId = connectorId;
 	}
