@@ -16,7 +16,7 @@ public class SimpleConnectorJobCrawler implements ConnectorJobCrawler {
 	 * @see connector.manager.ConnectorManager#crawl(java.util.List)
 	 */
 	@Override
-	public <V> void crawl(Connector connector, List<ConnectorJob> jobs, ConnectorEventObserver observer)
+	public <V> void crawl(String connectorInstanceId, List<ConnectorJob> jobs, ConnectorEventObserver observer)
 			throws Exception {
 		try {
 			for (ConnectorJob job : jobs) {
@@ -27,7 +27,7 @@ public class SimpleConnectorJobCrawler implements ConnectorJobCrawler {
 		}
 	}
 
-	public boolean hasActiveJobsFor(Connector connector) {
+	public boolean hasActiveJobsFor(String connectorInstanceId) {
 		return false;
 	}
 }

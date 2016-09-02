@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.constellio.data.dao.dto.records.OptimisticLockingResolution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,11 +68,6 @@ public class DefaultConnectorEventObserver implements ConnectorEventObserver {
 	public void addUpdateEvents(List<ConnectorDocument> documents) {
 		List<Record> documentRecords = new ArrayList<>();
 		for (ConnectorDocument document : documents) {
-			//			if (document.isFetched()) {
-			//				LOGGER.info("**** Received fetched document '" + document.getWrappedRecord().getIdTitle() + "'");
-			//			} else {
-			//				LOGGER.info("**** Received document to fetch  : '" + document.getId() + "'");
-			//			}
 			Map<String, ConnectorField> fieldDeclarations = applyMappedPropertiesToMetadata(document);
 			addFieldDeclarations(document.getConnector(), fieldDeclarations);
 			documentRecords.add(document.getWrappedRecord());
@@ -114,23 +110,11 @@ public class DefaultConnectorEventObserver implements ConnectorEventObserver {
 	public void push(List<ConnectorDocument> documents) {
 		List<Record> documentRecords = new ArrayList<>();
 		for (ConnectorDocument document : documents) {
-			//			if (document.isFetched()) {
-			//				LOGGER.info("**** Received fetched document '" + document.getWrappedRecord().getIdTitle() + "'");
-			//			} else {
-			//				LOGGER.info("**** Received document to fetch  : '" + document.getId() + "'");
-			//			}
 			Map<String, ConnectorField> fieldDeclarations = applyMappedPropertiesToMetadata(document);
 			addFieldDeclarations(document.getConnector(), fieldDeclarations);
 			documentRecords.add(document.getWrappedRecord());
 		}
 
-		Transaction transaction = new Transaction(documentRecords);
-		boolean flushNow = false;
-		for (Record record : documentRecords) {
-			if (flushNow || es.getModelLayerFactory().getRecordsCaches().getCache(record.getCollection())
-					.getCacheConfigOf(record.getSchemaCode()) != null)
-				flushNow = true;
-		}
 		List<Record> records = new RecordUtils().unwrap(documents);
 
 		handler.append(records);

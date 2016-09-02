@@ -8,8 +8,8 @@ import com.constellio.app.modules.es.connectors.spi.ConnectorJob;
 
 public interface ConnectorJobCrawler {
 
-	public abstract <V> void crawl(Connector connector, List<ConnectorJob> jobs, ConnectorEventObserver connectorEventObserver)
+	public abstract <V> void crawl(String connectorInstanceId, List<ConnectorJob> jobs, ConnectorEventObserver connectorEventObserver)
 			throws Exception;
 
-	public boolean hasActiveJobsFor(Connector connector);
+	public boolean hasActiveJobsFor(String connectorInstanceId);
 }

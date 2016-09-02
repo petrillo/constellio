@@ -22,16 +22,16 @@ public class MultithreadConnectorJobCrawler implements ConnectorJobCrawler {
 		runningJobs = BagUtils.synchronizedBag(new HashBag());
 	}
 
-	public boolean hasActiveJobsFor(Connector connector) {
-		return runningJobs.contains(connector);
+	public boolean hasActiveJobsFor(String connectorInstanceId) {
+		return runningJobs.contains(connectorInstanceId);
 	}
 
 	/* (non-Javadoc)
 	 * @see connector.manager.ConnectorManager#crawl(java.util.List)
 	 */
-	public <V> void crawl(final Connector connector, final List<ConnectorJob> jobs, final ConnectorEventObserver observer)
+	public <V> void crawl(final String connectorInstanceId, final List<ConnectorJob> jobs, final ConnectorEventObserver observer)
 			throws InterruptedException {
-		runningJobs.add(connector);
+		runningJobs.add(connectorInstanceId);
 		executor.submit(new Callable<Object>() {
 			public Object call() {
 				try {
@@ -42,7 +42,7 @@ public class MultithreadConnectorJobCrawler implements ConnectorJobCrawler {
 					try {
 						observer.flush();
 					} finally {
-						runningJobs.remove(connector, 1);
+						runningJobs.remove(connectorInstanceId, 1);
 					}
 				}
 				return null;

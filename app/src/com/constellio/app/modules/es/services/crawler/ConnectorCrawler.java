@@ -85,14 +85,14 @@ public class ConnectorCrawler {
 		for (CrawledConnector crawledConnector : crawledConnectors) {
 
 			ConnectorInstance instance = es.getConnectorInstance(crawledConnector.connectorInstance.getId());
-			boolean hasRunningJob = jobCrawler.hasActiveJobsFor(crawledConnector.connector);
+			boolean hasRunningJob = jobCrawler.hasActiveJobsFor(instance.getId());
 			if (instance.isCurrentlyRunning() && !hasRunningJob) {
 				LOGGER.info("**** Get jobs of '" + crawledConnector.connectorInstance.getIdTitle() + "' ****");
 				List<ConnectorJob> jobs = crawledConnector.connector.getJobs();
 
 				if (!jobs.isEmpty()) {
 					try {
-						jobCrawler.crawl(crawledConnector.connector, jobs, eventObserver);
+						jobCrawler.crawl(instance.getId(), jobs, eventObserver);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -219,7 +219,7 @@ public class ConnectorCrawler {
 	}
 
 	public static ConnectorCrawler runningJobsInParallel(ESSchemasRecordsServices es, ConnectorEventObserver eventObserver) {
-		return runningJobsSequentially(es, new ConsoleConnectorLogger(), eventObserver);
+		return runningJobsInParallel(es, new ConsoleConnectorLogger(), eventObserver);
 	}
 
 	public void crawlUntilRecordsFound(final LogicalSearchCondition condition) {
