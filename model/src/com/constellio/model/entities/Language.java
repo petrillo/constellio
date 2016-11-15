@@ -1,5 +1,8 @@
 package com.constellio.model.entities;
 
+import static java.awt.ComponentOrientation.RIGHT_TO_LEFT;
+
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -8,7 +11,7 @@ import java.util.Locale;
 public enum Language {
 
 	UNKNOWN("unknown", null),
-	//Arabic("ar"),
+	Arabic("ar", new Locale("ar")),
 	//	Armenian,
 	//	Basque,
 	//	Bulgarian,
@@ -92,5 +95,9 @@ public enum Language {
 		}
 
 		return languages;
+	}
+
+	public boolean isRTL(){
+		return ComponentOrientation.getOrientation(locale) == RIGHT_TO_LEFT;
 	}
 }
