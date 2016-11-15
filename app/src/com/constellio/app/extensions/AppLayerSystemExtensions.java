@@ -3,10 +3,14 @@ package com.constellio.app.extensions;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.constellio.app.api.extensions.ComponentFactoryExtension;
 import com.constellio.app.api.extensions.PagesComponentsExtension;
 import com.constellio.app.api.extensions.UpdateModeExtension;
 import com.constellio.app.api.extensions.params.DecorateMainComponentAfterInitExtensionParams;
 import com.constellio.app.api.extensions.params.PagesComponentsExtensionParams;
+import com.constellio.app.api.extensions.params.componentFactory.BaseComponentFactory;
+import com.constellio.app.api.extensions.params.componentFactory.ComponentFactoryParams;
+import com.constellio.app.api.extensions.params.componentFactory.ConstellioComponentFactory;
 import com.constellio.app.extensions.sequence.AvailableSequence;
 import com.constellio.app.extensions.sequence.AvailableSequenceForSystemParams;
 import com.constellio.app.extensions.sequence.SystemSequenceExtension;
@@ -17,6 +21,8 @@ public class AppLayerSystemExtensions {
 	public VaultBehaviorsList<PagesComponentsExtension> pagesComponentsExtensions = new VaultBehaviorsList<>();
 
 	public VaultBehaviorsList<SystemSequenceExtension> systemSequenceExtensions = new VaultBehaviorsList<>();
+
+	public VaultBehaviorsList<ComponentFactoryExtension> componentFactoryExtension = new VaultBehaviorsList<>();
 
 	public List<AvailableSequence> getAvailableSequences() {
 
@@ -59,4 +65,15 @@ public class AppLayerSystemExtensions {
 	}
 
 	public UpdateModeExtension alternateUpdateMode = new UpdateModeExtension();
+
+	public ConstellioComponentFactory newComponentFactory(){
+		ConstellioComponentFactory componentFactory = null;
+		for (ComponentFactoryExtension extension : componentFactoryExtension) {
+			componentFactory = extension.newComponentFactory();
+			if (componentFactory != null) {
+				break;
+			}
+		}
+		return (componentFactory != null)? componentFactory : new BaseComponentFactory();
+	}
 }
