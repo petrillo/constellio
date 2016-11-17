@@ -67,13 +67,12 @@ public class AppLayerSystemExtensions {
 	public UpdateModeExtension alternateUpdateMode = new UpdateModeExtension();
 
 	public ConstellioComponentFactory newComponentFactory(){
-		ConstellioComponentFactory componentFactory = null;
 		for (ComponentFactoryExtension extension : componentFactoryExtension) {
-			componentFactory = extension.newComponentFactory();
+			ConstellioComponentFactory componentFactory = extension.newComponentFactory();
 			if (componentFactory != null) {
-				break;
+				return componentFactory;
 			}
 		}
-		return (componentFactory != null)? componentFactory : new BaseComponentFactory();
+		return new BaseComponentFactory();
 	}
 }

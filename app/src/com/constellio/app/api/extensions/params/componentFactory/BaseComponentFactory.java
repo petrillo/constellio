@@ -1,6 +1,5 @@
 package com.constellio.app.api.extensions.params.componentFactory;
 
-import com.sun.star.uno.RuntimeException;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Table;
