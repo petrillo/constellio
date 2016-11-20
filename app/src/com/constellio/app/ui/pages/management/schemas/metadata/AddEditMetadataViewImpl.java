@@ -2,6 +2,8 @@ package com.constellio.app.ui.pages.management.schemas.metadata;
 
 import static com.constellio.app.ui.i18n.i18n.$;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -64,6 +66,8 @@ public class AddEditMetadataViewImpl extends BaseViewImpl implements AddEditMeta
 	private BaseTextField inputMask;
 	@PropertyId("duplicable")
 	private CheckBox duplicableField;
+
+	private List<CheckBox> customAttributes;
 
 	private MetadataForm metadataForm;
 	private FormMetadataVO formMetadataVO;
@@ -371,6 +375,18 @@ public class AddEditMetadataViewImpl extends BaseViewImpl implements AddEditMeta
 		duplicableField.addStyleName("duplicable");
 		duplicableField.setEnabled(true);
 
+		customAttributes = new ArrayList<>();
+		for(String attribute: presenter.getCustomAttributesMetadata()) {
+			CheckBox customAttributesCheck = new CheckBox();
+			customAttributesCheck.setCaption($("batchimport"));
+			customAttributesCheck.setRequired(false);
+			customAttributesCheck.setId(attribute);
+			customAttributesCheck.addStyleName(attribute);
+			customAttributesCheck.setEnabled(!inherited);
+
+			customAttributes.add(customAttributesCheck);
+		}
+
 		MetadataFieldFactory factory = new MetadataFieldFactory();
 
 		MetadataVO defaultValueMetadataVO = presenter.getDefaultValueMetadataVO(formMetadataVO);
@@ -403,9 +419,14 @@ public class AddEditMetadataViewImpl extends BaseViewImpl implements AddEditMeta
 		inputMask = new BaseTextField($("AddEditMetadataView.inputMask"));
 		inputMask.setEnabled(false);
 
-		metadataForm = new MetadataForm(formMetadataVO, this, localcodeField, labelsField, valueType, multivalueType,
-				inputType, inputMask, metadataGroup, refType, requiredField, enabledField, searchableField, sortableField,
-				advancedSearchField, highlight, autocomplete, defaultValueField, duplicableField) {
+		List<Field> elements = new ArrayList<>();
+		List<Field<?>> tmp = Arrays.asList(localcodeField, labelsField, valueType, multivalueType, inputType,
+				inputMask, metadataGroup, refType, requiredField, enabledField, searchableField, sortableField,
+				advancedSearchField, highlight, autocomplete, defaultValueField, duplicableField);
+		elements.addAll(tmp);
+		elements.addAll(customAttributes);
+
+		metadataForm = new MetadataForm(formMetadataVO, this, elements.toArray(new Field[elements.size()])) {
 
 			@Override
 			public void reload() {
@@ -433,6 +454,8 @@ public class AddEditMetadataViewImpl extends BaseViewImpl implements AddEditMeta
 				presenter.cancelButtonClicked();
 			}
 		};
+
+
 		inputType.addValueChangeListener(new ValueChangeListener() {
 			@Override
 			public void valueChange(ValueChangeEvent event) {

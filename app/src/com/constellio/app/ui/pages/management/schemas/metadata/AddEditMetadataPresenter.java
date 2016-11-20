@@ -3,11 +3,14 @@ package com.constellio.app.ui.pages.management.schemas.metadata;
 import static com.constellio.app.ui.i18n.i18n.$;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -47,6 +50,7 @@ import com.constellio.model.services.schemas.builders.MetadataSchemaTypesBuilder
 public class AddEditMetadataPresenter extends SingleSchemaBasePresenter<AddEditMetadataView> {
 	private Map<String, String> parameters;
 	private String metadataCode;
+	private Set<String> customAttributesMetadata = new HashSet<String>(Arrays.asList("batchimport", "flag2", "flag3"));
 
 	public AddEditMetadataPresenter(AddEditMetadataView view) {
 		super(view);
@@ -88,6 +92,10 @@ public class AddEditMetadataPresenter extends SingleSchemaBasePresenter<AddEditM
 		MetadataSchemasManager schemasManager = modelLayerFactory.getMetadataSchemasManager();
 		Metadata metadata = schemasManager.getSchemaTypes(collection).getMetadata(metadataCode);
 		return metadata.inheritDefaultSchema();
+	}
+
+	public Set<String> getCustomAttributesMetadata() {
+		return customAttributesMetadata;
 	}
 
 	public List<String> getMetadataTypesCode() {
