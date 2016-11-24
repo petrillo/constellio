@@ -1,6 +1,11 @@
 plugins {
+    id "org.sonarqube" version "2.2"
+}
+
+plugins {
     id "fi.jasoft.plugin.vaadin" version '0.10.5'
 }
+
 
 vaadin {
     version '7.6.5'
@@ -87,6 +92,8 @@ dependencies {
     compile "org.apache.zookeeper:zookeeper:3.4.6"
     compile "javax.validation:validation-api:1.1.0.Final"
 
+    compile "org.joda:joda-convert:1.8.1"
+    compile "com.google.code.findbugs:jsr305:3.0.0"
 }
 configurations {
     compile.exclude group: "org.ow2.asm:asm:asm-debug-all-5.0.1"
@@ -124,6 +131,8 @@ artifacts {
     testArtifacts jarTest
 }
 
+project.tasks["sonarqube"].dependsOn "build"
+
 sonarqube {
     properties {
         property "sonar.jacoco.reportPath", "$projectDir/sdk/build/jacoco/test.exec"
@@ -131,5 +140,22 @@ sonarqube {
         property "sonar.projectName", "constellio"
         property "sonar.projectKey", "constellio"
         property "sonar.sources", "src/"
+    }
+}
+
+sourceSets {
+    sonar {
+        java {
+        }
+    }
+}
+
+task buildSonarSourceset() {
+    List projectsList = [":app", ":model", ":data"];
+
+    projectsList.each {
+        project(it).sourceSets.main.allSource.srcDirs.each {
+            sourceSets.sonar.allJava.srcDirs += it;
+        }
     }
 }
