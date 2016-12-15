@@ -2,11 +2,14 @@ package com.constellio.model.entities.records;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.constellio.data.dao.dto.records.OptimisticLockingResolution;
 import com.constellio.data.dao.dto.records.RecordsFlushing;
@@ -22,14 +25,13 @@ public class Transaction {
 
 	private String id = UUIDV1Generator.newRandomId();
 
-	boolean skippingRequiredValuesValidation = false;
-	private boolean skippingReferenceToLogicallyDeletedValidation = false;
-
 	Map<String, Record> updatedRecordsMap = new HashMap<>();
 	List<Record> records = new ArrayList<>();
 	RecordUpdateOptions recordUpdateOptions = new RecordUpdateOptions();
 
 	Map<String, Record> referencedRecords = new HashMap<>();
+
+	Set<String> idsToReindex = new HashSet<>();
 
 	private User user;
 	private String collection;
@@ -65,13 +67,34 @@ public class Transaction {
 		for (Record record : transaction.getRecords()) {
 			addUpdate(record);
 		}
+		this.user = transaction.user;
 		this.recordUpdateOptions = transaction.recordUpdateOptions;
-		this.skippingRequiredValuesValidation = transaction.isSkippingRequiredValuesValidation();
-		this.skippingReferenceToLogicallyDeletedValidation = transaction.isSkippingReferenceToLogicallyDeletedValidation();
+		this.idsToReindex.addAll(transaction.getIdsToReindex());
+		this.recordUpdateOptions = new RecordUpdateOptions(transaction.recordUpdateOptions);
 	}
 
 	public boolean isContainingUpdatedRecord(Record record) {
 		return updatedRecordsMap.containsKey(record.getId());
+	}
+
+	public Transaction addRecordToReindex(String id) {
+		idsToReindex.add(id);
+		return this;
+	}
+
+	public Transaction addAllRecordsToReindex(Collection<String> ids) {
+		idsToReindex.addAll(ids);
+		return this;
+	}
+
+	public Transaction addRecordToReindex(Record record) {
+		idsToReindex.add(record.getId());
+		return this;
+	}
+
+	public Transaction addRecordToReindex(RecordWrapper record) {
+		idsToReindex.add(record.getId());
+		return this;
 	}
 
 	public Transaction addUpdate(Record addUpdateRecord) {
@@ -105,6 +128,23 @@ public class Transaction {
 	public Transaction addAll(RecordWrapper... recordWrappers) {
 		for (RecordWrapper recordWrapper : recordWrappers) {
 			this.add(recordWrapper.getWrappedRecord());
+		}
+		return this;
+	}
+
+	public Transaction addAll(List<?> records) {
+		for (Object record : records) {
+			if (record != null) {
+				if (record instanceof RecordWrapper) {
+					this.add(((RecordWrapper) record).getWrappedRecord());
+
+				} else if (record instanceof Record) {
+					this.add((Record) record);
+
+				} else {
+					throw new IllegalArgumentException("Unsupported object of type " + record.getClass().getName());
+				}
+			}
 		}
 		return this;
 	}
@@ -238,20 +278,20 @@ public class Transaction {
 	}
 
 	public boolean isSkippingRequiredValuesValidation() {
-		return skippingRequiredValuesValidation;
+		return recordUpdateOptions.isSkippingRequiredValuesValidation();
 	}
 
 	public boolean isSkippingReferenceToLogicallyDeletedValidation() {
-		return skippingReferenceToLogicallyDeletedValidation;
+		return recordUpdateOptions.isSkippingReferenceToLogicallyDeletedValidation();
 	}
 
 	public Transaction setSkippingRequiredValuesValidation(boolean skippingRequiredValuesValidation) {
-		this.skippingRequiredValuesValidation = skippingRequiredValuesValidation;
+		recordUpdateOptions.setSkippingRequiredValuesValidation(skippingRequiredValuesValidation);
 		return this;
 	}
 
 	public Transaction setSkippingReferenceToLogicallyDeletedValidation(boolean skippingReferenceToLogicallyDeletedValidation) {
-		this.skippingReferenceToLogicallyDeletedValidation = skippingReferenceToLogicallyDeletedValidation;
+		recordUpdateOptions.setSkippingReferenceToLogicallyDeletedValidation(skippingReferenceToLogicallyDeletedValidation);
 		return this;
 	}
 
@@ -323,6 +363,10 @@ public class Transaction {
 			}
 		}
 		return null;
+	}
+
+	public Set<String> getIdsToReindex() {
+		return Collections.unmodifiableSet(idsToReindex);
 	}
 
 	public Map<String, ParsedContent> getParsedContentCache() {

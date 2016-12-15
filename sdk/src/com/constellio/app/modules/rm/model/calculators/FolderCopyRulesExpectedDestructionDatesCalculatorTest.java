@@ -39,6 +39,8 @@ public class FolderCopyRulesExpectedDestructionDatesCalculatorTest extends Const
 	int confiRequiredDaysBeforeYearEnd = 0;
 	String configYearEnd;
 
+	boolean calculatedMetadatasBasedOnFirstTimerangePartParam = true;
+
 	CopyRetentionRuleBuilder copyBuilder = CopyRetentionRuleBuilder.UUID();
 
 	@Test
@@ -158,6 +160,17 @@ public class FolderCopyRulesExpectedDestructionDatesCalculatorTest extends Const
 	}
 
 	@Test
+	public void givenNullExpectedTransferDateWhenCalculatingThenReturnNotNullDate()
+			throws Exception {
+		inactiveConfigNumberOfYearWhenVariableDelay = 7;
+		archivisticStatus = FolderStatus.SEMI_ACTIVE;
+		decommissioningDate = new LocalDate(1998, 4, 5);
+		copyRulesExpectedTransferDate = asList(null, null);
+
+		assertThat(calculateFor(1, copy("3-0-D"))).isEqualTo(new LocalDate(2001, 4, 5));
+	}
+
+	@Test
 	public void givenFixedValueOfZeroForSemiActivePeriodWhenCalculatingThenReturnNotNullDate()
 			throws Exception {
 		inactiveConfigNumberOfYearWhenVariableDelay = 7;
@@ -182,6 +195,7 @@ public class FolderCopyRulesExpectedDestructionDatesCalculatorTest extends Const
 		when(params.get(calculator.copyRulesExpectedTransferDateParam)).thenReturn(copyRulesExpectedTransferDate);
 		when(params.get(calculator.decommissioningDateParam)).thenReturn(decommissioningDate);
 		when(params.get(calculator.datesAndDateTimesParam)).thenReturn(dynamicDependencyValues);
+		when(params.get(calculator.calculatedMetadatasBasedOnFirstTimerangePartParam)).thenReturn(calculatedMetadatasBasedOnFirstTimerangePartParam);
 
 		return calculator.calculateForCopyRule(index, copy, new CalculatorParametersValidatingDependencies(params, calculator));
 	}
@@ -199,6 +213,7 @@ public class FolderCopyRulesExpectedDestructionDatesCalculatorTest extends Const
 		when(params.get(calculator.configYearEndParam)).thenReturn(configYearEnd);
 		when(params.get(calculator.configRequiredDaysBeforeYearEndParam)).thenReturn(confiRequiredDaysBeforeYearEnd);
 		when(params.get(calculator.datesAndDateTimesParam)).thenReturn(dynamicDependencyValues);
+		when(params.get(calculator.calculatedMetadatasBasedOnFirstTimerangePartParam)).thenReturn(calculatedMetadatasBasedOnFirstTimerangePartParam);
 
 		return calculator.calculate(new CalculatorParametersValidatingDependencies(params, calculator));
 	}

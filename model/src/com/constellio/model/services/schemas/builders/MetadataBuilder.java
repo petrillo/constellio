@@ -2,7 +2,9 @@ package com.constellio.model.services.schemas.builders;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -65,6 +67,7 @@ public class MetadataBuilder {
 	private boolean essentialInSummary = false;
 	private boolean multiLingual;
 	private boolean markedForDeletion = false;
+	private boolean increasedDependencyLevel = false;
 	private Boolean defaultRequirement;
 	private Boolean essential = false;
 	private ClassListBuilder<RecordMetadataValidator<?>> recordMetadataValidators;
@@ -77,6 +80,7 @@ public class MetadataBuilder {
 	private ClassProvider classProvider;
 	private String inputMask;
 	private Boolean duplicable;
+	private Set<String> customAttributes;
 
 	MetadataBuilder() {
 	}
@@ -112,7 +116,7 @@ public class MetadataBuilder {
 		builder.recordMetadataValidators = new ClassListBuilder<>(builder.classProvider, RecordMetadataValidator.class);
 		builder.populateConfigsBuilder = MetadataPopulateConfigsBuilder.modify(defaultMetadata.getPopulateConfigsBuilder());
 		builder.multiLingual = defaultMetadata.multiLingual;
-
+		builder.customAttributes = defaultMetadata.customAttributes;
 		return builder;
 	}
 
@@ -138,6 +142,7 @@ public class MetadataBuilder {
 		builder.accessRestrictionBuilder = MetadataAccessRestrictionBuilder.create();
 		builder.populateConfigsBuilder = MetadataPopulateConfigsBuilder.create();
 		builder.setDuplicable(false);
+		builder.customAttributes = new HashSet<>();
 		return builder;
 	}
 
@@ -195,6 +200,8 @@ public class MetadataBuilder {
 		}
 		builder.populateConfigsBuilder = MetadataPopulateConfigsBuilder.modify(metadata.getPopulateConfigs());
 		builder.duplicable = metadata.isDuplicable();
+		builder.increasedDependencyLevel = metadata.isIncreasedDependencyLevel();
+		builder.customAttributes = new HashSet<>(metadata.getCustomAttributes());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -225,6 +232,8 @@ public class MetadataBuilder {
 				builder.classProvider, RecordMetadataValidator.class, metadata.getValidators());
 		builder.accessRestrictionBuilder = null;
 		builder.multiLingual = metadata.isMultiLingual();
+		builder.customAttributes = inheritanceMetadata.customAttributes;
+		builder.increasedDependencyLevel = metadata.isIncreasedDependencyLevel();
 
 		for (String validatorClassName : inheritanceMetadata.recordMetadataValidators.implementationsClassname) {
 			builder.recordMetadataValidators.remove(validatorClassName);
@@ -363,6 +372,16 @@ public class MetadataBuilder {
 	public MetadataBuilder setSortable(boolean sortable) {
 		ensureCanModify("sortable");
 		this.sortable = sortable;
+		return this;
+	}
+
+	public boolean isIncreasedDependencyLevel() {
+		return inheritance == null ? increasedDependencyLevel : inheritance.isIncreasedDependencyLevel();
+	}
+
+	public MetadataBuilder setIncreasedDependencyLevel(boolean increasedDependencyLevel) {
+		ensureCanModify("increasedDependencyLevel");
+		this.increasedDependencyLevel = increasedDependencyLevel;
 		return this;
 	}
 
@@ -694,7 +713,8 @@ public class MetadataBuilder {
 				.instanciateWithoutExpectableExceptions(structureFactoryClass);
 		InheritedMetadataBehaviors behaviors = new InheritedMetadataBehaviors(this.isUndeletable(), multivalue, systemReserved,
 				unmodifiable, uniqueValue, childOfRelationship, taxonomyRelationship, sortable, searchable, schemaAutocomplete,
-				essential, encrypted, essentialInSummary, multiLingual, markedForDeletion);
+				essential, encrypted, essentialInSummary, multiLingual, markedForDeletion, customAttributes,
+				increasedDependencyLevel);
 
 		MetadataAccessRestriction accessRestriction = accessRestrictionBuilder.build();
 
@@ -958,7 +978,34 @@ public class MetadataBuilder {
 		this.allowedReferencesBuilder = allowedReferencesBuilder;
 	}
 
+	public boolean hasFlag(String flag) {
+		return customAttributes.contains(flag);
+	}
+
+	public MetadataBuilder setCustomAttributes(Set<String> customAttributes) {
+		this.customAttributes = customAttributes;
+		return this;
+	}
+
+	public MetadataBuilder addCustomAttribute(String customAttribute) {
+		if (customAttribute.contains(",")) {
+			throw new MetadataBuilderRuntimeException.InvalidAttribute("Custom Attribute", customAttribute);
+		}
+
+		customAttributes.add(customAttribute);
+		return this;
+	}
+
+	public MetadataBuilder removeCustomAttribute(String customAttribute) {
+		customAttributes.remove(customAttribute);
+		return this;
+	}
+
 	public ClassProvider getClassProvider() {
 		return classProvider;
+	}
+
+	public Set<String> getCustomAttributes() {
+		return Collections.unmodifiableSet(customAttributes);
 	}
 }

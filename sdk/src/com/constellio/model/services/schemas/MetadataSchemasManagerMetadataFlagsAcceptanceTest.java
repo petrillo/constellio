@@ -1,10 +1,12 @@
 package com.constellio.model.services.schemas;
 
+import static com.constellio.sdk.tests.schemas.TestsSchemasSetup.whichHasCustomAttributes;
 import static com.constellio.sdk.tests.schemas.TestsSchemasSetup.whichIsEncrypted;
 import static com.constellio.sdk.tests.schemas.TestsSchemasSetup.whichIsEssential;
 import static com.constellio.sdk.tests.schemas.TestsSchemasSetup.whichIsEssentialInSummary;
 import static com.constellio.sdk.tests.schemas.TestsSchemasSetup.whichIsDuplicable;
 import static com.constellio.sdk.tests.schemas.TestsSchemasSetup.whichIsMarkedForDeletion;
+import static com.constellio.sdk.tests.schemas.TestsSchemasSetup.whichIncreaseDependencyLevel;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Before;
@@ -16,6 +18,7 @@ import com.constellio.data.dao.services.solr.SolrDataStoreTypesFactory;
 import com.constellio.data.utils.Delayed;
 import com.constellio.model.services.batch.manager.BatchProcessesManager;
 import com.constellio.model.services.collections.CollectionsListManager;
+import com.constellio.model.services.schemas.builders.MetadataSchemaBuilder;
 import com.constellio.model.services.schemas.builders.MetadataSchemaTypesBuilder;
 import com.constellio.model.services.search.SearchServices;
 import com.constellio.model.services.taxonomies.TaxonomiesManager;
@@ -108,10 +111,59 @@ public class MetadataSchemasManagerMetadataFlagsAcceptanceTest extends Constelli
 		});
 
 		assertThat(zeSchema.stringMetadata().isEssentialInSummary()).isTrue();
-		assertThat(zeSchema.anotherStringMetadata().isEncrypted()).isFalse();
+		assertThat(zeSchema.anotherStringMetadata().isEssentialInSummary()).isFalse();
 	}
 
 	@Test
+	public void whenAddUpdateSchemasThenSaveReversedDependencyInSummaryFlag()
+			throws Exception {
+		defineSchemasManager().using(schemas.withAStringMetadata().withAnotherStringMetadata(whichIncreaseDependencyLevel));
+
+		assertThat(zeSchema.stringMetadata().isIncreasedDependencyLevel()).isFalse();
+		assertThat(zeSchema.anotherStringMetadata().isIncreasedDependencyLevel()).isTrue();
+
+		schemas.modify(new MetadataSchemaTypesAlteration() {
+			@Override
+			public void alter(MetadataSchemaTypesBuilder types) {
+				types.getSchema(zeSchema.code()).get(zeSchema.stringMetadata().getLocalCode()).setIncreasedDependencyLevel(true);
+				types.getSchema(zeSchema.code()).get(zeSchema.anotherStringMetadata().getLocalCode())
+						.setIncreasedDependencyLevel(false);
+			}
+		});
+
+		assertThat(zeSchema.stringMetadata().isIncreasedDependencyLevel()).isTrue();
+		assertThat(zeSchema.anotherStringMetadata().isIncreasedDependencyLevel()).isFalse();
+	}
+
+	@Test
+	public void whenAddUpdateSchemasThenSaveCustomAttributes()
+			throws Exception {
+		defineSchemasManager().using(schemas
+				.withAStringMetadata(whichHasCustomAttributes("flag1", "flag2"))
+				.withANumberMetadata(whichHasCustomAttributes("flag3", "flag4"))
+				.withABooleanMetadata());
+
+		assertThat(zeSchema.stringMetadata().getCustomAttributes()).containsOnly("flag1", "flag2");
+		assertThat(zeSchema.numberMetadata().getCustomAttributes()).containsOnly("flag3", "flag4");
+		assertThat(zeSchema.booleanMetadata().getCustomAttributes()).isEmpty();
+
+		schemas.modify(new MetadataSchemaTypesAlteration() {
+			@Override
+			public void alter(MetadataSchemaTypesBuilder types) {
+				MetadataSchemaBuilder schema = types.getSchema(zeSchema.code());
+				schema.get(zeSchema.stringMetadata()).removeCustomAttribute("flag1").addCustomAttribute("flag5");
+				schema.get(zeSchema.numberMetadata()).removeCustomAttribute("flag3").removeCustomAttribute("flag4");
+				schema.get(zeSchema.booleanMetadata()).addCustomAttribute("flag6");
+			}
+		});
+
+		assertThat(zeSchema.stringMetadata().getCustomAttributes()).containsOnly("flag5", "flag2");
+		assertThat(zeSchema.numberMetadata().getCustomAttributes()).isEmpty();
+		assertThat(zeSchema.booleanMetadata().getCustomAttributes()).containsOnly("flag6");
+	}
+
+	@Test
+
 	public void whenAddUpdateSchemasThenSaveDuplicableFlag()
 			throws Exception {
 		defineSchemasManager().using(schemas.withAStringMetadata(whichIsDuplicable).withABooleanMetadata());

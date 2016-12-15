@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import com.constellio.data.threads.ConstellioJobManager;
+
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.params.ModifiableSolrParams;
 
@@ -72,6 +74,7 @@ public class DataLayerFactory extends LayerFactory {
 	private final BigVaultLogger bigVaultLogger;
 	private final SecondTransactionLogManager secondTransactionLogManager;
 	private final BackgroundThreadsManager backgroundThreadsManager;
+	private final ConstellioJobManager constellioJobManager;
 	private final DataLayerLogger dataLayerLogger;
 	private final DataLayerExtensions dataLayerExtensions;
 	final TransactionLogRecoveryManager transactionLogRecoveryManager;
@@ -89,6 +92,8 @@ public class DataLayerFactory extends LayerFactory {
 		this.dataLayerLogger = new DataLayerLogger();
 
 		this.backgroundThreadsManager = add(new BackgroundThreadsManager(dataLayerConfiguration));
+
+		constellioJobManager = add(new ConstellioJobManager(dataLayerConfiguration));
 
 		if (dataLayerConfiguration.getSettingsConfigType() == ConfigManagerType.ZOOKEEPER) {
 			this.configManager = add(new ZooKeeperConfigManager(dataLayerConfiguration.getSettingsZookeeperAddress(),
@@ -262,6 +267,10 @@ public class DataLayerFactory extends LayerFactory {
 		return backgroundThreadsManager;
 	}
 
+	public ConstellioJobManager getConstellioJobManager() {
+		return constellioJobManager;
+	}
+
 	public SecondTransactionLogManager getSecondTransactionLogManager() {
 		return secondTransactionLogManager;
 	}
@@ -298,6 +307,6 @@ public class DataLayerFactory extends LayerFactory {
 	}
 
 	public SequencesManager getSequencesManager() {
-		return new SolrSequencesManager(newRecordDao());
+		return new SolrSequencesManager(newRecordDao(), secondTransactionLogManager);
 	}
 }

@@ -4,8 +4,7 @@ import static com.constellio.app.ui.i18n.i18n.$;
 import static com.constellio.model.services.search.query.logical.LogicalSearchQueryOperators.from;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,6 +14,7 @@ import java.util.Map;
 
 import com.constellio.app.ui.params.ParamUtils;
 import com.constellio.model.entities.schemas.Schemas;
+import com.constellio.model.services.users.UserServices;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.junit.Before;
@@ -31,7 +31,9 @@ import com.constellio.app.modules.rm.services.RMSchemasRecordsServices;
 import com.constellio.app.modules.rm.services.borrowingServices.BorrowingType;
 import com.constellio.app.modules.rm.services.events.RMEventsSearchServices;
 import com.constellio.app.modules.rm.wrappers.Folder;
+import com.constellio.app.ui.entities.RecordVO;
 import com.constellio.app.ui.entities.UserCredentialVO;
+import com.constellio.app.ui.framework.data.RecordVODataProvider;
 import com.constellio.app.ui.pages.base.SessionContext;
 import com.constellio.app.ui.pages.base.UIContext;
 import com.constellio.model.entities.records.Record;
@@ -41,6 +43,7 @@ import com.constellio.model.entities.records.wrappers.EventType;
 import com.constellio.model.entities.records.wrappers.User;
 import com.constellio.model.entities.schemas.Metadata;
 import com.constellio.model.entities.schemas.MetadataSchemaTypes;
+import com.constellio.model.entities.schemas.Schemas;
 import com.constellio.model.entities.security.Role;
 import com.constellio.model.services.records.RecordServices;
 import com.constellio.model.services.schemas.MetadataSchemasManager;
@@ -52,6 +55,20 @@ import com.constellio.sdk.tests.ConstellioTest;
 import com.constellio.sdk.tests.FakeSessionContext;
 import com.constellio.sdk.tests.SDKViewNavigation;
 import com.constellio.sdk.tests.setups.Users;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+
+import java.util.*;
+
+import static com.constellio.app.ui.i18n.i18n.$;
+import static com.constellio.model.services.search.query.logical.LogicalSearchQueryOperators.from;
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DisplayFolderPresenterAcceptTest extends ConstellioTest {
 
@@ -620,14 +637,53 @@ public class DisplayFolderPresenterAcceptTest extends ConstellioTest {
 		assertThat(emailToSend.getTo()).hasSize(1);
 		assertThat(emailToSend.getTo().get(0).getName()).isEqualTo(users.bobIn(zeCollection).getTitle());
 		assertThat(emailToSend.getTo().get(0).getEmail()).isEqualTo(users.bobIn(zeCollection).getEmail());
-		assertThat(emailToSend.getSubject()).isEqualTo("Alerte lorsque le folder est disponible " + folderC30.getTitle());
+		final String subject = "Alerte lorsque le dossier est disponible: " + folderC30.getTitle();
+		assertThat(emailToSend.getSubject()).isEqualTo(subject);
 		assertThat(emailToSend.getTemplate()).isEqualTo(RMEmailTemplateConstants.ALERT_AVAILABLE_ID);
 		assertThat(emailToSend.getError()).isNull();
 		assertThat(emailToSend.getTryingCount()).isEqualTo(0);
-		assertThat(emailToSend.getParameters()).hasSize(2);
-		assertThat(emailToSend.getParameters().get(0)).isEqualTo("returnDate" + EmailToSend.PARAMETER_SEPARATOR + shishOClock);
-		assertThat(emailToSend.getParameters().get(1))
+		assertThat(emailToSend.getParameters()).hasSize(6);
+		assertThat(emailToSend.getParameters().get(0)).isEqualTo("subject" + EmailToSend.PARAMETER_SEPARATOR + subject);
+		assertThat(emailToSend.getParameters().get(1)).isEqualTo("returnDate" + EmailToSend.PARAMETER_SEPARATOR + shishOClock.toString("yyyy-MM-dd  HH:mm:ss"));
+		assertThat(emailToSend.getParameters().get(2))
 				.isEqualTo("title" + EmailToSend.PARAMETER_SEPARATOR + folderC30.getTitle());
+		assertThat(emailToSend.getParameters().get(3))
+				.isEqualTo("constellioURL" + EmailToSend.PARAMETER_SEPARATOR + "http://localhost:8080/constellio/");
+		assertThat(emailToSend.getParameters().get(4))
+				.isEqualTo("recordURL" + EmailToSend.PARAMETER_SEPARATOR + "http://localhost:8080/constellio/#!displayFolder/C30");
+		assertThat(emailToSend.getParameters().get(5))
+				.isEqualTo("recordType" + EmailToSend.PARAMETER_SEPARATOR + "dossier");
+	}
+
+	@Test
+	public void givenViewIsEnteredThenAddToCartButtonOnlyShowsWhenUserHasPermission() {
+		String roleCode = users.aliceIn(zeCollection).getUserRoles().get(0);
+		RolesManager rolesManager = getAppLayerFactory().getModelLayerFactory().getRolesManager();
+
+		Role role = rolesManager.getRole(zeCollection, roleCode);
+		Role editedRole = role.withPermissions(new ArrayList<String>());
+		rolesManager.updateRole(editedRole);
+
+		connectWithAlice();
+		assertThat(presenter.hasCurrentUserPermissionToUseCart()).isFalse();
+
+		Role editedRole2 = editedRole.withPermissions(asList(RMPermissionsTo.USE_CART));
+		rolesManager.updateRole(editedRole2);
+
+		connectWithAlice();
+		assertThat(presenter.hasCurrentUserPermissionToUseCart()).isTrue();
+	}
+
+	@Test
+	public void givenEventsThenEventsDataProviderReturnValidEvents() throws Exception {
+		getDataLayerFactory().newEventsDao().flush();
+		assertThat(searchServices.getResultsCount(rmEventsSearchServices.newFindEventByRecordIDQuery(users.adminIn(zeCollection), rmRecords.folder_A01))).isEqualTo(2);
+		assertThat(searchServices.getResultsCount(rmEventsSearchServices.newFindEventByRecordIDQuery(users.adminIn(zeCollection), rmRecords.folder_A05))).isEqualTo(1);
+
+		presenter.forParams(rmRecords.folder_A01);
+		RecordVODataProvider provider = presenter.getEventsDataProvider();
+		List<RecordVO> eventList = provider.listRecordVOs(0, 100);
+		assertThat(eventList).hasSize(2);
 	}
 
 	//
@@ -718,5 +774,14 @@ public class DisplayFolderPresenterAcceptTest extends ConstellioTest {
 		sessionContext.setCurrentLocale(Locale.FRENCH);
 		when(displayFolderView.getSessionContext()).thenReturn(sessionContext);
 		presenter = new DisplayFolderPresenter(displayFolderView);
+	}
+
+	@Test
+	public void test()
+			throws Exception {
+
+		displayFolderView.selectFolderContentTab();
+
+
 	}
 }

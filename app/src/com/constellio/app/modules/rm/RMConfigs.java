@@ -15,6 +15,8 @@ import com.constellio.model.services.configs.SystemConfigurationsManager;
 
 public class RMConfigs {
 
+	public static String decommissioningGroup = "decommissioning";
+
 	public enum DecommissioningPhase {
 		NEVER, ON_DEPOSIT, ON_TRANSFER_OR_DEPOSIT
 	}
@@ -50,7 +52,9 @@ public class RMConfigs {
 			DOCUMENTS_TYPES_CHOICE,
 			WORKFLOWS_ENABLED,
 			ENFORCE_CATEGORY_AND_RULE_RELATIONSHIP_IN_FOLDER,
-			ALLOW_MODIFICATION_OF_ARCHIVISTIC_STATUS_AND_EXPECTED_DATES;
+			ALLOW_MODIFICATION_OF_ARCHIVISTIC_STATUS_AND_EXPECTED_DATES,
+			CALCULATED_METADATAS_BASED_ON_FIRST_TIMERANGE_PART;
+	;
 
 	// Category configs
 	public static final SystemConfiguration LINKABLE_CATEGORY_MUST_NOT_BE_ROOT, LINKABLE_CATEGORY_MUST_HAVE_APPROVED_RULES;
@@ -61,7 +65,7 @@ public class RMConfigs {
 
 	// Agent configs
 	public static final SystemConfiguration AGENT_ENABLED, AGENT_SWITCH_USER_POSSIBLE, AGENT_DOWNLOAD_ALL_USER_CONTENT,
-			AGENT_EDIT_USER_DOCUMENTS, AGENT_BACKUP_RETENTION_PERIOD_IN_DAYS, AGENT_TOKEN_DURATION_IN_HOURS;
+			AGENT_EDIT_USER_DOCUMENTS, AGENT_BACKUP_RETENTION_PERIOD_IN_DAYS, AGENT_TOKEN_DURATION_IN_HOURS, AGENT_READ_ONLY_WARNING;
 
 	// other
 	public static final SystemConfiguration OPEN_HOLDER;
@@ -69,7 +73,7 @@ public class RMConfigs {
 	static {
 		//SystemConfigurationGroup beta = new SystemConfigurationGroup(ID, "beta");
 
-		SystemConfigurationGroup decommissioning = new SystemConfigurationGroup(ID, "decommissioning");
+		SystemConfigurationGroup decommissioning = new SystemConfigurationGroup(ID, decommissioningGroup);
 
 		// Allow to enter retention rules for documents
 		add(DOCUMENT_RETENTION_RULES = decommissioning.createBooleanFalseByDefault("documentRetentionRules"));
@@ -195,6 +199,8 @@ public class RMConfigs {
 
 		add(AGENT_TOKEN_DURATION_IN_HOURS = agent.createInteger("tokenDurationInHours").withDefaultValue(10));
 
+		add(AGENT_READ_ONLY_WARNING = agent.createBooleanTrueByDefault("readOnlyWarning"));
+
 		SystemConfigurationGroup others = new SystemConfigurationGroup(ID, "others");
 
 		add(BORROWING_DURATION_IN_DAYS = others.createInteger("borrowingDurationDays").withDefaultValue(7));
@@ -211,6 +217,9 @@ public class RMConfigs {
 						AllowModificationOfArchivisticStatusAndExpectedDatesChoice.class)
 				.withDefaultValue(AllowModificationOfArchivisticStatusAndExpectedDatesChoice.DISABLED)
 				.scriptedBy(EnableOrDisableCalculatorsManualMetadataScript.class));
+
+		add(CALCULATED_METADATAS_BASED_ON_FIRST_TIMERANGE_PART = decommissioning
+				.createBooleanTrueByDefault("calculatedMetadatasBasedOnFirstTimerangePart"));
 	}
 
 	static void add(SystemConfiguration configuration) {
@@ -363,6 +372,10 @@ public class RMConfigs {
 		return manager.getValue(AGENT_TOKEN_DURATION_IN_HOURS);
 	}
 
+	public boolean isAgentReadOnlyWarning() {
+		return manager.getValue(AGENT_READ_ONLY_WARNING);
+	}
+
 	public int getBorrowingDurationDays() {
 		return manager.getValue(BORROWING_DURATION_IN_DAYS);
 	}
@@ -379,4 +392,7 @@ public class RMConfigs {
 		return manager.getValue(DOCUMENTS_TYPES_CHOICE);
 	}
 
+	public boolean isCalculateOpenDateBasedOnFirstTimerangePart() {
+		return manager.getValue(CALCULATED_METADATAS_BASED_ON_FIRST_TIMERANGE_PART);
+	}
 }

@@ -52,6 +52,7 @@ public class AddEditContainerPresenter extends SingleSchemaBasePresenter<AddEdit
 		}
 		setSchemaCode(newSchemaCode);
 		container = copyMetadataToSchema(view.getUpdatedContainer(), newSchemaCode);
+		container.set(ContainerRecord.TYPE, type);
 		view.reloadWithContainer(container);
 	}
 
@@ -74,7 +75,7 @@ public class AddEditContainerPresenter extends SingleSchemaBasePresenter<AddEdit
 
 	@Override
 	protected boolean hasPageAccess(String params, User user) {
-		DecommissioningSecurityService securityServices = new DecommissioningSecurityService(collection, modelLayerFactory);
+		DecommissioningSecurityService securityServices = new DecommissioningSecurityService(collection, appLayerFactory);
 		return securityServices.canCreateContainers(user);
 	}
 
@@ -100,8 +101,14 @@ public class AddEditContainerPresenter extends SingleSchemaBasePresenter<AddEdit
 	}
 
 	private String getLinkedSchemaCodeOf(String id) {
+		String linkedSchemaCode;
 		ContainerRecordType type = new RMSchemasRecordsServices(view.getCollection(), appLayerFactory).getContainerRecordType(id);
-		return StringUtils.defaultIfBlank(type.getLinkedSchema(), ContainerRecord.DEFAULT_SCHEMA);
+		if (type == null || StringUtils.isBlank(type.getLinkedSchema())) {
+			linkedSchemaCode = ContainerRecord.DEFAULT_SCHEMA;
+		} else {
+			linkedSchemaCode = type.getLinkedSchema();
+		}
+		return linkedSchemaCode;
 	}
 	
 }

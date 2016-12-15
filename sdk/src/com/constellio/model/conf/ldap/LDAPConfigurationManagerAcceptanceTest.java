@@ -44,8 +44,7 @@ public class LDAPConfigurationManagerAcceptanceTest extends ConstellioTest {
 	}
 
 	private void saveValidAzurConfig() {
-		AzureADServerConfig serverConfig = new AzureADServerConfig().setClientId("zclientId").setAuthorityUrl("zUrl")
-				.setAuthorityTenantId("zTanentId");
+		AzureADServerConfig serverConfig = new AzureADServerConfig().setClientId("zclientId").setAuthorityTenantId("zTanentId");
 		LDAPServerConfiguration ldapServerConfiguration = new LDAPServerConfiguration(serverConfig, false);
 		AzureADUserSynchConfig azurConf = new AzureADUserSynchConfig().setApplicationKey("zApplicationKey").setClientId("synchClientId");
 		LDAPUserSyncConfiguration ldapUserSyncConfiguration = new LDAPUserSyncConfiguration(azurConf, azurUsersRegex,
@@ -105,7 +104,6 @@ public class LDAPConfigurationManagerAcceptanceTest extends ConstellioTest {
 		assertThat(ldapServerConfiguration.getDomains()).containsAll(LDAPTestConfig.getDomains());
 
 		assertThat(ldapServerConfiguration.getTenantName()).isNull();
-		assertThat(ldapServerConfiguration.getAuthorityUrl()).isEqualTo("https://login.microsoftonline.com/");
 		assertThat(ldapServerConfiguration.getClientId()).isNull();
 	}
 
@@ -152,7 +150,6 @@ public class LDAPConfigurationManagerAcceptanceTest extends ConstellioTest {
 		LDAPServerConfiguration ldapServerConfiguration = ldapConfigManager.getLDAPServerConfiguration();
 
 		assertThat(ldapServerConfiguration.getClientId()).isEqualTo("zclientId");
-		assertThat(ldapServerConfiguration.getAuthorityUrl()).isEqualTo("zUrl");
 		assertThat(ldapServerConfiguration.getTenantName()).isEqualTo("zTanentId");
 
 		assertThat(ldapServerConfiguration.getDirectoryType()).isEqualTo(LDAPDirectoryType.AZURE_AD);
@@ -181,5 +178,24 @@ public class LDAPConfigurationManagerAcceptanceTest extends ConstellioTest {
 		assertThat(ldapUserSyncConfiguration.getUsersWithoutGroupsBaseContextList()).isNull();
 		assertThat(ldapUserSyncConfiguration.getUser()).isNull();
 		assertThat(ldapUserSyncConfiguration.getPassword()).isNull();
+	}
+
+	@Test
+	public void givenConfigWithScheduleTimeWhenSavedThenCorrectlySaved() throws Exception {
+        // Given
+		final LDAPServerConfiguration ldapServerConfiguration = LDAPTestConfig.getLDAPServerConfiguration();
+
+		LDAPUserSyncConfiguration ldapUserSyncConfiguration = LDAPTestConfig.getLDAPUserSyncConfiguration();
+
+        final List<String> scheduleTimeList = Arrays.asList(new String[] {"0:00", "12:00"});
+		ldapUserSyncConfiguration.setScheduleTime(scheduleTimeList);
+
+        // When
+		ldapConfigManager.saveLDAPConfiguration(ldapServerConfiguration, ldapUserSyncConfiguration);
+
+        // Then
+		assertThat(ldapConfigManager.isLDAPAuthentication()).isEqualTo(true);
+		assertThat(ldapConfigManager.idUsersSynchActivated()).isEqualTo(true);
+		assertThat(ldapConfigManager.getLDAPUserSyncConfiguration().getScheduleTime()).isEqualTo(scheduleTimeList);
 	}
 }
