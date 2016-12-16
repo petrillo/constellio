@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,13 +28,21 @@ public class AzureADServices implements LDAPServices {
 	@Override
 	public List<String> getTestSynchronisationUsersNames(final LDAPServerConfiguration ldapServerConfiguration,
 														 final LDAPUserSyncConfiguration ldapUserSyncConfiguration) {
-		return new ArrayList<>(new AzureAdClient(ldapServerConfiguration, ldapUserSyncConfiguration).getUserNameList());
+		try {
+			return new ArrayList<>(new AzureAdClient(ldapServerConfiguration, ldapUserSyncConfiguration).getUserNameList());
+		} catch (JSONException je) {
+			return null;
+		}
 	}
 
 	@Override
 	public List<String> getTestSynchronisationGroups(final LDAPServerConfiguration ldapServerConfiguration,
 													 final LDAPUserSyncConfiguration ldapUserSyncConfiguration) {
-		return new ArrayList<>(new AzureAdClient(ldapServerConfiguration, ldapUserSyncConfiguration).getGroupNameList());
+		try {
+			return new ArrayList<>(new AzureAdClient(ldapServerConfiguration, ldapUserSyncConfiguration).getGroupNameList());
+		} catch (JSONException je) {
+			return null;
+		}
 	}
 
 	@Override
@@ -45,9 +54,13 @@ public class AzureADServices implements LDAPServices {
 
         final AzureAdClient azureAdClient = new AzureAdClient(ldapServerConfiguration, ldapUserSyncConfiguration);
 
-        azureAdClient.getGroupsAndTheirUsers(ldapGroups, ldapUsers);
+        try {
+			azureAdClient.getGroupsAndTheirUsers(ldapGroups, ldapUsers);
 
-        azureAdClient.getUsersAndTheirGroups(ldapGroups, ldapUsers);
+			azureAdClient.getUsersAndTheirGroups(ldapGroups, ldapUsers);
+		} catch (JSONException je) {
+
+		}
 
         return new LDAPUsersAndGroups(new HashSet<>(ldapUsers.values()), new HashSet<>(ldapGroups.values()));
 	}

@@ -1,10 +1,12 @@
 package com.constellio.app.modules.es.connectors.smb.cache;
 
-import com.constellio.app.modules.es.connectors.smb.service.SmbModificationIndicator;
-import org.apache.commons.codec.binary.StringUtils;
-
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.constellio.app.modules.es.connectors.smb.service.SmbModificationIndicator;
 
 public class SmbConnectorContext implements Serializable {
 
@@ -49,7 +51,7 @@ public class SmbConnectorContext implements Serializable {
 		List<String> urls = new ArrayList<>();
 		for (Map.Entry<String, SmbModificationIndicator> entry : this.recordUrls.entrySet()) {
 			SmbModificationIndicator indicator = entry.getValue();
-			if (indicator == null || !StringUtils.equals(indicator.getTraversalCode(), traversalCode)) {
+			if (indicator == null || !indicator.getTraversalCode().equals(traversalCode)) {
 				urls.add(entry.getKey());
 			}
 		}

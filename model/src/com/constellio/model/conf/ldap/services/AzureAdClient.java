@@ -1,21 +1,16 @@
 package com.constellio.model.conf.ldap.services;
 
-import com.constellio.model.conf.ldap.config.LDAPServerConfiguration;
-import com.constellio.model.conf.ldap.config.LDAPUserSyncConfiguration;
-import com.constellio.model.conf.ldap.services.LDAPServicesException.CouldNotConnectUserToLDAP;
-import com.constellio.model.conf.ldap.user.LDAPGroup;
-import com.constellio.model.conf.ldap.user.LDAPUser;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.microsoft.aad.adal4j.AuthenticationContext;
-import com.microsoft.aad.adal4j.AuthenticationResult;
-import com.microsoft.aad.adal4j.ClientCredential;
-import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -24,10 +19,24 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.util.*;
-import java.util.concurrent.*;
+
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.constellio.model.conf.ldap.config.LDAPServerConfiguration;
+import com.constellio.model.conf.ldap.config.LDAPUserSyncConfiguration;
+import com.constellio.model.conf.ldap.services.LDAPServicesException.CouldNotConnectUserToLDAP;
+import com.constellio.model.conf.ldap.user.LDAPGroup;
+import com.constellio.model.conf.ldap.user.LDAPUser;
+import com.google.common.annotations.VisibleForTesting;
+import com.microsoft.aad.adal4j.AuthenticationContext;
+import com.microsoft.aad.adal4j.AuthenticationResult;
+import com.microsoft.aad.adal4j.ClientCredential;
 
 /**
  */
@@ -54,7 +63,7 @@ public class AzureAdClient {
             return response.readEntity(String.class).replace("\uFEFF", "");
         }
 
-        private static String getSkipToken(final String responseText) {
+        private static String getSkipToken(final String responseText) throws JSONException {
             if (responseText.contains("odata.nextLink")) {
                 for (String string : new JSONObject(responseText).getString("odata.nextLink").split("\\?")) {
                     for (String stringOfString : string.split("&")) {
@@ -176,7 +185,7 @@ public class AzureAdClient {
                     .header(HttpHeaders.AUTHORIZATION, authenticationResult.getAccessToken());
         }
 
-        private JSONArray submitQueryWithoutPagination(WebTarget webTarget) {
+        private JSONArray submitQueryWithoutPagination(WebTarget webTarget) throws JSONException {
             String responseText;
 
             acquireAccessToken();
@@ -210,7 +219,7 @@ public class AzureAdClient {
             }
         }
 
-        private List<JSONArray> submitQueryWithPagination(WebTarget webTarget) {
+        private List<JSONArray> submitQueryWithPagination(WebTarget webTarget) throws JSONException {
             List<JSONArray> result = new ArrayList<>();
 
             String responseText;
@@ -255,27 +264,43 @@ public class AzureAdClient {
 
         @VisibleForTesting
         List<JSONArray> getAllUsersResponse() {
-            return submitQueryWithPagination(webTarget.path("users"));
+            try {
+                return submitQueryWithPagination(webTarget.path("users"));
+            } catch (JSONException js) {
+                return null;
+            }
         }
 
         @VisibleForTesting
         JSONArray getUserGroupsResponse(final String userObjectId) {
             // Paging is not supported for link searches, cf. https://graph.microsoft.io/en-us/docs/overview/paging
-            return submitQueryWithoutPagination(webTarget.path("users").path(userObjectId).path("$links").path("memberOf"));
+           try {
+               return submitQueryWithoutPagination(webTarget.path("users").path(userObjectId).path("$links").path("memberOf"));
+           } catch (JSONException je) {
+               return null;
+           }
         }
 
         @VisibleForTesting
         List<JSONArray> getAllGroupsResponse() {
-            return submitQueryWithPagination(webTarget.path("groups"));
+            try {
+                return submitQueryWithPagination(webTarget.path("groups"));
+            } catch (JSONException je) {
+                return null;
+            }
         }
 
         @VisibleForTesting
         JSONArray getGroupMembersResponse(final String groupObjectId) {
             // Paging is not supported for link searches, cf. https://graph.microsoft.io/en-us/docs/overview/paging
-            return submitQueryWithoutPagination(webTarget.path("groups").path(groupObjectId).path("$links").path("members"));
+            try {
+                return submitQueryWithoutPagination(webTarget.path("groups").path(groupObjectId).path("$links").path("members"));
+            } catch (JSONException je) {
+                return  null;
+            }
         }
 
-        private JSONObject getObjectResponseByUrl(final String objectUrl) {
+        private JSONObject getObjectResponseByUrl(final String objectUrl) throws JSONException {
             String responseText;
 
             acquireAccessToken();
@@ -333,7 +358,7 @@ public class AzureAdClient {
         this.ldapUserSyncConfiguration = ldapUserSyncConfiguration;
     }
 
-    public Set<String> getUserNameList() {
+    public Set<String> getUserNameList() throws JSONException {
         LOGGER.info("Getting user name list - start");
 
         Set<String> results = new HashSet<>();
@@ -358,7 +383,7 @@ public class AzureAdClient {
         return results;
     }
 
-    public Set<String> getGroupNameList() {
+    public Set<String> getGroupNameList() throws JSONException {
         LOGGER.info("Getting group name list - start");
 
         Set<String> results = new HashSet<>();
@@ -383,7 +408,7 @@ public class AzureAdClient {
         return results;
     }
 
-    public void getGroupsAndTheirUsers(final Map<String, LDAPGroup> ldapGroups, final Map<String, LDAPUser> ldapUsers) {
+    public void getGroupsAndTheirUsers(final Map<String, LDAPGroup> ldapGroups, final Map<String, LDAPUser> ldapUsers) throws JSONException {
         LOGGER.info("Getting groups and their members - start");
 
         RequestHelper requestHelper = new RequestHelper(
@@ -460,7 +485,7 @@ public class AzureAdClient {
         return ldapUser;
     }
 
-    public void getUsersAndTheirGroups(final Map<String, LDAPGroup> ldapGroups, final Map<String, LDAPUser> ldapUsers) {
+    public void getUsersAndTheirGroups(final Map<String, LDAPGroup> ldapGroups, final Map<String, LDAPUser> ldapUsers) throws JSONException {
         LOGGER.info("Getting users and their memberships - start");
 
         RequestHelper requestHelper = new RequestHelper(
