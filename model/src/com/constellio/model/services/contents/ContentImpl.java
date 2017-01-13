@@ -1,34 +1,25 @@
 package com.constellio.model.services.contents;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.joda.time.LocalDateTime;
-
 import com.constellio.data.utils.TimeProvider;
 import com.constellio.model.entities.CorePermissions;
 import com.constellio.model.entities.records.Content;
 import com.constellio.model.entities.records.ContentVersion;
 import com.constellio.model.entities.records.wrappers.User;
-import com.constellio.model.services.contents.ContentImplRuntimeException.ContentImplRuntimeException_CannotDeleteLastVersion;
-import com.constellio.model.services.contents.ContentImplRuntimeException.ContentImplRuntimeException_ContentMustBeCheckedOut;
-import com.constellio.model.services.contents.ContentImplRuntimeException.ContentImplRuntimeException_ContentMustNotBeCheckedOut;
-import com.constellio.model.services.contents.ContentImplRuntimeException.ContentImplRuntimeException_InvalidArgument;
-import com.constellio.model.services.contents.ContentImplRuntimeException.ContentImplRuntimeException_NoSuchVersion;
-import com.constellio.model.services.contents.ContentImplRuntimeException.ContentImplRuntimeException_UserHasNoDeleteVersionPermission;
-import com.constellio.model.services.contents.ContentImplRuntimeException.ContentImplRuntimeException_VersionMustBeHigherThanPreviousVersion;
+import com.constellio.model.services.contents.ContentImplRuntimeException.*;
 import com.constellio.model.utils.Lazy;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.joda.time.LocalDateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 public class ContentImpl implements Content {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(ContentImpl.class);
 
 	private String id;
 
@@ -80,7 +71,12 @@ public class ContentImpl implements Content {
 		validateArgument("id", id);
 		validateUserArgument(user);
 		validateFilenameArgument(filename);
-		valdiateNewVersionArgument(newVersion);
+		try {
+			valdiateNewVersionArgument(newVersion);
+		} catch(Exception e) {
+			LOGGER.error("Invalid version for file \"" + filename + "\" version " + version);
+			valdiateNewVersionArgument(newVersion);
+		}
 
 		LocalDateTime now = TimeProvider.getLocalDateTime();
 		ContentImpl content = new ContentImpl();
@@ -255,7 +251,12 @@ public class ContentImpl implements Content {
 
 	public ContentImpl checkInWithModificationAndName(ContentVersionDataSummary newVersion, boolean finalize, String name) {
 		ensureCheckedOut();
-		valdiateNewVersionArgument(newVersion);
+		try {
+			valdiateNewVersionArgument(newVersion);
+		} catch(Exception e) {
+			LOGGER.error("Invalid version for file \"" + name + "\"");
+			valdiateNewVersionArgument(newVersion);
+		}
 		LocalDateTime now = TimeProvider.getLocalDateTime();
 		String correctFilename = correctFilename(name);
 		String userId = this.getCheckoutUserId();
@@ -398,7 +399,12 @@ public class ContentImpl implements Content {
 		ensureNotCheckedOut();
 		version = validateVersion(version, currentVersion.getVersion(), isEmptyVersion());
 		validateUserArgument(user);
-		valdiateNewVersionArgument(newVersion);
+		try {
+			valdiateNewVersionArgument(newVersion);
+		} catch(Exception e) {
+			LOGGER.error("Invalid version for file \"" + name + "\" version " + version);
+			valdiateNewVersionArgument(newVersion);
+		}
 		LocalDateTime now = TimeProvider.getLocalDateTime();
 
 		String correctedFilename = correctFilename(name);
@@ -439,7 +445,12 @@ public class ContentImpl implements Content {
 
 	public ContentImpl updateCheckedOutContentWithName(ContentVersionDataSummary newVersion, String name) {
 		ensureCheckedOut();
-		valdiateNewVersionArgument(newVersion);
+		try {
+			valdiateNewVersionArgument(newVersion);
+		} catch(Exception e) {
+			LOGGER.error("Invalid version for file \"" + name);
+			valdiateNewVersionArgument(newVersion);
+		}
 		String correctedFilename = correctFilename(name);
 		String version = currentCheckedOutVersion.getVersion();
 
