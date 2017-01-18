@@ -1,18 +1,5 @@
 package com.constellio.app.api.cmis.requests.object;
 
-import org.apache.chemistry.opencmis.commons.data.ContentStream;
-import org.apache.chemistry.opencmis.commons.data.ObjectData;
-import org.apache.chemistry.opencmis.commons.data.Properties;
-import org.apache.chemistry.opencmis.commons.definitions.TypeDefinition;
-import org.apache.chemistry.opencmis.commons.enums.Action;
-import org.apache.chemistry.opencmis.commons.enums.BaseTypeId;
-import org.apache.chemistry.opencmis.commons.enums.VersioningState;
-import org.apache.chemistry.opencmis.commons.server.CallContext;
-import org.apache.chemistry.opencmis.commons.server.ObjectInfoHandler;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.constellio.app.api.cmis.CmisExceptions.CmisExceptions_ObjectNotFound;
 import com.constellio.app.api.cmis.ConstellioCmisException;
 import com.constellio.app.api.cmis.binding.collection.ConstellioCollectionRepository;
@@ -21,10 +8,21 @@ import com.constellio.app.api.cmis.binding.utils.ContentCmisDocument;
 import com.constellio.app.api.cmis.requests.CmisCollectionRequest;
 import com.constellio.app.services.factories.AppLayerFactory;
 import com.constellio.model.entities.records.Record;
+import org.apache.chemistry.opencmis.commons.data.ContentStream;
+import org.apache.chemistry.opencmis.commons.data.ObjectData;
+import org.apache.chemistry.opencmis.commons.data.Properties;
+import org.apache.chemistry.opencmis.commons.definitions.TypeDefinition;
+import org.apache.chemistry.opencmis.commons.enums.BaseTypeId;
+import org.apache.chemistry.opencmis.commons.enums.VersioningState;
+import org.apache.chemistry.opencmis.commons.server.CallContext;
+import org.apache.chemistry.opencmis.commons.server.ObjectInfoHandler;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CreateObjectRequest extends CmisCollectionRequest<ObjectData> {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(CmisCollectionRequest.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(CreateObjectRequest.class);
 	private final Properties properties;
 	private final ObjectInfoHandler objectInfos;
 	CreateFolderRequest createFolderRequest;
@@ -50,6 +48,7 @@ public class CreateObjectRequest extends CmisCollectionRequest<ObjectData> {
 		String typeId = CmisUtils.getObjectTypeId(properties);
 		TypeDefinition type = repository.getTypeDefinitionsManager().getInternalTypeDefinition(typeId);
 		if (type == null) {
+			LOGGER.error("Type is null " + typeId);
 			throw new CmisExceptions_ObjectNotFound("Type", typeId);
 		}
 
@@ -63,6 +62,7 @@ public class CreateObjectRequest extends CmisCollectionRequest<ObjectData> {
 			return newObjectDataBuilder().build(record, null, false, userReadOnly, objectInfos);
 
 		} else {
+			LOGGER.error("Type is not cmis:document or cmis:folder. Type is " + typeId);
 			throw new CmisExceptions_ObjectNotFound("Type", typeId);
 		}
 
