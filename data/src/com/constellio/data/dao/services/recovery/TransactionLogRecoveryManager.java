@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import com.constellio.data.dao.dto.records.TransactionResponseDTO;
 import com.constellio.data.dao.services.bigVault.solr.BigVaultException.CouldNotExecuteQuery;
-import com.constellio.data.dao.services.bigVault.solr.BigVaultServer;
+import com.constellio.data.dao.services.bigVault.solr.SolrBigVaultServer;
 import com.constellio.data.dao.services.bigVault.solr.BigVaultServerTransaction;
 import com.constellio.data.dao.services.bigVault.solr.listeners.BigVaultServerAddEditListener;
 import com.constellio.data.dao.services.bigVault.solr.listeners.BigVaultServerQueryListener;
@@ -134,7 +134,7 @@ public class TransactionLogRecoveryManager implements RecoveryService, BigVaultS
 	}
 
 	private void recover() {
-		BigVaultServer bigVaultServer = dataLayerFactory.getRecordsVaultServer();
+		SolrBigVaultServer bigVaultServer = dataLayerFactory.getRecordsVaultServer();
 		SolrClient server = bigVaultServer.getNestedSolrServer();
 		this.deletedRecordsIds.removeAll(this.newRecordsIds);
 		this.updatedRecordsIds.removeAll(this.newRecordsIds);
@@ -347,7 +347,7 @@ public class TransactionLogRecoveryManager implements RecoveryService, BigVaultS
 	//TODO test me
 	Set<String> getOnlyNewDocuments(Set<String> possiblyNewDocumentsIds) {
 
-		BigVaultServer bigVaultServer = dataLayerFactory.getRecordsVaultServer();
+		SolrBigVaultServer bigVaultServer = dataLayerFactory.getRecordsVaultServer();
 		SolrClient server = bigVaultServer.getNestedSolrServer();
 
 		//field:(value1 OR value2 OR value3)

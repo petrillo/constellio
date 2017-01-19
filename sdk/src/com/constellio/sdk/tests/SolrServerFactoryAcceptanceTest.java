@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.constellio.data.dao.managers.config.ConfigManagerException.OptimisticLockingConfiguration;
-import com.constellio.data.dao.services.bigVault.solr.BigVaultServer;
+import com.constellio.data.dao.services.bigVault.solr.SolrBigVaultServer;
 import com.constellio.data.io.concurrent.data.DataWithVersion;
 import com.constellio.data.io.concurrent.data.TextView;
 import com.constellio.data.io.concurrent.filesystem.AtomicFileSystem;
@@ -20,7 +20,7 @@ public class SolrServerFactoryAcceptanceTest extends SynonymFeatureAcceptanceTes
 
 	@Test
 	public void whenSettingUpSolrCollectionsThenTheirConfigurationAreStoredInThePathStartsWithTheCollectionName() {
-		for (BigVaultServer server : getConstellioFactories().getDataLayerFactory().getSolrServers().getServers()) {
+		for (SolrBigVaultServer server : getConstellioFactories().getDataLayerFactory().getSolrServers().getServers()) {
 			AtomicFileSystem configFileSystem = server.getSolrServerFactory().getConfigFileSystem();
 			assertThat(configFileSystem.exists("/" + server.getName()) ||    //SolrCloud configuration
 					configFileSystem.exists("/" + server.getName() + "_configs")    //HttpSolr configuration
@@ -34,7 +34,7 @@ public class SolrServerFactoryAcceptanceTest extends SynonymFeatureAcceptanceTes
 		String testFilePath = "/writeAccessFile.txt";
 		String fileContent = "Some content";
 
-		BigVaultServer aServer = getConstellioFactories().getDataLayerFactory().getSolrServers().getServers().iterator().next();
+		SolrBigVaultServer aServer = getConstellioFactories().getDataLayerFactory().getSolrServers().getServers().iterator().next();
 		AtomicFileSystem solrFileSystem = aServer.getSolrFileSystem();
 		if (solrFileSystem.exists(testFilePath))
 			solrFileSystem.delete(testFilePath, null);
@@ -71,7 +71,7 @@ public class SolrServerFactoryAcceptanceTest extends SynonymFeatureAcceptanceTes
 		LOGGER.info("Do a modification in the solr configuration.");
 		String testFilePath = "/cleanUpFile.txt";
 		String flag = "This content should not be in this file.";
-		for (BigVaultServer server : getConstellioFactories().getDataLayerFactory().getSolrServers().getServers()) {
+		for (SolrBigVaultServer server : getConstellioFactories().getDataLayerFactory().getSolrServers().getServers()) {
 			AtomicFileSystem solrFileSystem = server.getSolrFileSystem();
 			assertThat(solrFileSystem.exists(testFilePath)).isFalse();
 			solrFileSystem.writeData(testFilePath, new DataWithVersion(flag.getBytes(), null));

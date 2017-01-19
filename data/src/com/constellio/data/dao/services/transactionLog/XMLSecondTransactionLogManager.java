@@ -33,7 +33,7 @@ import com.constellio.data.dao.dto.records.RecordsFlushing;
 import com.constellio.data.dao.dto.records.TransactionDTO;
 import com.constellio.data.dao.services.DataLayerLogger;
 import com.constellio.data.dao.services.bigVault.RecordDaoException.OptimisticLocking;
-import com.constellio.data.dao.services.bigVault.solr.BigVaultServer;
+import com.constellio.data.dao.services.bigVault.solr.SolrBigVaultServer;
 import com.constellio.data.dao.services.bigVault.solr.BigVaultServerTransaction;
 import com.constellio.data.dao.services.contents.ContentDao;
 import com.constellio.data.dao.services.contents.ContentDaoException.ContentDaoException_NoSuchContent;
@@ -85,7 +85,7 @@ public class XMLSecondTransactionLogManager implements SecondTransactionLogManag
 
 	private RecordDao recordDao;
 
-	private BigVaultServer bigVaultServer;
+	private SolrBigVaultServer bigVaultServer;
 
 	private ContentDao contentDao;
 

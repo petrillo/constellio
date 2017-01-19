@@ -1,6 +1,6 @@
 package com.constellio.model.services.search.services;
 
-import com.constellio.data.dao.services.bigVault.solr.BigVaultServer;
+import com.constellio.data.dao.services.bigVault.solr.SolrBigVaultServer;
 import com.constellio.data.io.concurrent.data.DataWithVersion;
 import com.constellio.data.io.concurrent.filesystem.AtomicFileSystem;
 import com.constellio.model.entities.records.Record;
@@ -21,10 +21,10 @@ import java.util.List;
  */
 public class ElevationServiceImpl implements ElevationService {
 	public static final String ELEVATE_FILE_NAME = "/elevate.xml";
-	private BigVaultServer server;
+	private SolrBigVaultServer server;
 	private ModelLayerFactory modelLayerFactory;
 
-	public ElevationServiceImpl(BigVaultServer server, ModelLayerFactory modelLayerFactory) {
+	public ElevationServiceImpl(SolrBigVaultServer server, ModelLayerFactory modelLayerFactory) {
 		this.server = server;
 		this.modelLayerFactory = modelLayerFactory;
 	}

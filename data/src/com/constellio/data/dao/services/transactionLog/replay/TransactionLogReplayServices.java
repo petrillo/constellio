@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.constellio.data.dao.services.DataLayerLogger;
-import com.constellio.data.dao.services.bigVault.solr.BigVaultServer;
+import com.constellio.data.dao.services.bigVault.solr.SolrBigVaultServer;
 import com.constellio.data.dao.services.bigVault.solr.BigVaultServerTransaction;
 import com.constellio.data.dao.services.bigVault.solr.BigVaultServerTransactionCombinator;
 import com.constellio.data.dao.services.transactionLog.TransactionLogReadWriteServices;
@@ -23,13 +23,13 @@ public class TransactionLogReplayServices {
 
 	private TransactionLogReadWriteServices readWriteServices;
 
-	private BigVaultServer bigVaultServer;
+	private SolrBigVaultServer bigVaultServer;
 
 	private DataLayerLogger dataLayerLogger;
 
 	public TransactionLogReplayServices(
 			TransactionLogReadWriteServices readWriteServices,
-			BigVaultServer bigVaultServer, DataLayerLogger dataLayerLogger) {
+			SolrBigVaultServer bigVaultServer, DataLayerLogger dataLayerLogger) {
 		this.readWriteServices = readWriteServices;
 		this.bigVaultServer = bigVaultServer;
 		this.dataLayerLogger = dataLayerLogger;

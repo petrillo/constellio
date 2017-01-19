@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
-import com.constellio.data.dao.services.bigVault.solr.BigVaultServer;
+import com.constellio.data.dao.services.bigVault.solr.SolrBigVaultServer;
 import com.constellio.data.io.concurrent.data.DataWithVersion;
 import com.constellio.data.io.concurrent.data.TextView;
 import com.constellio.data.io.concurrent.filesystem.AtomicFileSystem;
@@ -61,7 +61,7 @@ public class SynonymFeatureAcceptanceTest extends SolrSafeConstellioAcceptanceTe
 	private void setUpSynonymTests(String synonymFileContent)
 			throws Exception {
 		String synontyFilePath = "/synonyms.txt";
-		BigVaultServer server = getDataLayerFactory().getRecordsVaultServer();
+		SolrBigVaultServer server = getDataLayerFactory().getRecordsVaultServer();
 		AtomicFileSystem solrFileSystem = server.getSolrFileSystem();
 
 		DataWithVersion readData = solrFileSystem.readData(synontyFilePath);

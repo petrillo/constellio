@@ -33,8 +33,8 @@ public class SolrServersTest extends ConstellioTest {
 
 	@Test
 	public void givenNoSolrServerInstanciatedWhenGettingSolrServerThenCreateInstanceAndReuseIt() {
-		BigVaultServer solrServer = solrServers.getSolrServer(aCore);
-		BigVaultServer otherCallSolrServer = solrServers.getSolrServer(aCore);
+		SolrBigVaultServer solrServer = solrServers.getSolrServer(aCore);
+		SolrBigVaultServer otherCallSolrServer = solrServers.getSolrServer(aCore);
 		assertThat(solrServer.getNestedSolrServer()).isSameAs(aCoreFirstSolrServerInstance);
 		assertThat(otherCallSolrServer.getNestedSolrServer()).isSameAs(aCoreFirstSolrServerInstance);
 
@@ -45,8 +45,8 @@ public class SolrServersTest extends ConstellioTest {
 		solrServers.getSolrServer(aCore);
 		solrServers.close();
 
-		BigVaultServer solrServer = solrServers.getSolrServer(aCore);
-		BigVaultServer otherCallSolrServer = solrServers.getSolrServer(aCore);
+		SolrBigVaultServer solrServer = solrServers.getSolrServer(aCore);
+		SolrBigVaultServer otherCallSolrServer = solrServers.getSolrServer(aCore);
 		assertThat(solrServer.getNestedSolrServer()).isSameAs(aCoreSecondSolrServerInstance);
 		assertThat(otherCallSolrServer.getNestedSolrServer()).isSameAs(aCoreSecondSolrServerInstance);
 	}
@@ -75,8 +75,8 @@ public class SolrServersTest extends ConstellioTest {
 
 	@Test
 	public void whenGettingSolrServerWithDifferentCoreNamesThenReturnDifferentInstanceForEach() {
-		BigVaultServer solrServer = solrServers.getSolrServer(aCore);
-		BigVaultServer otherSolrServer = solrServers.getSolrServer(anOtherCore);
+		SolrBigVaultServer solrServer = solrServers.getSolrServer(aCore);
+		SolrBigVaultServer otherSolrServer = solrServers.getSolrServer(anOtherCore);
 		assertThat(solrServer.getNestedSolrServer()).isSameAs(aCoreFirstSolrServerInstance);
 		assertThat(otherSolrServer.getNestedSolrServer()).isSameAs(anotherCoreFirstSolrServerInstance);
 	}

@@ -56,7 +56,7 @@ import com.constellio.data.dao.services.bigVault.RecordDaoException.NoSuchRecord
 import com.constellio.data.dao.services.bigVault.RecordDaoRuntimeException.RecordDaoRuntimeException_RecordsFlushingFailed;
 import com.constellio.data.dao.services.bigVault.solr.BigVaultException;
 import com.constellio.data.dao.services.bigVault.solr.BigVaultRuntimeException;
-import com.constellio.data.dao.services.bigVault.solr.BigVaultServer;
+import com.constellio.data.dao.services.bigVault.solr.SolrBigVaultServer;
 import com.constellio.data.dao.services.bigVault.solr.BigVaultServerTransaction;
 import com.constellio.data.dao.services.bigVault.solr.SolrUtils;
 import com.constellio.data.dao.services.records.RecordDao;
@@ -81,7 +81,7 @@ public class BigVaultRecordDao implements RecordDao {
 	public static final String DELETED_FIELD = "deleted_s";
 	private static final String ID_FIELD = "id";
 	private static final String VERSION_FIELD = "_version_";
-	private final BigVaultServer bigVaultServer;
+	private final SolrBigVaultServer bigVaultServer;
 	private final DataStoreTypesFactory dataStoreTypesFactory;
 	private final DataLayerLogger dataLayerLogger;
 	private SecondTransactionLogManager secondTransactionLogManager;
@@ -92,7 +92,7 @@ public class BigVaultRecordDao implements RecordDao {
 
 	public static final Date NULL_DATE = new LocalDateTime(4242, 6, 6, 0, 0, 0, 0).toDate();
 
-	public BigVaultRecordDao(BigVaultServer bigVaultServer, DataStoreTypesFactory dataStoreTypesFactory,
+	public BigVaultRecordDao(SolrBigVaultServer bigVaultServer, DataStoreTypesFactory dataStoreTypesFactory,
 			SecondTransactionLogManager secondTransactionLogManager, DataLayerLogger dataLayerLogger) {
 		this.dataLayerLogger = dataLayerLogger;
 		this.bigVaultServer = bigVaultServer;
@@ -1318,7 +1318,7 @@ public class BigVaultRecordDao implements RecordDao {
 		return secondTransactionLogManager;
 	}
 
-	public BigVaultServer getBigVaultServer() {
+	public SolrBigVaultServer getBigVaultServer() {
 		return bigVaultServer;
 	}
 

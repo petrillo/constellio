@@ -31,7 +31,7 @@ import com.constellio.data.dao.services.bigVault.BigVaultRecordDao;
 import com.constellio.data.dao.services.bigVault.RecordDaoException;
 import com.constellio.data.dao.services.bigVault.solr.BigVaultException;
 import com.constellio.data.dao.services.bigVault.solr.BigVaultLogger;
-import com.constellio.data.dao.services.bigVault.solr.BigVaultServer;
+import com.constellio.data.dao.services.bigVault.solr.SolrBigVaultServer;
 import com.constellio.data.dao.services.contents.ContentDao;
 import com.constellio.data.dao.services.contents.FileSystemContentDao;
 import com.constellio.data.dao.services.contents.HadoopContentDao;
@@ -177,19 +177,19 @@ public class DataLayerFactory extends LayerFactory {
 		return contentDao;
 	}
 
-	public BigVaultServer getRecordsVaultServer() {
+	public SolrBigVaultServer getRecordsVaultServer() {
 		return solrServers.getSolrServer(RECORDS_COLLECTION);
 	}
 
-	public BigVaultServer getEventsVaultServer() {
+	public SolrBigVaultServer getEventsVaultServer() {
 		return solrServers.getSolrServer(EVENTS_COLLECTION);
 	}
 
-	public BigVaultServer getContentsVaultServer() {
+	public SolrBigVaultServer getContentsVaultServer() {
 		return solrServers.getSolrServer(CONTENTS_COLLECTION);
 	}
 
-	public BigVaultServer getNotificationsVaultServer() {
+	public SolrBigVaultServer getNotificationsVaultServer() {
 		return solrServers.getSolrServer(NOTIFICATIONS_COLLECTION);
 	}
 

@@ -39,7 +39,7 @@ import com.constellio.data.dao.dto.records.QueryResponseDTO;
 import com.constellio.data.dao.dto.records.RecordsFlushing;
 import com.constellio.data.dao.services.DataLayerLogger;
 import com.constellio.data.dao.services.bigVault.RecordDaoException;
-import com.constellio.data.dao.services.bigVault.solr.BigVaultServer;
+import com.constellio.data.dao.services.bigVault.solr.SolrBigVaultServer;
 import com.constellio.data.dao.services.bigVault.solr.BigVaultServerTransaction;
 import com.constellio.data.dao.services.bigVault.solr.SolrUtils;
 import com.constellio.data.dao.services.contents.ContentDao;
@@ -62,7 +62,7 @@ public class XMLSecondTransactionLogManagerRealTest extends ConstellioTest {
 
 	@Mock DataLayerConfiguration dataLayerConfiguration;
 
-	@Mock BigVaultServer bigVaultServer;
+	@Mock SolrBigVaultServer bigVaultServer;
 
 	@Mock RecordDao recordDao;
 

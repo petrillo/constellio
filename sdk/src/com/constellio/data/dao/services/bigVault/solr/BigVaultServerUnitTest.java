@@ -51,7 +51,7 @@ public class BigVaultServerUnitTest extends ConstellioTest {
 	@Mock List<SolrInputDocument> addedDocs, modifiedDocs;
 	@Mock List<SolrParams> deleteQueries;
 
-	BigVaultServer bigVaultServer;
+	SolrBigVaultServer bigVaultServer;
 	@Mock QueryResponse theQueryResponse;
 	@Mock SolrDocumentList theQueryResults;
 	@Mock SolrDocumentList emptyQueryResults;
@@ -63,7 +63,7 @@ public class BigVaultServerUnitTest extends ConstellioTest {
 		String serverName = "Test";
 		when(solrServerFactory.getConfigFileSystem(serverName)).thenReturn(solrFileSystem);
 		when(solrServerFactory.newSolrServer(serverName)).thenReturn(server);
-		bigVaultServer = spy(new BigVaultServer(serverName, BigVaultLogger.disabled(), solrServerFactory, extensions));
+		bigVaultServer = spy(new SolrBigVaultServer(serverName, BigVaultLogger.disabled(), solrServerFactory, extensions));
 		when(emptyQueryResults.size()).thenReturn(0);
 		when(twoElementsQueryResults.size()).thenReturn(2);
 	}

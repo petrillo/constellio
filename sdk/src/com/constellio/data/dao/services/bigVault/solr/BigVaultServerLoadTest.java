@@ -25,7 +25,7 @@ import com.constellio.sdk.tests.annotations.LoadTest;
 @LoadTest
 public class BigVaultServerLoadTest extends ConstellioTest {
 
-	BigVaultServer vaultServer;
+	SolrBigVaultServer vaultServer;
 
 	@Before
 	public void setUp()

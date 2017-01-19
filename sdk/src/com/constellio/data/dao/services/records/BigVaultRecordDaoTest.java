@@ -38,7 +38,7 @@ import com.constellio.data.dao.services.bigVault.RecordDaoException;
 import com.constellio.data.dao.services.bigVault.RecordDaoRuntimeException;
 import com.constellio.data.dao.services.bigVault.RecordDaoRuntimeException.RecordDaoRuntimeException_RecordsFlushingFailed;
 import com.constellio.data.dao.services.bigVault.solr.BigVaultException;
-import com.constellio.data.dao.services.bigVault.solr.BigVaultServer;
+import com.constellio.data.dao.services.bigVault.solr.SolrBigVaultServer;
 import com.constellio.data.dao.services.bigVault.solr.BigVaultServerTransaction;
 import com.constellio.data.dao.services.transactionLog.SecondTransactionLogManager;
 import com.constellio.sdk.tests.ConstellioTest;
@@ -48,7 +48,7 @@ public class BigVaultRecordDaoTest extends ConstellioTest {
 
 	List emptyList = new ArrayList<>();
 	@Mock DataLayerLogger dataLayerLogger;
-	@Mock BigVaultServer bigVaultServer;
+	@Mock SolrBigVaultServer bigVaultServer;
 	@Mock DataStoreTypesFactory dataStoreTypesFactory;
 	@Mock TransactionDTO transactionDTO;
 	String zeTransactionId = "zeTransactionId";

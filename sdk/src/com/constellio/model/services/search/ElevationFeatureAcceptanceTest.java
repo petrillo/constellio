@@ -1,6 +1,6 @@
 package com.constellio.model.services.search;
 
-import com.constellio.data.dao.services.bigVault.solr.BigVaultServer;
+import com.constellio.data.dao.services.bigVault.solr.SolrBigVaultServer;
 import com.constellio.data.io.concurrent.data.DataWithVersion;
 import com.constellio.data.io.concurrent.filesystem.AtomicFileSystem;
 import com.constellio.model.entities.records.Record;
@@ -39,7 +39,7 @@ public class ElevationFeatureAcceptanceTest extends SolrSafeConstellioAcceptance
 		assertThat(results).containsExactly(relevantDoc);
 
 		//when
-		BigVaultServer server = getDataLayerFactory().getRecordsVaultServer();
+		SolrBigVaultServer server = getDataLayerFactory().getRecordsVaultServer();
 		AtomicFileSystem solrFileSystem = server.getSolrFileSystem();
 		DataWithVersion readData = solrFileSystem.readData(ElevationServiceImpl.ELEVATE_FILE_NAME);
 		ElevationsView anElevationsView = readData.getView(new ElevationsView());

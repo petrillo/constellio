@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import com.constellio.data.dao.services.DataLayerLogger;
 import com.constellio.data.dao.services.bigVault.solr.BigVaultException;
-import com.constellio.data.dao.services.bigVault.solr.BigVaultServer;
+import com.constellio.data.dao.services.bigVault.solr.SolrBigVaultServer;
 import com.constellio.data.dao.services.bigVault.solr.BigVaultServerTransaction;
 import com.constellio.data.utils.ThreadList;
 
@@ -23,9 +23,9 @@ public class TransactionsLogImportHandler {
 	private ThreadList<TransactionsLogImportHandlerThread> threads = new ThreadList<>();
 	private int parallelism;
 	private Semaphore availableThreads;
-	private BigVaultServer bigVaultServer;
+	private SolrBigVaultServer bigVaultServer;
 
-	public TransactionsLogImportHandler(BigVaultServer bigVaultServer, DataLayerLogger dataLayerLogger, int parallelism) {
+	public TransactionsLogImportHandler(SolrBigVaultServer bigVaultServer, DataLayerLogger dataLayerLogger, int parallelism) {
 		this.dataLayerLogger = dataLayerLogger;
 		this.bigVaultServer = bigVaultServer;
 		this.parallelism = parallelism;

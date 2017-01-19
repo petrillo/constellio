@@ -27,7 +27,6 @@ import com.constellio.data.dao.services.bigVault.solr.BigVaultException.CouldNot
 import com.constellio.data.dao.services.bigVault.solr.BigVaultException.OptimisticLocking;
 import com.constellio.data.dao.services.factories.DataLayerFactory;
 import com.constellio.data.dao.services.solr.ConstellioSolrInputDocument;
-import com.constellio.data.extensions.DataLayerSystemExtensions;
 import com.constellio.sdk.tests.ConstellioTest;
 import com.constellio.sdk.tests.annotations.SlowTest;
 
@@ -36,9 +35,9 @@ public class BigVaultServerConcurrencyAcceptTest extends ConstellioTest {
 	private static final String transaction1 = "transaction1";
 	private static final String transaction2 = "transaction2";
 	private static final String transaction3 = "transaction3";
-	BigVaultServer vaultServer;
-	BigVaultServer anotherVaultServer;
-	BigVaultServer aThirdVaultServer;
+	SolrBigVaultServer vaultServer;
+	SolrBigVaultServer anotherVaultServer;
+	SolrBigVaultServer aThirdVaultServer;
 	private String gandalf = "gandalf";
 	private String edouard = "edouard";
 	private String dakota = "dakota";
@@ -49,7 +48,7 @@ public class BigVaultServerConcurrencyAcceptTest extends ConstellioTest {
 	public void setUp()
 			throws Exception {
 		givenDisabledAfterTestValidations();
-//		DataLayerFactory daosFactory = getDataLayerFactory();
+		//		DataLayerFactory daosFactory = getDataLayerFactory();
 		setupSolrServers();
 		//vaultServer = daosFactory.getRecordsVaultServer();
 		//anotherVaultServer = new BigVaultServer(vaultServer.getNestedSolrServer(), BigVaultLogger.disabled());
@@ -117,14 +116,14 @@ public class BigVaultServerConcurrencyAcceptTest extends ConstellioTest {
 
 	private void setupSolrServers() {
 
-//		DataLayerSystemExtensions extensions = new DataLayerSystemExtensions();
+		//		DataLayerSystemExtensions extensions = new DataLayerSystemExtensions();
 		DataLayerFactory daosFactory = (DataLayerFactory) getDataLayerFactory();
-		BigVaultServer recordsVaultServer = daosFactory.getRecordsVaultServer();
-		
-		vaultServer = recordsVaultServer.clone();
-		anotherVaultServer = recordsVaultServer.clone();
-		aThirdVaultServer = recordsVaultServer.clone();
-	} 
+		SolrBigVaultServer recordsVaultServer = daosFactory.getRecordsVaultServer();
+
+		vaultServer = recordsVaultServer.cloneServer();
+		anotherVaultServer = recordsVaultServer.cloneServer();
+		aThirdVaultServer = recordsVaultServer.cloneServer();
+	}
 
 	@Test
 	public void testDeathStarInvulnerability()
@@ -208,7 +207,7 @@ public class BigVaultServerConcurrencyAcceptTest extends ConstellioTest {
 
 	}
 
-	private boolean containsLockFor(String id, BigVaultServer solrServer)
+	private boolean containsLockFor(String id, SolrBigVaultServer solrServer)
 			throws CouldNotExecuteQuery {
 
 		ModifiableSolrParams params = new ModifiableSolrParams();
@@ -435,14 +434,14 @@ public class BigVaultServerConcurrencyAcceptTest extends ConstellioTest {
 				.describedAs("The test passed, but there wasn't enought conflict to prove it is correct");
 	}
 
-	boolean isExistingOnServer(String id, BigVaultServer solrServer)
+	boolean isExistingOnServer(String id, SolrBigVaultServer solrServer)
 			throws SolrServerException, CouldNotExecuteQuery {
 		ModifiableSolrParams params = new ModifiableSolrParams();
 		params.set("q", "id:" + id);
 		return solrServer.query(params).getResults().size() == 1;
 	}
 
-	Long getVersionOfDocumentOnServer(String id, BigVaultServer solrServer)
+	Long getVersionOfDocumentOnServer(String id, SolrBigVaultServer solrServer)
 			throws SolrServerException, CouldNotExecuteQuery {
 		ModifiableSolrParams params = new ModifiableSolrParams();
 		params.set("q", "id:" + id);

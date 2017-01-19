@@ -12,7 +12,7 @@ import com.constellio.data.dao.dto.records.TransactionDTO;
 import com.constellio.data.dao.dto.records.TransactionResponseDTO;
 import com.constellio.data.dao.services.DataStoreTypesFactory;
 import com.constellio.data.dao.services.bigVault.RecordDaoException;
-import com.constellio.data.dao.services.bigVault.solr.BigVaultServer;
+import com.constellio.data.dao.services.bigVault.solr.SolrBigVaultServer;
 
 public interface RecordDao {
 
@@ -42,7 +42,7 @@ public interface RecordDao {
 
 	void recreateZeroCounterIndexesIn(String collection, Iterator<RecordDTO> recordsIterator);
 
-	BigVaultServer getBigVaultServer();
+	SolrBigVaultServer getBigVaultServer();
 
 	void expungeDeletes();
 }
