@@ -118,11 +118,11 @@ public class BigVaultServerConcurrencyAcceptTest extends ConstellioTest {
 
 		//		DataLayerSystemExtensions extensions = new DataLayerSystemExtensions();
 		DataLayerFactory daosFactory = (DataLayerFactory) getDataLayerFactory();
-		SolrBigVaultServer recordsVaultServer = daosFactory.getRecordsVaultServer();
+		BigVaultServer recordsVaultServer = daosFactory.getRecordsVaultServer();
 
-		vaultServer = recordsVaultServer.cloneServer();
-		anotherVaultServer = recordsVaultServer.cloneServer();
-		aThirdVaultServer = recordsVaultServer.cloneServer();
+		vaultServer = (SolrBigVaultServer) recordsVaultServer.cloneServer();
+		anotherVaultServer = (SolrBigVaultServer) recordsVaultServer.cloneServer();
+		aThirdVaultServer = (SolrBigVaultServer) recordsVaultServer.cloneServer();
 	}
 
 	@Test
@@ -207,7 +207,7 @@ public class BigVaultServerConcurrencyAcceptTest extends ConstellioTest {
 
 	}
 
-	private boolean containsLockFor(String id, SolrBigVaultServer solrServer)
+	private boolean containsLockFor(String id, BigVaultServer solrServer)
 			throws CouldNotExecuteQuery {
 
 		ModifiableSolrParams params = new ModifiableSolrParams();
@@ -434,14 +434,14 @@ public class BigVaultServerConcurrencyAcceptTest extends ConstellioTest {
 				.describedAs("The test passed, but there wasn't enought conflict to prove it is correct");
 	}
 
-	boolean isExistingOnServer(String id, SolrBigVaultServer solrServer)
+	boolean isExistingOnServer(String id, BigVaultServer solrServer)
 			throws SolrServerException, CouldNotExecuteQuery {
 		ModifiableSolrParams params = new ModifiableSolrParams();
 		params.set("q", "id:" + id);
 		return solrServer.query(params).getResults().size() == 1;
 	}
 
-	Long getVersionOfDocumentOnServer(String id, SolrBigVaultServer solrServer)
+	Long getVersionOfDocumentOnServer(String id, BigVaultServer solrServer)
 			throws SolrServerException, CouldNotExecuteQuery {
 		ModifiableSolrParams params = new ModifiableSolrParams();
 		params.set("q", "id:" + id);

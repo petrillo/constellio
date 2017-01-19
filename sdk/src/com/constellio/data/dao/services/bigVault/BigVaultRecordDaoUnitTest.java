@@ -14,7 +14,7 @@ import org.mockito.MockitoAnnotations;
 
 import com.constellio.data.dao.services.DataLayerLogger;
 import com.constellio.data.dao.services.DataStoreTypesFactory;
-import com.constellio.data.dao.services.bigVault.solr.SolrBigVaultServer;
+import com.constellio.data.dao.services.bigVault.solr.BigVaultServer;
 
 public class BigVaultRecordDaoUnitTest {
 
@@ -26,7 +26,7 @@ public class BigVaultRecordDaoUnitTest {
 
 	@Mock DataLayerLogger dataLayerLogger;
 	@Mock DataStoreTypesFactory typesFactory;
-	@Mock SolrBigVaultServer bigVaultServer;
+	@Mock BigVaultServer bigVaultServer;
 
 	BigVaultRecordDao recordDao;
 

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -20,7 +21,10 @@ import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.client.solrj.util.ClientUtils;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.common.params.ModifiableSolrParams;
 import org.apache.solr.common.params.SolrParams;
 import org.apache.solr.common.params.UpdateParams;
 import org.apache.solr.common.util.NamedList;
@@ -32,6 +36,7 @@ import com.constellio.data.dao.services.bigVault.solr.BigVaultException.CouldNot
 import com.constellio.data.dao.services.bigVault.solr.BigVaultException.OptimisticLocking;
 import com.constellio.data.dao.services.bigVault.solr.BigVaultRuntimeException.BadRequest;
 import com.constellio.data.dao.services.bigVault.solr.BigVaultRuntimeException.SolrInternalError;
+import com.constellio.data.dao.services.bigVault.solr.BigVaultRuntimeException.TryingToRegisterListenerWithExistingId;
 import com.constellio.data.dao.services.bigVault.solr.listeners.BigVaultServerAddEditListener;
 import com.constellio.data.dao.services.bigVault.solr.listeners.BigVaultServerListener;
 import com.constellio.data.dao.services.bigVault.solr.listeners.BigVaultServerQueryListener;
@@ -39,6 +44,7 @@ import com.constellio.data.dao.services.idGenerator.UUIDV1Generator;
 import com.constellio.data.dao.services.solr.ConstellioSolrInputDocument;
 import com.constellio.data.dao.services.solr.DateUtils;
 import com.constellio.data.dao.services.solr.SolrServerFactory;
+import com.constellio.data.extensions.DataLayerSystemExtensions;
 import com.constellio.data.io.concurrent.filesystem.AtomicFileSystem;
 import com.constellio.data.utils.TimeProvider;
 import com.google.common.annotations.VisibleForTesting;
@@ -46,10 +52,6 @@ import com.google.common.annotations.VisibleForTesting;
 public interface BigVaultServer {
 
 	public SolrServerFactory getSolrServerFactory();
-
-	//chargement
-	public QueryResponse query(SolrParams params)
-			throws CouldNotExecuteQuery;
 
 	public void softCommit()
 			throws IOException, SolrServerException;
@@ -70,4 +72,25 @@ public interface BigVaultServer {
 	public void disableLogger();
 
 	public void expungeDeletes();
+
+	public void registerListener(BigVaultServerListener listener);
+
+	public void unregisterListener(BigVaultServerListener listener);
+
+	public String getName();
+
+	public void setExtensions(DataLayerSystemExtensions extensions);
+
+	public SolrDocumentList queryResults(SolrParams params)
+			throws BigVaultException.CouldNotExecuteQuery;
+
+	public QueryResponse query(SolrParams params)
+			throws CouldNotExecuteQuery;
+
+	public SolrDocument querySingleResult(SolrParams params)
+			throws BigVaultException;
+
+	public long countDocuments();
+
+	public void unregisterAllListeners();
 }

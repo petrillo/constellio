@@ -97,7 +97,7 @@ public class BigVaultServerUnitTest extends ConstellioTest {
 		inOrder.verify(bigVaultServer).add(t3);
 		inOrder.verify(bigVaultServer).add(t4);
 	}
-	
+
 	@Test(expected = BigVaultException.NonUniqueResult.class)
 	public void givenNonUniqueResultsWhenQuerySingleResultThenThrowNonUniqueResultException()
 			throws Exception {
@@ -105,7 +105,7 @@ public class BigVaultServerUnitTest extends ConstellioTest {
 		when(theQueryResponse.getResults()).thenReturn(twoElementsQueryResults);
 
 		bigVaultServer.querySingleResult(solrParams);
-	} 
+	}
 
 	@Test(expected = BigVaultException.NoResult.class)
 	public void givenNoResultWhenQuerySingleResultThenThrowNoResultException()

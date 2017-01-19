@@ -33,7 +33,7 @@ import com.constellio.data.dao.managers.StatefulService;
 import com.constellio.data.dao.managers.StatefullServiceDecorator;
 import com.constellio.data.dao.services.bigVault.solr.BigVaultException;
 import com.constellio.data.dao.services.bigVault.solr.BigVaultException.CouldNotExecuteQuery;
-import com.constellio.data.dao.services.bigVault.solr.SolrBigVaultServer;
+import com.constellio.data.dao.services.bigVault.solr.BigVaultServer;
 import com.constellio.data.dao.services.bigVault.solr.BigVaultServerTransaction;
 import com.constellio.data.dao.services.factories.DataLayerFactory;
 import com.constellio.data.extensions.DataLayerSystemExtensions;
@@ -93,7 +93,7 @@ public class FactoriesTestFeatures {
 	public void clear() {
 		factoriesInstance = getConstellioFactories();
 		DataLayerConfiguration conf = factoriesInstance.getDataLayerConfiguration();
-		for (SolrBigVaultServer server : factoriesInstance.getDataLayerFactory().getSolrServers().getServers()) {
+		for (BigVaultServer server : factoriesInstance.getDataLayerFactory().getSolrServers().getServers()) {
 			deleteServerRecords(server);
 		}
 
@@ -142,9 +142,9 @@ public class FactoriesTestFeatures {
 		}
 	}
 
-	private void deleteServerRecords(SolrBigVaultServer server) {
+	private void deleteServerRecords(BigVaultServer server) {
 
-		SolrBigVaultServer vaultServer = server.cloneServer();
+		BigVaultServer vaultServer = server.cloneServer();
 		vaultServer.unregisterAllListeners();
 		vaultServer.disableLogger();
 		vaultServer.setExtensions(new DataLayerSystemExtensions());

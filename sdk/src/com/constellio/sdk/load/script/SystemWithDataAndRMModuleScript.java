@@ -30,7 +30,7 @@ import com.constellio.app.modules.rm.wrappers.Document;
 import com.constellio.app.modules.rm.wrappers.Folder;
 import com.constellio.app.services.factories.AppLayerFactory;
 import com.constellio.data.dao.dto.records.RecordsFlushing;
-import com.constellio.data.dao.services.bigVault.solr.SolrBigVaultServer;
+import com.constellio.data.dao.services.bigVault.solr.BigVaultServer;
 import com.constellio.data.dao.services.bigVault.solr.BigVaultServerTransaction;
 import com.constellio.data.io.services.facades.IOServices;
 import com.constellio.data.utils.BigFileEntry;
@@ -186,7 +186,7 @@ public class SystemWithDataAndRMModuleScript implements DemoInitScript {
 			setupCollection(collection, appLayerFactory);
 		}
 
-		SolrBigVaultServer bigVaultServer = modelLayerFactory.getDataLayerFactory().getRecordsVaultServer();
+		BigVaultServer bigVaultServer = modelLayerFactory.getDataLayerFactory().getRecordsVaultServer();
 		bigVaultServer.addAll(new BigVaultServerTransaction(RecordsFlushing.NOW()).setDeletedQueries(asList("type_s:marker")));
 	}
 

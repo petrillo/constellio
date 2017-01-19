@@ -11,7 +11,7 @@ import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.constellio.data.dao.services.bigVault.solr.SolrBigVaultServer;
+import com.constellio.data.dao.services.bigVault.solr.BigVaultServer;
 import com.constellio.data.dao.services.factories.DataLayerFactory;
 import com.constellio.data.dao.services.records.RecordDao;
 import com.constellio.data.io.concurrent.filesystem.AtomicFileSystem;
@@ -73,7 +73,7 @@ public class SolrSafeConstellioAcceptanceTest extends ConstellioTest {
 
 	private void syncSolrConfigurationFiles() {
 		DataLayerFactory dataLayerFactory = getDataLayerFactory();
-		for (SolrBigVaultServer server : dataLayerFactory.getSolrServers().getServers()) {
+		for (BigVaultServer server : dataLayerFactory.getSolrServers().getServers()) {
 			AtomicFileSystem serverFileSystem = server.getSolrFileSystem();
 			AtomicFileSystem defaultConfiguration = new ChildAtomicFileSystem(
 					new AtomicLocalFileSystem(dataLayerFactory.getIOServicesFactory().newHashingService(BASE64)),

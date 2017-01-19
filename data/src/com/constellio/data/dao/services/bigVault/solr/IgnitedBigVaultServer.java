@@ -18,17 +18,17 @@ import com.constellio.data.io.concurrent.filesystem.AtomicFileSystem;
 
 public class IgnitedBigVaultServer extends BaseBigVaultServer {
 
-	SolrBigVaultServer solrBigVaultServer;
+	BigVaultServer BigVaultServer;
 
-	public IgnitedBigVaultServer(SolrBigVaultServer solrBigVaultServer) {
-		super(solrBigVaultServer.name, solrBigVaultServer.extensions);
-		this.solrBigVaultServer = solrBigVaultServer;
+	public IgnitedBigVaultServer(SolrBigVaultServer BigVaultServer) {
+		super(BigVaultServer.name, BigVaultServer.extensions);
+		this.BigVaultServer = BigVaultServer;
 	}
 
 	public IgnitedBigVaultServer(List<BigVaultServerListener> listeners,
-			SolrBigVaultServer solrBigVaultServer) {
-		super(solrBigVaultServer.name, solrBigVaultServer.extensions, listeners);
-		this.solrBigVaultServer = solrBigVaultServer;
+			SolrBigVaultServer BigVaultServer) {
+		super(BigVaultServer.name, BigVaultServer.extensions, listeners);
+		this.BigVaultServer = BigVaultServer;
 	}
 
 	@Override
@@ -62,32 +62,32 @@ public class IgnitedBigVaultServer extends BaseBigVaultServer {
 
 	@Override
 	public SolrClient getNestedSolrServer() {
-		return solrBigVaultServer.getNestedSolrServer();
+		return BigVaultServer.getNestedSolrServer();
 	}
 
 	@Override
 	public AtomicFileSystem getSolrFileSystem() {
-		return solrBigVaultServer.getSolrFileSystem();
+		return BigVaultServer.getSolrFileSystem();
 	}
 
 	@Override
 	public void removeLockWithAgeGreaterThan(int ageInSeconds) {
-		solrBigVaultServer.removeLockWithAgeGreaterThan(ageInSeconds);
+		BigVaultServer.removeLockWithAgeGreaterThan(ageInSeconds);
 	}
 
 	@Override
 	public void reload() {
-		solrBigVaultServer.reload();
+		BigVaultServer.reload();
 	}
 
 	@Override
 	public BigVaultServer cloneServer() {
-		return new IgnitedBigVaultServer(new ArrayList<>(listeners), (SolrBigVaultServer) solrBigVaultServer.cloneServer());
+		return new IgnitedBigVaultServer(new ArrayList<>(listeners), (SolrBigVaultServer) BigVaultServer.cloneServer());
 	}
 
 	@Override
 	public void expungeDeletes() {
-		solrBigVaultServer.expungeDeletes();
+		BigVaultServer.expungeDeletes();
 	}
 
 }

@@ -52,7 +52,7 @@ public class SolrBigVaultServer extends BaseBigVaultServer implements Cloneable 
 	private static final int HTTP_ERROR_409_CONFLICT = 409;
 	private static final int HTTP_ERROR_400_BAD_REQUEST = 400;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(SolrBigVaultServer.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(BigVaultServer.class);
 	private final int maxFailAttempt = 10;
 	private final int waitedMillisecondsBetweenAttempts = 500;
 

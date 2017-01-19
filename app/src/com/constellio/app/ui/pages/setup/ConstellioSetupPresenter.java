@@ -29,7 +29,7 @@ import com.constellio.app.ui.pages.setup.ConstellioSetupPresenterException.Const
 import com.constellio.app.ui.pages.setup.ConstellioSetupPresenterException.ConstellioSetupPresenterException_TasksCannotBeTheOnlySelectedModule;
 import com.constellio.data.conf.DataLayerConfiguration;
 import com.constellio.data.dao.services.DataLayerLogger;
-import com.constellio.data.dao.services.bigVault.solr.SolrBigVaultServer;
+import com.constellio.data.dao.services.bigVault.solr.BigVaultServer;
 import com.constellio.data.dao.services.transactionLog.TransactionLogReadWriteServices;
 import com.constellio.data.dao.services.transactionLog.replay.TransactionLogReplayServices;
 import com.constellio.data.extensions.DataLayerSystemExtensions;
@@ -226,7 +226,7 @@ public class ConstellioSetupPresenter extends BasePresenter<ConstellioSetupView>
 				IOServices ioServices = modelLayerFactory.getIOServicesFactory().newIOServices();
 				File settingsFolder = dataLayerConfiguration.getSettingsFileSystemBaseFolder();
 				File contentsFolder = dataLayerConfiguration.getContentDaoFileSystemFolder();
-				SolrBigVaultServer bigVaultServer = modelLayerFactory.getDataLayerFactory().getContentsVaultServer();
+				BigVaultServer bigVaultServer = modelLayerFactory.getDataLayerFactory().getContentsVaultServer();
 				DataLayerSystemExtensions dataLayerSystemExtensions = modelLayerFactory
 						.getDataLayerFactory().getExtensions().getSystemWideExtensions();
 				ConstellioFactories.clear();
