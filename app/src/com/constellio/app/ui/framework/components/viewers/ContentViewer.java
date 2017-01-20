@@ -1,9 +1,5 @@
 package com.constellio.app.ui.framework.components.viewers;
 
-import java.util.Arrays;
-
-import org.apache.commons.io.FilenameUtils;
-
 import com.constellio.app.modules.rm.ui.entities.DocumentVO;
 import com.constellio.app.modules.rm.wrappers.Document;
 import com.constellio.app.ui.entities.ContentVersionVO;
@@ -14,6 +10,10 @@ import com.constellio.app.ui.framework.components.viewers.image.ImageViewer;
 import com.constellio.app.ui.framework.components.viewers.video.VideoViewer;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
+
+import java.util.Arrays;
 
 public class ContentViewer extends CustomComponent {
 	
@@ -22,7 +22,7 @@ public class ContentViewer extends CustomComponent {
 	public ContentViewer(RecordVO recordVO, String metadataCode, ContentVersionVO contentVersionVO) {
 		if (contentVersionVO != null) {
 			String filename = contentVersionVO.getFileName();
-			String extension = FilenameUtils.getExtension(filename);
+			String extension = StringUtils.lowerCase(FilenameUtils.getExtension(filename));
 			
 			if (Arrays.asList(ImageViewer.SUPPORTED_EXTENSIONS).contains(extension)) {
 				ImageViewer imageViewer = new ImageViewer(recordVO, Document.CONTENT, contentVersionVO);

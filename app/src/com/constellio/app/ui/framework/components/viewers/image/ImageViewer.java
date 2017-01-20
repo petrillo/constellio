@@ -1,16 +1,5 @@
 package com.constellio.app.ui.framework.components.viewers.image;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.Arrays;
-
-import javax.imageio.ImageIO;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.tika.io.IOUtils;
-
 import com.constellio.app.ui.entities.ContentVersionVO;
 import com.constellio.app.ui.entities.RecordVO;
 import com.constellio.app.ui.framework.components.resource.ConstellioResourceHandler;
@@ -22,6 +11,16 @@ import com.vaadin.server.ResourceReference;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.tika.io.IOUtils;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.Arrays;
 
 @JavaScript({ "theme://jquery/jquery-2.1.4.min.js", "theme://iviewer/jquery-ui.min.js", "theme://iviewer/jquery.mousewheel.min.js", "theme://iviewer/jquery.iviewer.min.js" })
 @StyleSheet("theme://iviewer/jquery.iviewer.css")
@@ -134,7 +133,7 @@ public class ImageViewer extends CustomComponent {
 	}
 	
 	public static boolean isSupported(String filename) {
-		String extension = FilenameUtils.getExtension(filename);
+		String extension = StringUtils.lowerCase(FilenameUtils.getExtension(filename));
 		return Arrays.asList(SUPPORTED_EXTENSIONS).contains(extension);
 	}
 

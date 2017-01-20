@@ -1,15 +1,15 @@
 package com.constellio.app.ui.framework.components.viewers.video;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.commons.io.FilenameUtils;
-
 import com.constellio.app.ui.entities.ContentVersionVO;
 import com.constellio.app.ui.framework.components.content.ContentVersionVOResource;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Video;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 //import com.kbdunn.vaadin.addons.mediaelement.MediaElementPlayer;
 //import com.kbdunn.vaadin.addons.mediaelement.MediaElementPlayerOptions;
@@ -24,7 +24,7 @@ public class VideoViewer extends CustomComponent {
 	public VideoViewer(ContentVersionVO contentVersionVO) {
 		try {
 			final String filename = contentVersionVO.getFileName();
-			final String extension = FilenameUtils.getExtension(filename);
+			final String extension = StringUtils.lowerCase(FilenameUtils.getExtension(filename));
 
 			final int width = 720;
 			final int height = 480;

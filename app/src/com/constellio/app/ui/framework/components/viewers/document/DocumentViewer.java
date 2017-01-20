@@ -1,17 +1,5 @@
 package com.constellio.app.ui.framework.components.viewers.document;
 
-import java.io.File;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-
 import com.constellio.app.modules.rm.extensions.RMDownloadContentVersionLinkExtension;
 import com.constellio.app.services.factories.ConstellioFactories;
 import com.constellio.app.ui.entities.ContentVersionVO;
@@ -26,6 +14,18 @@ import com.vaadin.server.ResourceReference;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
+import java.io.File;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DocumentViewer extends CustomComponent {
 
@@ -93,7 +93,7 @@ public class DocumentViewer extends CustomComponent {
 			if (recordVO != null) {
 				String version = contentVersionVO.getVersion();
 				String filename = contentVersionVO.getFileName();
-				String extension = FilenameUtils.getExtension(filename);
+				String extension = StringUtils.lowerCase(FilenameUtils.getExtension(filename));
 
 				File documentViewerFile;
 				if (useCache) {
@@ -151,7 +151,7 @@ public class DocumentViewer extends CustomComponent {
 	}
 	
 	public static boolean isSupported(String filename) {
-		String extension = FilenameUtils.getExtension(filename);
+		String extension = StringUtils.lowerCase(FilenameUtils.getExtension(filename));
 		return Arrays.asList(SUPPORTED_EXTENSIONS).contains(extension);
 	}
 

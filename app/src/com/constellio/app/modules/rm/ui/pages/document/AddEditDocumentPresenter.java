@@ -1,19 +1,5 @@
 package com.constellio.app.modules.rm.ui.pages.document;
 
-import static com.constellio.app.ui.i18n.i18n.$;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.joda.time.LocalDateTime;
-
 import com.constellio.app.modules.rm.RMConfigs;
 import com.constellio.app.modules.rm.constants.RMPermissionsTo;
 import com.constellio.app.modules.rm.model.CopyRetentionRuleInRule;
@@ -21,13 +7,9 @@ import com.constellio.app.modules.rm.model.enums.FolderStatus;
 import com.constellio.app.modules.rm.navigation.RMViews;
 import com.constellio.app.modules.rm.services.RMSchemasRecordsServices;
 import com.constellio.app.modules.rm.ui.builders.DocumentToVOBuilder;
-import com.constellio.app.modules.rm.ui.components.document.fields.CustomDocumentField;
-import com.constellio.app.modules.rm.ui.components.document.fields.DocumentContentField;
+import com.constellio.app.modules.rm.ui.components.document.fields.*;
 import com.constellio.app.modules.rm.ui.components.document.fields.DocumentContentField.ContentUploadedListener;
 import com.constellio.app.modules.rm.ui.components.document.fields.DocumentContentField.NewFileClickListener;
-import com.constellio.app.modules.rm.ui.components.document.fields.DocumentCopyRuleField;
-import com.constellio.app.modules.rm.ui.components.document.fields.DocumentFolderField;
-import com.constellio.app.modules.rm.ui.components.document.fields.DocumentTypeField;
 import com.constellio.app.modules.rm.ui.components.document.newFile.NewFileWindow.NewFileCreatedListener;
 import com.constellio.app.modules.rm.ui.entities.DocumentVO;
 import com.constellio.app.modules.rm.wrappers.Document;
@@ -56,6 +38,19 @@ import com.constellio.model.entities.schemas.entries.DataEntryType;
 import com.constellio.model.services.contents.ContentManager;
 import com.constellio.model.services.contents.ContentVersionDataSummary;
 import com.constellio.model.services.users.UserServices;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.LocalDateTime;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import static com.constellio.app.ui.i18n.i18n.$;
 
 public class AddEditDocumentPresenter extends SingleSchemaBasePresenter<AddEditDocumentView> {
 	private transient ContentVersionToVOBuilder contentVersionToVOBuilder;
@@ -215,7 +210,7 @@ public class AddEditDocumentPresenter extends SingleSchemaBasePresenter<AddEditD
 		contentVersionVO.setVersion(null);
 
 		String filename = contentVersion.getFilename();
-		String extension = FilenameUtils.getExtension(filename);
+		String extension = StringUtils.lowerCase(FilenameUtils.getExtension(filename));
 		if ("eml".equals(extension) || "msg".equals(extension)) {
 			InputStream messageInputStream = contentVersionVO.getInputStreamProvider().getInputStream("populateFromUserDocument");
 			Email email = rmSchemasRecordsServices.newEmail(filename, messageInputStream);
@@ -298,7 +293,7 @@ public class AddEditDocumentPresenter extends SingleSchemaBasePresenter<AddEditD
 		if (documentVO.getContent() != null) {
 			String currentTitle = document.getTitle();
 			String currentContentFilename = documentVO.getContent().getFileName();
-			String extension = FilenameUtils.getExtension(currentContentFilename);
+			String extension = StringUtils.lowerCase(FilenameUtils.getExtension(currentContentFilename));
 			if (currentTitle.endsWith("." + extension)) {
 				document.getContent().renameCurrentVersion(currentTitle);
 			}

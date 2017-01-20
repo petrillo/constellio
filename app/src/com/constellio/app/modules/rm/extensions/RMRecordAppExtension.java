@@ -1,7 +1,5 @@
 package com.constellio.app.modules.rm.extensions;
 
-import org.apache.commons.io.FilenameUtils;
-
 import com.constellio.app.extensions.records.RecordAppExtension;
 import com.constellio.app.extensions.records.params.BuildRecordVOParams;
 import com.constellio.app.extensions.records.params.GetIconPathParams;
@@ -18,6 +16,8 @@ import com.constellio.model.entities.schemas.Metadata;
 import com.constellio.model.entities.schemas.MetadataSchemaTypes;
 import com.constellio.model.services.schemas.MetadataSchemasManager;
 import com.constellio.model.services.schemas.SchemaUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 
 public class RMRecordAppExtension extends RecordAppExtension {
 	
@@ -43,7 +43,7 @@ public class RMRecordAppExtension extends RecordAppExtension {
 			ContentVersionVO contentVersion = recordVO.getMetadataValue(recordVO.getMetadata(Document.CONTENT)).getValue();
 			if (contentVersion != null) {
 				resourceKey = contentVersion.getFileName();
-				extension = FilenameUtils.getExtension(resourceKey);
+				extension = StringUtils.lowerCase(FilenameUtils.getExtension(resourceKey));
 			} else {
 				resourceKey = null;
 				extension = "document";

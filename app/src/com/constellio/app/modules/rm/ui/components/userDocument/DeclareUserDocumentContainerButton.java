@@ -1,9 +1,5 @@
 package com.constellio.app.modules.rm.ui.components.userDocument;
 
-import static com.constellio.app.ui.i18n.i18n.$;
-
-import org.apache.commons.io.FilenameUtils;
-
 import com.constellio.app.ui.application.ConstellioUI;
 import com.constellio.app.ui.entities.UserDocumentVO;
 import com.constellio.app.ui.framework.buttons.BaseButton;
@@ -12,13 +8,12 @@ import com.constellio.app.ui.framework.buttons.WindowButton.WindowConfiguration;
 import com.constellio.app.ui.framework.containers.ButtonsContainer.ContainerButton;
 import com.vaadin.server.Resource;
 import com.vaadin.server.ThemeResource;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
+import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
+
+import static com.constellio.app.ui.i18n.i18n.$;
 
 public class DeclareUserDocumentContainerButton extends ContainerButton {
 
@@ -27,7 +22,7 @@ public class DeclareUserDocumentContainerButton extends ContainerButton {
 		Button declareUserDocumentButton;
 		final UserDocumentVO userDocumentVO = (UserDocumentVO) itemId;
 		String filename = userDocumentVO.getFileName();
-		String extension = FilenameUtils.getExtension(filename);
+		String extension = StringUtils.lowerCase(FilenameUtils.getExtension(filename));
 		Resource icon = new ThemeResource("images/icons/folder/folder_into.png");
 		if ("eml".equals(extension) || "msg".equals(extension)) {
 			declareUserDocumentButton = new WindowButton(icon, $("ListUserDocumentsView.declareDocument"),

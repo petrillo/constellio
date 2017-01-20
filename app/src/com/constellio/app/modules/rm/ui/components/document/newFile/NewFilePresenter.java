@@ -1,15 +1,5 @@
 package com.constellio.app.modules.rm.ui.components.document.newFile;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-
 import com.constellio.app.modules.rm.services.RMSchemasRecordsServices;
 import com.constellio.app.modules.rm.ui.util.NewFileUtils;
 import com.constellio.app.services.factories.AppLayerFactory;
@@ -19,6 +9,15 @@ import com.constellio.model.services.contents.ContentManager;
 import com.constellio.model.services.contents.ContentVersionDataSummary;
 import com.constellio.model.services.factories.ModelLayerFactory;
 import com.constellio.model.services.users.UserServices;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class NewFilePresenter implements Serializable {
 
@@ -60,7 +59,7 @@ public class NewFilePresenter implements Serializable {
 			}
 		} else {
 			if (StringUtils.isNotBlank(filename)) {
-				String fileExtension = FilenameUtils.getExtension(templateContent.getCurrentVersion().getFilename());
+				String fileExtension = StringUtils.lowerCase(FilenameUtils.getExtension(templateContent.getCurrentVersion().getFilename()));
 				filename += "." + fileExtension;
 			}
 		}
@@ -89,12 +88,12 @@ public class NewFilePresenter implements Serializable {
 
 	private boolean isFilenameValid(String fileName) {
 		List<String> supportedExtensions = NewFileUtils.getSupportedExtensions();
-		String extension = FilenameUtils.getExtension(fileName);
+		String extension = StringUtils.lowerCase(FilenameUtils.getExtension(fileName));
 		return supportedExtensions.contains(extension);
 	}
 
 	private Content createNewFile(String fileName) {
-		String extension = FilenameUtils.getExtension(fileName);
+		String extension = StringUtils.lowerCase(FilenameUtils.getExtension(fileName));
 
 		String collection = window.getSessionContext().getCurrentCollection();
 		String username = window.getSessionContext().getCurrentUser().getUsername();
