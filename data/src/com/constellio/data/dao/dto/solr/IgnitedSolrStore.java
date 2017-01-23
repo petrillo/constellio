@@ -1,13 +1,10 @@
 package com.constellio.data.dao.dto.solr;
 
-import static java.util.Arrays.asList;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import javax.cache.Cache.Entry;
 import javax.cache.configuration.Factory;
@@ -25,11 +22,15 @@ import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.ModifiableSolrParams;
 import org.apache.solr.common.params.UpdateParams;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.constellio.data.dao.services.bigVault.solr.BigVaultUpdateRequest;
 import com.constellio.data.utils.ImpossibleRuntimeException;
 
 public class IgnitedSolrStore extends CacheStoreAdapter<String, SolrDocument> {
+
+	private static Logger LOGGER = LoggerFactory.getLogger(IgnitedSolrStore.class);
 
 	SolrClient nestedSolrClient;
 
@@ -40,6 +41,8 @@ public class IgnitedSolrStore extends CacheStoreAdapter<String, SolrDocument> {
 	@Override
 	public SolrDocument load(String key)
 			throws CacheLoaderException {
+
+		LOGGER.info("load('" + key + "')");
 
 		ModifiableSolrParams params = new ModifiableSolrParams();
 		params.add("q", "id:" + key);
@@ -156,12 +159,12 @@ public class IgnitedSolrStore extends CacheStoreAdapter<String, SolrDocument> {
 	}
 
 	private void softCommit() {
-		try {
-			nestedSolrClient.commit(true, true, true);
-		} catch (SolrServerException e) {
-			throw new RuntimeException(e);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		//		try {
+		//			nestedSolrClient.commit(true, true, true);
+		//		} catch (SolrServerException e) {
+		//			throw new RuntimeException(e);
+		//		} catch (IOException e) {
+		//			throw new RuntimeException(e);
+		//		}
 	}
 }

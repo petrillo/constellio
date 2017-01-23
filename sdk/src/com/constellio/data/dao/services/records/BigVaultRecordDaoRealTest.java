@@ -393,6 +393,7 @@ public class BigVaultRecordDaoRealTest extends ConstellioTest {
 		assertThat(record.getFields()).doesNotContainKey("field_t_fr");
 		assertThat(record.getFields()).doesNotContainKey("field_txt_fr");
 		assertThat(record.getFields()).doesNotContainKey("fields_txt_fr");
+		recordDao.flush();
 		assertThat(recordDao.searchQuery(new ModifiableSolrParams().set("q", "field_t_fr:banane"))).hasSize(1);
 		assertThat(recordDao.searchQuery(new ModifiableSolrParams().set("q", "field_txt_fr:banane"))).hasSize(1);
 		assertThat(recordDao.searchQuery(new ModifiableSolrParams().set("q", "fields_txt_fr:banane"))).hasSize(1);
@@ -412,6 +413,7 @@ public class BigVaultRecordDaoRealTest extends ConstellioTest {
 		assertThat(record.getFields()).doesNotContainKey("field_t_en");
 		assertThat(record.getFields()).doesNotContainKey("field_txt_en");
 		assertThat(record.getFields()).doesNotContainKey("fields_txt_en");
+		recordDao.flush();
 		assertThat(recordDao.searchQuery(new ModifiableSolrParams().set("q", "field_t_en:banana"))).hasSize(1);
 		assertThat(recordDao.searchQuery(new ModifiableSolrParams().set("q", "field_txt_en:banana"))).hasSize(1);
 		assertThat(recordDao.searchQuery(new ModifiableSolrParams().set("q", "fields_txt_en:banana"))).hasSize(1);
@@ -661,6 +663,7 @@ public class BigVaultRecordDaoRealTest extends ConstellioTest {
 		assertThat(record.getFields()).doesNotContainKey("field_t_fr");
 		assertThat(record.getFields()).doesNotContainKey("field_txt_fr");
 		assertThat(record.getFields()).doesNotContainKey("fields_txt_fr");
+		recordDao.flush();
 		assertThat(recordDao.searchQuery(new ModifiableSolrParams().set("q", "field_t_fr:banane"))).hasSize(1);
 		assertThat(recordDao.searchQuery(new ModifiableSolrParams().set("q", "field_txt_fr:banane"))).hasSize(1);
 		assertThat(recordDao.searchQuery(new ModifiableSolrParams().set("q", "fields_txt_fr:banane"))).hasSize(1);
@@ -680,6 +683,7 @@ public class BigVaultRecordDaoRealTest extends ConstellioTest {
 		assertThat(record.getFields()).doesNotContainKey("field_t_en");
 		assertThat(record.getFields()).doesNotContainKey("field_txt_en");
 		assertThat(record.getFields()).doesNotContainKey("fields_txt_en");
+		recordDao.flush();
 		assertThat(recordDao.searchQuery(new ModifiableSolrParams().set("q", "field_t_en:banana"))).hasSize(1);
 		assertThat(recordDao.searchQuery(new ModifiableSolrParams().set("q", "field_txt_en:banana"))).hasSize(1);
 		assertThat(recordDao.searchQuery(new ModifiableSolrParams().set("q", "fields_txt_en:banana"))).hasSize(1);
@@ -1067,6 +1071,7 @@ public class BigVaultRecordDaoRealTest extends ConstellioTest {
 			throws Exception {
 		RecordDTO firstAlreadySavedRecord = givenSavedRecordWithInitialValueInSavedMetadataFieldName();
 		RecordDTO secondAlreadySavedRecord = givenSavedRecordWithInitialValueInSavedMetadataFieldName();
+		recordDao.flush();
 		long initialDocumentsCount = recordDao.documentsCount();
 		RecordDTO firstAddedRecord = new RecordDTO(nextID(), asStringObjectMap(savedMetadataFieldName, "firstAdded"));
 		RecordDTO secondAddedRecord = new RecordDTO(nextID(), asStringObjectMap(savedMetadataFieldName, "secondAdded"));
@@ -1080,6 +1085,7 @@ public class BigVaultRecordDaoRealTest extends ConstellioTest {
 		recordDao.execute(transaction);
 		RecordDTO firstModifiedRecord = recordDao.get(firstAlreadySavedRecord.getId());
 		RecordDTO secondModifiedRecord = recordDao.get(secondAlreadySavedRecord.getId());
+		recordDao.flush();
 
 		assertThat(recordDao.documentsCount()).isEqualTo(initialDocumentsCount + 2);
 		assertThat(firstAddedRecord.getFields().get(savedMetadataFieldName)).isEqualTo("firstAdded");
@@ -1151,6 +1157,7 @@ public class BigVaultRecordDaoRealTest extends ConstellioTest {
 		RecordDTO fourthAlreadySavedRecordWhichIsDeletedById = givenSavedRecordWithInitialValueInSavedMetadataFieldName();
 		RecordDTO fifthAlreadySavedRecordWhichIsDeletedByQuery = givenSavedRecordWithValueInSavedMetadataFieldName("666");
 		updateRecordChangingItsVersion(firstAlreadySavedRecord);
+		recordDao.flush();
 		printTimeElapsedSinceLastCall("1");
 		long initialDocumentsCount = recordDao.documentsCount();
 
@@ -1173,6 +1180,7 @@ public class BigVaultRecordDaoRealTest extends ConstellioTest {
 		}
 
 		updateRecordChangingItsVersion(firstAlreadySavedRecord);
+		recordDao.flush();
 		printTimeElapsedSinceLastCall("3");
 
 		secondAlreadySavedRecord = recordDao.get(secondAlreadySavedRecord.getId());
@@ -1195,6 +1203,7 @@ public class BigVaultRecordDaoRealTest extends ConstellioTest {
 				asList(firstAddedRecord, secondAddedRecord), asList(secondUpdatedRecord),
 				asList(thirdAlreadySavedRecordWhichIsDeletedById, fourthAlreadySavedRecordWhichIsDeletedById), deleteByQueries);
 		recordDao.execute(transaction);
+		recordDao.flush();
 		printTimeElapsedSinceLastCall("5");
 		assertThat(getFieldValue(secondUpdatedRecord.getId(), savedMetadataFieldName)).isEqualTo("secondModified");
 		printTimeElapsedSinceLastCall("5a");
@@ -1228,6 +1237,7 @@ public class BigVaultRecordDaoRealTest extends ConstellioTest {
 		RecordDTO record1 = saveRecordWithFieldsAndLoadItFromStore(fieldWith42, "1");
 		RecordDTO record2 = saveRecordWithFieldsAndLoadItFromStore(fieldWith42AndChuckNorris, "2");
 		RecordDTO record3 = saveRecordWithFieldsAndLoadItFromStore(fieldWith28AndChuckNorris, "3");
+		recordDao.flush();
 		assertThat(hasRecord(record1.getId())).isTrue();
 		assertThat(hasRecord(record2.getId())).isTrue();
 		assertThat(hasRecord(record3.getId())).isTrue();
@@ -1236,6 +1246,7 @@ public class BigVaultRecordDaoRealTest extends ConstellioTest {
 		solrParams.set("q", "afield_s:42");
 		solrParams.set("fq", "anotherfield_s:ChuckNorris");
 		recordDao.execute(new TransactionDTO(RecordsFlushing.NOW).withDeletedByQueries(solrParams));
+		recordDao.flush();
 		assertThat(hasRecord(record1.getId())).isTrue();
 		assertThat(hasRecord(record2.getId())).isFalse();
 		assertThat(hasRecord(record3.getId())).isTrue();
@@ -1244,6 +1255,7 @@ public class BigVaultRecordDaoRealTest extends ConstellioTest {
 		solrParams.set("q", "*:*");
 		solrParams.set("fq", "anotherfield_s:ChuckNorris");
 		recordDao.execute(new TransactionDTO(RecordsFlushing.NOW).withDeletedByQueries(solrParams));
+		recordDao.flush();
 		assertThat(hasRecord(record1.getId())).isTrue();
 		assertThat(hasRecord(record2.getId())).isFalse();
 		assertThat(hasRecord(record3.getId())).isFalse();
@@ -1251,6 +1263,7 @@ public class BigVaultRecordDaoRealTest extends ConstellioTest {
 		solrParams = new ModifiableSolrParams();
 		solrParams.set("q", "afield_s:42");
 		recordDao.execute(new TransactionDTO(RecordsFlushing.NOW).withDeletedByQueries(solrParams));
+		recordDao.flush();
 		assertThat(hasRecord(record1.getId())).isFalse();
 		assertThat(hasRecord(record2.getId())).isFalse();
 		assertThat(hasRecord(record3.getId())).isFalse();
