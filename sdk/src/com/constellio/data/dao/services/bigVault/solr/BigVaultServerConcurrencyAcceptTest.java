@@ -4,6 +4,8 @@ import static com.constellio.data.dao.dto.records.RecordsFlushing.NOW;
 import static java.util.Arrays.asList;
 import static junit.framework.Assert.fail;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assume.assumeThat;
+import static org.junit.Assume.assumeTrue;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -51,7 +53,7 @@ public class BigVaultServerConcurrencyAcceptTest extends ConstellioTest {
 		//		DataLayerFactory daosFactory = getDataLayerFactory();
 		setupSolrServers();
 		//vaultServer = daosFactory.getRecordsVaultServer();
-		//anotherVaultServer = new BigVaultServer(vaultServer.getNestedSolrServer(), BigVaultLogger.disabled());
+		//anotherVaultServer = new bigVaultServer(vaultServer.getNestedSolrServer(), BigVaultLogger.disabled());
 	}
 
 	@Test
@@ -119,6 +121,8 @@ public class BigVaultServerConcurrencyAcceptTest extends ConstellioTest {
 		//		DataLayerSystemExtensions extensions = new DataLayerSystemExtensions();
 		DataLayerFactory daosFactory = (DataLayerFactory) getDataLayerFactory();
 		BigVaultServer recordsVaultServer = daosFactory.getRecordsVaultServer();
+
+		assumeTrue(recordsVaultServer instanceof SolrBigVaultServer);
 
 		vaultServer = (SolrBigVaultServer) recordsVaultServer.cloneServer();
 		anotherVaultServer = (SolrBigVaultServer) recordsVaultServer.cloneServer();

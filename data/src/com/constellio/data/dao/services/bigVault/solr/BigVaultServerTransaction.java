@@ -18,6 +18,7 @@ public class BigVaultServerTransaction {
 	private List<String> deletedRecords = new ArrayList<>();
 	private List<String> deletedQueries = new ArrayList<>();
 	private boolean testRollBackMode = false;
+	private boolean validateNewReferences = true;
 
 	public BigVaultServerTransaction(RecordsFlushing recordsFlushing,
 			List<SolrInputDocument> newDocuments, List<SolrInputDocument> updatedDocuments,
@@ -72,6 +73,11 @@ public class BigVaultServerTransaction {
 
 	public BigVaultServerTransaction setTransactionId(String transactionId) {
 		this.transactionId = transactionId;
+		return this;
+	}
+
+	public BigVaultServerTransaction setValidateNewReferences(boolean validateNewReferences) {
+		this.validateNewReferences = validateNewReferences;
 		return this;
 	}
 
@@ -150,5 +156,9 @@ public class BigVaultServerTransaction {
 	public BigVaultServerTransaction setTestRollBackMode(boolean testRollBackMode) {
 		this.testRollBackMode = testRollBackMode;
 		return this;
+	}
+
+	public boolean isValidateNewReferences() {
+		return validateNewReferences;
 	}
 }

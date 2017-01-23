@@ -10,6 +10,8 @@ import static com.constellio.data.dao.services.bigVault.solr.SolrUtils.isMultiva
 import static com.constellio.data.dao.services.bigVault.solr.SolrUtils.isSingleValueStringOrText;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -22,6 +24,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
@@ -58,6 +61,7 @@ import com.constellio.data.dao.services.bigVault.solr.BigVaultException;
 import com.constellio.data.dao.services.bigVault.solr.BigVaultRuntimeException;
 import com.constellio.data.dao.services.bigVault.solr.BigVaultServer;
 import com.constellio.data.dao.services.bigVault.solr.BigVaultServerTransaction;
+import com.constellio.data.dao.services.bigVault.solr.IgnitedBigVaultServer;
 import com.constellio.data.dao.services.bigVault.solr.SolrUtils;
 import com.constellio.data.dao.services.records.RecordDao;
 import com.constellio.data.dao.services.solr.ConstellioSolrInputDocument;
@@ -111,7 +115,8 @@ public class BigVaultRecordDao implements RecordDao {
 		if (!newDocuments.isEmpty() || !updatedDocuments.isEmpty() || !deletedRecordsIds.isEmpty() || !deletedRecordsQueries
 				.isEmpty()) {
 			return new BigVaultServerTransaction(transaction.getRecordsFlushing(), newDocuments, updatedDocuments,
-					deletedRecordsIds, deletedRecordsQueries);
+					deletedRecordsIds, deletedRecordsQueries)
+					.setValidateNewReferences(!transaction.isSkippingReferenceToLogicallyDeletedValidation());
 		} else {
 			return null;
 		}
@@ -763,6 +768,17 @@ public class BigVaultRecordDao implements RecordDao {
 	@Override
 	public RecordDTO get(String id)
 			throws RecordDaoException.NoSuchRecordWithId {
+
+		IgnitedBigVaultServer ignitedServer = (IgnitedBigVaultServer) bigVaultServer;
+		SolrDocument document = ignitedServer.getById(id);
+
+		if (document != null) {
+			return toEntity(document);
+		} else {
+			throw new RecordDaoException.NoSuchRecordWithId(id);
+		}
+
+		/*
 		ModifiableSolrParams params = new ModifiableSolrParams();
 		params.set("fq", ID_FIELD + ":" + id);
 		params.set("q", "*:*");
@@ -772,7 +788,7 @@ public class BigVaultRecordDao implements RecordDao {
 			throw new RecordDaoException.NoSuchRecordWithId(id);
 		} else {
 			return entity;
-		}
+		}*/
 	}
 
 	@Override
@@ -990,7 +1006,20 @@ public class BigVaultRecordDao implements RecordDao {
 		return document;
 	}
 
-	private LocalDateTime convertSolrDateToLocalDateTime(Date date) {
+	private LocalDateTime convertSolrDateToLocalDateTime(Object value) {
+
+		Date date;
+		if (value instanceof Date) {
+			date = (Date) value;
+		} else {
+			try {
+				date = new SimpleDateFormat(SolrUtils.SOLR_DATE_FORMATTER_PATTERN).parse((String) value);
+				return new LocalDateTime(date);
+			} catch (ParseException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
 		LocalDateTime localDateTime = new LocalDateTime(date).minusMillis(getOffset(date));
 		LocalDate localDate = localDateTime.toLocalDate();
 		if (localDate.equals(NULL_LOCALDATE)) {
@@ -1002,7 +1031,18 @@ public class BigVaultRecordDao implements RecordDao {
 		}
 	}
 
-	private LocalDate convertSolrDateToLocalDate(Date date) {
+	private LocalDate convertSolrDateToLocalDate(Object value) {
+
+		Date date;
+		if (value instanceof Date) {
+			date = (Date) value;
+		} else {
+			try {
+				date = new SimpleDateFormat(SolrUtils.SOLR_DATE_FORMATTER_PATTERN).parse((String) value);
+			} catch (ParseException e) {
+				throw new RuntimeException(e);
+			}
+		}
 
 		LocalDateTime localDateTime = convertSolrDateToLocalDateTime(date);
 		LocalDate localDate = localDateTime == null ? null : localDateTime.toLocalDate();
@@ -1148,9 +1188,9 @@ public class BigVaultRecordDao implements RecordDao {
 		if (fieldName.endsWith("_d")) {
 			convertedValue = convertNumber(fieldValue);
 		} else if (fieldName.endsWith("_dt")) {
-			convertedValue = convertSolrDateToLocalDateTime((Date) fieldValue);
+			convertedValue = convertSolrDateToLocalDateTime(fieldValue);
 		} else if (fieldName.endsWith("_da")) {
-			convertedValue = convertSolrDateToLocalDate((Date) fieldValue);
+			convertedValue = convertSolrDateToLocalDate(fieldValue);
 		} else if (isSingleValueStringOrText(fieldName)) {
 			if ("__TRUE__".equals(fieldValue)) {
 				convertedValue = true;
@@ -1168,8 +1208,8 @@ public class BigVaultRecordDao implements RecordDao {
 		} else if (fieldName.endsWith("_dts") && fieldValue instanceof List) {
 			List<LocalDateTime> localDateTimes = new ArrayList<LocalDateTime>();
 			boolean hasNonNullValues = false;
-			List<Date> dates = ((List<Date>) fieldValue);
-			for (Date date : dates) {
+			List<Object> dates = ((List<Object>) fieldValue);
+			for (Object date : dates) {
 				LocalDateTime localDateTime = convertSolrDateToLocalDateTime(date);
 
 				if (localDateTime != null) {
@@ -1185,9 +1225,9 @@ public class BigVaultRecordDao implements RecordDao {
 
 		} else if (fieldName.endsWith("_das") && fieldValue instanceof List) {
 			List<LocalDate> localDates = new ArrayList<LocalDate>();
-			List<Date> dates = ((List<Date>) fieldValue);
+			List<Object> dates = ((List<Object>) fieldValue);
 			boolean hasNonNullValues = false;
-			for (Date date : dates) {
+			for (Object date : dates) {
 				LocalDate localDate = convertSolrDateToLocalDate(date);
 				if (localDate != null) {
 					if (localDate.equals(NULL_ITEM_LOCALDATE)) {
