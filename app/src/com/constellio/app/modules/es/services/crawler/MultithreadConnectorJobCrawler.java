@@ -20,7 +20,7 @@ public class MultithreadConnectorJobCrawler implements ConnectorJobCrawler {
 	public MultithreadConnectorJobCrawler() {
 		queue = new LinkedBlockingQueue<>();
 		int cores = Runtime.getRuntime().availableProcessors();
-		executor = new ThreadPoolExecutor(cores, cores * 2, 10, TimeUnit.SECONDS, queue, new ThreadPoolExecutor.CallerRunsPolicy());
+		executor = new ThreadPoolExecutor(cores, cores * 4, 10, TimeUnit.SECONDS, queue, new ThreadPoolExecutor.CallerRunsPolicy());
 	}
 
 	/* (non-Javadoc)
