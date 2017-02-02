@@ -1,23 +1,18 @@
 package com.constellio.app.ui.pages.profile;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import com.constellio.app.entities.navigation.PageItem;
+import com.constellio.app.modules.rm.RMConfigs;
 import com.constellio.app.modules.rm.model.enums.DefaultTabInFolderDisplay;
 import com.constellio.app.services.factories.ConstellioFactories;
 import com.constellio.app.ui.entities.ContentVersionVO;
 import com.constellio.app.ui.entities.TaxonomyVO;
 import com.constellio.app.ui.framework.builders.TaxonomyToVOBuilder;
 import com.constellio.app.ui.framework.data.TaxonomyVODataProvider;
-import com.constellio.app.ui.i18n.i18n;
 import com.constellio.app.ui.pages.base.BasePresenter;
 import com.constellio.app.ui.pages.home.HomeView;
 import com.constellio.model.entities.records.wrappers.User;
 import com.constellio.model.entities.security.global.UserCredential;
+import com.constellio.model.services.configs.SystemConfigurationsManager;
 import com.constellio.model.services.records.RecordServices;
 import com.constellio.model.services.records.RecordServicesException;
 import com.constellio.model.services.security.authentification.AuthenticationService;
@@ -26,6 +21,10 @@ import com.constellio.model.services.users.UserPhotosServicesRuntimeException.Us
 import com.constellio.model.services.users.UserServices;
 import com.google.common.base.Joiner;
 import org.apache.commons.collections.CollectionUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 
 public class ModifyProfilePresenter extends BasePresenter<ModifyProfileView> {
 	public static final String CHANGE_PHOTO_STREAM = "ConstellioMenuPresenter-ChangePhotoStream";
@@ -57,7 +56,7 @@ public class ModifyProfilePresenter extends BasePresenter<ModifyProfileView> {
 		User user = userServices.getUserInCollection(entity.getUsername(), view.getCollection());
 		user.setPhone(entity.getPhone());
 		if (entity.getStartTab() == null) {
-			user.setStartTab(getDefaultHomepageTab());
+			user.setStartTab(getDefaultStartTab());
 		} else {
 			user.setStartTab(entity.getStartTab());
 		}
@@ -104,9 +103,8 @@ public class ModifyProfilePresenter extends BasePresenter<ModifyProfileView> {
         userServices.addUpdateUserCredential(userCredential);
     }
 
-	private String getDefaultHomepageTab() {
-		List<String> tabs = getAvailableHomepageTabs();
-		return tabs.isEmpty() ? null : tabs.get(0);
+	private String getDefaultStartTab() {
+		return presenterService().getSystemConfigs().getDefaultStartTab();
 	}
 
 	void changePhoto(ContentVersionVO image) {
@@ -115,7 +113,7 @@ public class ModifyProfilePresenter extends BasePresenter<ModifyProfileView> {
 		}
 	}
 
-	public ProfileVO getProfilVO(String username) {
+	public ProfileVO getProfileVO(String username) {
 		UserCredential userCredential = userServices.getUserCredential(username);
 		String firstName = userCredential.getFirstName();
 		String lastName = userCredential.getLastName();
@@ -125,10 +123,22 @@ public class ModifyProfilePresenter extends BasePresenter<ModifyProfileView> {
 		User user = userServices.getUserInCollection(username, view.getCollection());
 		String phone = user.getPhone();
 		String loginLanguage = user.getLoginLanguageCode();
+		if(loginLanguage == null || loginLanguage.isEmpty()) {
+			loginLanguage = view.getSessionContext().getCurrentLocale().getLanguage();
+		}
 		String startTab = user.getStartTab();
 		if (startTab == null) {
-			startTab = getDefaultHomepageTab();
+			startTab = getDefaultStartTab();
 		}
+
+		SystemConfigurationsManager systemConfigurationsManager = modelLayerFactory.getSystemConfigurationsManager();
+		RMConfigs rmConfigs = new RMConfigs(systemConfigurationsManager);
+		
+		Map<String, DefaultTabInFolderDisplay> defaultTabInFolderDisplayOptions = new HashMap<>();
+		for (DefaultTabInFolderDisplay retrievedDefaultTabInFolderDisplay : DefaultTabInFolderDisplay.values()) {
+			defaultTabInFolderDisplayOptions.put(retrievedDefaultTabInFolderDisplay.getCode(), retrievedDefaultTabInFolderDisplay);
+		}
+		
 		DefaultTabInFolderDisplay defaultTabInFolderDisplay = null;
 		if (user.getDefaultTabInFolderDisplay() != null) {
 			for (DefaultTabInFolderDisplay retrievedDefaultTabInFolderDisplay : DefaultTabInFolderDisplay.values()) {
@@ -139,17 +149,24 @@ public class ModifyProfilePresenter extends BasePresenter<ModifyProfileView> {
 			}
 		}
 		if (defaultTabInFolderDisplay == null) {
-			defaultTabInFolderDisplay = DefaultTabInFolderDisplay.METADATA;
+			String configDefaultTabInFolderDisplayCode = rmConfigs.getDefaultTabInFolderDisplay();
+			if (configDefaultTabInFolderDisplayCode != null){
+				defaultTabInFolderDisplay = defaultTabInFolderDisplayOptions.get(configDefaultTabInFolderDisplayCode);
+			}
 		}
+		
 		String defaultTaxonomy = user.getDefaultTaxonomy();
+		if (defaultTaxonomy == null) {
+			defaultTaxonomy = presenterService().getSystemConfigs().getDefaultTaxonomy();
+		}
 
-		ProfileVO profileVO = newProfilVO(username, firstName, lastName, email, personalEmails, phone, startTab, defaultTabInFolderDisplay,
+		ProfileVO profileVO = newProfileVO(username, firstName, lastName, email, personalEmails, phone, startTab, defaultTabInFolderDisplay,
 				defaultTaxonomy);
 		profileVO.setLoginLanguageCode(loginLanguage);
 		return profileVO;
 	}
 
-	ProfileVO newProfilVO(String username, String firstName, String lastName, String email, List<String> personalEmails, String phone,
+	ProfileVO newProfileVO(String username, String firstName, String lastName, String email, List<String> personalEmails, String phone,
 			String startTab, DefaultTabInFolderDisplay defaultTabInFolderDisplay, String defaultTaxonomy) {
         String personalEmailsPresentation = null;
         if (!CollectionUtils.isEmpty(personalEmails)) {
@@ -164,7 +181,7 @@ public class ModifyProfilePresenter extends BasePresenter<ModifyProfileView> {
 		navigateToBackPage();
 	}
 
-	List<TaxonomyVO> getEnableTaxonomies() {
+	List<TaxonomyVO> getEnabledTaxonomies() {
 		TaxonomyVODataProvider provider = newDataProvider();
 		return provider.getTaxonomyVOs();
 	}

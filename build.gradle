@@ -1,3 +1,8 @@
+plugins {
+    id "org.sonarqube" version "1.2"
+    //id 'com.github.johnrengelman.shadow' version '1.2.4'
+}
+
 apply plugin: 'war'
 apply plugin: 'application'
 
@@ -105,18 +110,38 @@ allprojects {
     }
 
     jar {
-        version = '6.5.666.42'
+        version = '7.0.5'
     }
 }
 
 war {
     baseName = "constellio"
-    version = "6.5.666.42"
+    version = "7.0.5"
 
     webInf {
 
         from("resources_i18n/") {
             into("resources_i18n")
+        }
+        from("reportsRecource/") {
+            into("resources/reports")
+        }
+    }
+
+    if (new File(rootDir, "../constellio-plugins").exists()) {
+        def updatePlugins = [":plugins:plugin001", ":plugins:plugin002", ":plugins:plugin003", ":plugins:plugin004",
+                             ":plugins:plugin005", ":plugins:plugin006", ":plugins:plugin007", ":plugins:plugin008",
+                             ":plugins:plugin009", ":plugins:plugin010", ":plugins:plugin012", ":plugins:plugin015",
+                             ":plugins:plugin016", ":plugins:plugin017", ":plugins:plugin018", ":plugins:plugin019",
+                             ":plugins:plugin020"]
+        def installPlugins = [':plugins:plugin023']
+
+        from(files(updatePlugins.collect { project(it).jar.outputs.files })) {
+            into "plugins-to-update"
+        }
+
+        from(files(installPlugins.collect { project(it).jar.outputs.files })) {
+            into "plugins-to-install"
         }
     }
 
@@ -193,3 +218,4 @@ test {
 }
 
 mainClassName = 'com.constellio.app.start.MainConstellio'
+

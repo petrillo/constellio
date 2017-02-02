@@ -13,8 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import jcifs.smb.NtlmPasswordAuthentication;
-
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -39,6 +38,8 @@ import com.constellio.model.services.records.RecordServicesException;
 import com.constellio.sdk.SDKPasswords;
 import com.constellio.sdk.tests.ConstellioTest;
 import com.constellio.sdk.tests.annotations.InDevelopmentTest;
+
+import jcifs.smb.NtlmPasswordAuthentication;
 
 @InDevelopmentTest
 //TODO Activate test
@@ -683,7 +684,7 @@ public class ConnectorSmbAcceptanceTest extends ConstellioTest {
 
 	private String getParentForDocument(SmbResult result, String url) {
 		for (ConnectorSmbDocument document : result.getDocuments()) {
-			if (document.getUrl().equals(url)) {
+			if (StringUtils.equals(document.getUrl(), url)) {
 				return document.getParent();
 			}
 		}
@@ -692,7 +693,7 @@ public class ConnectorSmbAcceptanceTest extends ConstellioTest {
 
 	private String getParentForFolder(SmbResult result, String url) {
 		for (ConnectorSmbFolder folder : result.getFolders()) {
-			if (folder.getUrl().equals(url)) {
+			if (StringUtils.equals(folder.getUrl(), url)) {
 				return folder.getParent();
 			}
 		}
@@ -701,7 +702,7 @@ public class ConnectorSmbAcceptanceTest extends ConstellioTest {
 
 	private String getId(SmbResult result, String url) {
 		for (ConnectorSmbFolder folder : result.getFolders()) {
-			if (folder.getUrl().equals(url)) {
+			if (StringUtils.equals(folder.getUrl(), url)) {
 				return folder.getId();
 			}
 		}

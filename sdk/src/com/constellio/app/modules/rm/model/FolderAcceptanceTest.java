@@ -1,31 +1,5 @@
 package com.constellio.app.modules.rm.model;
 
-import static com.constellio.app.modules.rm.model.enums.DecommissioningDateBasedOn.CLOSE_DATE;
-import static com.constellio.app.modules.rm.model.enums.FolderStatus.ACTIVE;
-import static com.constellio.app.modules.rm.model.enums.FolderStatus.INACTIVE_DEPOSITED;
-import static com.constellio.app.modules.rm.model.enums.FolderStatus.INACTIVE_DESTROYED;
-import static com.constellio.app.modules.rm.model.enums.FolderStatus.SEMI_ACTIVE;
-import static com.constellio.app.modules.rm.model.validators.FolderValidator.CATEGORY_CODE;
-import static com.constellio.app.modules.rm.model.validators.FolderValidator.RULE_CODE;
-import static com.constellio.model.entities.schemas.MetadataValueType.STRING;
-import static com.constellio.sdk.tests.TestUtils.assertThatRecord;
-import static com.constellio.sdk.tests.TestUtils.extractingSimpleCodeAndParameters;
-import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.groups.Tuple.tuple;
-import static org.junit.Assert.fail;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.junit.Before;
-import org.junit.Test;
-
 import com.constellio.app.modules.rm.RMConfigs;
 import com.constellio.app.modules.rm.RMTestRecords;
 import com.constellio.app.modules.rm.constants.RMTaxonomies;
@@ -57,6 +31,27 @@ import com.constellio.model.services.schemas.builders.MetadataSchemaTypesBuilder
 import com.constellio.sdk.tests.ConstellioTest;
 import com.constellio.sdk.tests.TestUtils;
 import com.constellio.sdk.tests.setups.Users;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.constellio.app.modules.rm.model.enums.DecommissioningDateBasedOn.CLOSE_DATE;
+import static com.constellio.app.modules.rm.model.enums.FolderStatus.*;
+import static com.constellio.app.modules.rm.model.validators.FolderValidator.CATEGORY_CODE;
+import static com.constellio.app.modules.rm.model.validators.FolderValidator.RULE_CODE;
+import static com.constellio.model.entities.schemas.MetadataValueType.STRING;
+import static com.constellio.sdk.tests.TestUtils.*;
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
+import static org.junit.Assert.fail;
 
 public class FolderAcceptanceTest extends ConstellioTest {
 
@@ -145,6 +140,7 @@ public class FolderAcceptanceTest extends ConstellioTest {
 	public void givenEnforcedWhenCreateFolderWithIncompatibleRuleAndCategoryThenValidationException()
 			throws Exception {
 
+		givenConfig(RMConfigs.UNIFORM_SUBDIVISION_ENABLED, true);
 		givenConfig(RMConfigs.ENFORCE_CATEGORY_AND_RULE_RELATIONSHIP_IN_FOLDER, true);
 		Folder folder = rm.newFolder();
 		folder.setAdministrativeUnitEntered(records.unitId_11b);
@@ -168,6 +164,55 @@ public class FolderAcceptanceTest extends ConstellioTest {
 		givenConfig(RMConfigs.ENFORCE_CATEGORY_AND_RULE_RELATIONSHIP_IN_FOLDER, false);
 
 		//OK
+		recordServices.add(folder);
+	}
+
+	@Test
+	public void givenEnforcedWhenCreateFolderWithIncompatibleRuleAndUniformSubdivisionThenValidationException()
+			throws Exception {
+
+		givenConfig(RMConfigs.UNIFORM_SUBDIVISION_ENABLED, true);
+		Folder folder = rm.newFolder();
+		folder.setAdministrativeUnitEntered(records.unitId_11b);
+		folder.setCategoryEntered(records.categoryId_X);
+		folder.setRetentionRuleEntered(records.ruleId_1);
+		folder.setCopyStatusEntered(CopyType.PRINCIPAL);
+		folder.setTitle("Ze folder");
+		folder.setOpenDate(LocalDate.now());
+		folder.setUniformSubdivisionEntered(records.subdivId_1);
+
+		try {
+			recordServices.add(folder);
+			fail("Validation exception expected");
+		} catch (RecordServicesException.ValidationException e) {
+
+			assertThat(extractingSimpleCodeAndParameters(e, CATEGORY_CODE, RULE_CODE)).containsOnly(
+					tuple("FolderValidator_folderUniformSubdivisionMustBeRelatedToItsRule", "sub1", "1")
+			);
+
+			assertThat(frenchMessages(e)).containsOnly("La subdivision uniforme d''un dossier doit être liée à sa règle");
+		}
+
+		givenConfig(RMConfigs.UNIFORM_SUBDIVISION_ENABLED, false);
+
+		//OK
+		recordServices.add(folder);
+	}
+
+	@Test
+	public void givenEnforcedWhenCreateFolderWithCompatibleRuleAndUniformSubdivisionThenNoValidationException()
+			throws Exception {
+
+		givenConfig(RMConfigs.UNIFORM_SUBDIVISION_ENABLED, true);
+		Folder folder = rm.newFolder();
+		folder.setAdministrativeUnitEntered(records.unitId_11b);
+		folder.setCategoryEntered(records.categoryId_X);
+		folder.setRetentionRuleEntered(records.ruleId_2);
+		folder.setCopyStatusEntered(CopyType.PRINCIPAL);
+		folder.setTitle("Ze folder");
+		folder.setOpenDate(LocalDate.now());
+		folder.setUniformSubdivisionEntered(records.subdivId_1);
+
 		recordServices.add(folder);
 	}
 
@@ -511,6 +556,7 @@ public class FolderAcceptanceTest extends ConstellioTest {
 
 		assertThatRecord(rm.getFolder(folder.getId()))
 				.hasMetadata(Folder.CATEGORY_CODE, "X13")
+				.hasMetadata(Folder.ADMINISTRATIVE_UNIT_CODE, "10A")
 				.hasMetadata("zeCalculatedMetadata", "Ze ultimate X13");
 
 		recordServices.update(rm.getCategoryWithCode("X13").setCode("X-13"));
@@ -1650,7 +1696,6 @@ public class FolderAcceptanceTest extends ConstellioTest {
 		assertThat(folder4.getExpectedDepositDate()).isEqualTo(march31(2020));
 	}
 
-
 	@Test
 	public void givenRuleActiveDateBasedOnLastPartOfTimeRangeAndSemiActiveDateBasedOnNumberMetadataThenValidCalculatedDates()
 			throws Exception {
@@ -2261,7 +2306,8 @@ public class FolderAcceptanceTest extends ConstellioTest {
 		givenRuleWithResponsibleAdminUnitsFlagAndCopyRules(principal("888-5-T", PA), principal("888-5-D", MD),
 				secondary("999-0-D", PA));
 
-		givenConfig(RMConfigs.ALLOW_MODIFICATION_OF_ARCHIVISTIC_STATUS_AND_EXPECTED_DATES, AllowModificationOfArchivisticStatusAndExpectedDatesChoice.DISABLED);
+		givenConfig(RMConfigs.ALLOW_MODIFICATION_OF_ARCHIVISTIC_STATUS_AND_EXPECTED_DATES,
+				AllowModificationOfArchivisticStatusAndExpectedDatesChoice.DISABLED);
 		Folder folder = saveAndLoad(principalFolderWithZeRule()
 				.setOpenDate(february2_2015)
 				.setMediumTypes(MD, PA)
@@ -2293,7 +2339,8 @@ public class FolderAcceptanceTest extends ConstellioTest {
 		givenRuleWithResponsibleAdminUnitsFlagAndCopyRules(principal("888-5-T", PA), principal("888-5-D", MD),
 				secondary("999-0-D", PA));
 
-		givenConfig(RMConfigs.ALLOW_MODIFICATION_OF_ARCHIVISTIC_STATUS_AND_EXPECTED_DATES, AllowModificationOfArchivisticStatusAndExpectedDatesChoice.ENABLED);
+		givenConfig(RMConfigs.ALLOW_MODIFICATION_OF_ARCHIVISTIC_STATUS_AND_EXPECTED_DATES,
+				AllowModificationOfArchivisticStatusAndExpectedDatesChoice.ENABLED);
 		Folder folder = saveAndLoad(principalFolderWithZeRule()
 				.setOpenDate(february2_2015)
 				.setMediumTypes(MD, PA)
@@ -2325,7 +2372,8 @@ public class FolderAcceptanceTest extends ConstellioTest {
 		givenRuleWithResponsibleAdminUnitsFlagAndCopyRules(principal("888-5-T", PA), principal("888-5-D", MD),
 				secondary("999-0-D", PA));
 
-		givenConfig(RMConfigs.ALLOW_MODIFICATION_OF_ARCHIVISTIC_STATUS_AND_EXPECTED_DATES, AllowModificationOfArchivisticStatusAndExpectedDatesChoice.ENABLED);
+		givenConfig(RMConfigs.ALLOW_MODIFICATION_OF_ARCHIVISTIC_STATUS_AND_EXPECTED_DATES,
+				AllowModificationOfArchivisticStatusAndExpectedDatesChoice.ENABLED);
 		Folder folder = saveAndLoad(principalFolderWithZeRule()
 				.setOpenDate(february2_2015)
 				.setMediumTypes(MD, PA)
@@ -2371,9 +2419,9 @@ public class FolderAcceptanceTest extends ConstellioTest {
 
 		System.out.println(folder.getCategory());
 	}
-	
+
 	@Test
-	public void givenRetentionRuleWithoutSemiActivePeriodWhenCreatingAFolderWithThisRuleThenExpectedTransferDateIsNull() 
+	public void givenRetentionRuleWithoutSemiActivePeriodWhenCreatingAFolderWithThisRuleThenExpectedTransferDateIsNull()
 			throws Exception {
 		Folder folder = saveAndLoad(folderWithSingleCopyRule(principal("888-0-D", PA))
 				.setOpenDate(november4_2009)

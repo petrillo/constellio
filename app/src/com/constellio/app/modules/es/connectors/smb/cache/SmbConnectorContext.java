@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.constellio.app.modules.es.connectors.smb.service.SmbModificationIndicator;
 
 public class SmbConnectorContext implements Serializable {
@@ -51,7 +53,7 @@ public class SmbConnectorContext implements Serializable {
 		List<String> urls = new ArrayList<>();
 		for (Map.Entry<String, SmbModificationIndicator> entry : this.recordUrls.entrySet()) {
 			SmbModificationIndicator indicator = entry.getValue();
-			if (indicator == null || !indicator.getTraversalCode().equals(traversalCode)) {
+			if (indicator == null || !StringUtils.equals(indicator.getTraversalCode(), traversalCode)) {
 				urls.add(entry.getKey());
 			}
 		}

@@ -1,14 +1,5 @@
 package com.constellio.app.ui.pages.profile;
 
-import static com.constellio.app.ui.i18n.i18n.$;
-
-import java.io.InputStream;
-
-import com.vaadin.data.validator.AbstractStringValidator;
-import com.vaadin.data.validator.RegexpValidator;
-import com.vaadin.ui.*;
-import org.apache.commons.lang.StringUtils;
-
 import com.constellio.app.modules.rm.model.enums.DefaultTabInFolderDisplay;
 import com.constellio.app.ui.application.ConstellioUI;
 import com.constellio.app.ui.entities.ContentVersionVO;
@@ -28,6 +19,12 @@ import com.vaadin.data.validator.EmailValidator;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.StreamResource;
 import com.vaadin.server.StreamResource.StreamSource;
+import com.vaadin.ui.*;
+import org.apache.commons.lang.StringUtils;
+
+import java.io.InputStream;
+
+import static com.constellio.app.ui.i18n.i18n.$;
 
 public class ModifyProfileViewImpl extends BaseViewImpl implements ModifyProfileView {
 	public static final String UPDATE_PICTURE_STREAM_SOURCE = "ModifyProfileViewImpl-UpdatePictureStreamSource";
@@ -64,7 +61,7 @@ public class ModifyProfileViewImpl extends BaseViewImpl implements ModifyProfile
 	@PropertyId("startTab")
 	private OptionGroup startTabField;
 	@PropertyId("defaultTabInFolderDisplay")
-	private EnumWithSmallCodeOptionGroup defaultTabInFolderDisplay;
+	private EnumWithSmallCodeOptionGroup<DefaultTabInFolderDisplay> defaultTabInFolderDisplay;
 	@PropertyId("defaultTaxonomy")
 	private ListOptionGroup taxonomyField;
 
@@ -81,7 +78,7 @@ public class ModifyProfileViewImpl extends BaseViewImpl implements ModifyProfile
 
 		String username = getSessionContext().getCurrentUser().getUsername();
 		presenter.setUsername(username);
-		profileVO = presenter.getProfilVO(username);
+		profileVO = presenter.getProfileVO(username);
 	}
 
 	@Override
@@ -209,6 +206,7 @@ public class ModifyProfileViewImpl extends BaseViewImpl implements ModifyProfile
 				if (passwordField.getValue() != null && StringUtils.isNotBlank(passwordField.getValue())) {
 					confirmPasswordField.setRequired(true);
 					oldPasswordField.setRequired(true);
+				} else {
 					passwordField.setValue(null);
 					confirmPasswordField.setRequired(false);
 					oldPasswordField.setRequired(false);
@@ -259,7 +257,7 @@ public class ModifyProfileViewImpl extends BaseViewImpl implements ModifyProfile
 			startTabField.setItemCaption(tab, $("HomeView.tab." + tab));
 		}
 
-		defaultTabInFolderDisplay = new EnumWithSmallCodeOptionGroup(DefaultTabInFolderDisplay.class);
+		defaultTabInFolderDisplay = new EnumWithSmallCodeOptionGroup<DefaultTabInFolderDisplay>(DefaultTabInFolderDisplay.class);
 		defaultTabInFolderDisplay.setCaption($("ModifyProfileView.defaultTabInFolderDisplay"));
 		defaultTabInFolderDisplay.setId("defaultTabInFolderDisplay");
 		defaultTabInFolderDisplay.setItemCaption(DefaultTabInFolderDisplay.CONTENT,
@@ -272,7 +270,7 @@ public class ModifyProfileViewImpl extends BaseViewImpl implements ModifyProfile
 		taxonomyField.setId("defaultTaxonomy");
 		taxonomyField.setMultiSelect(false);
 		taxonomyField.setRequired(false);
-		for (TaxonomyVO value : presenter.getEnableTaxonomies()) {
+		for (TaxonomyVO value : presenter.getEnabledTaxonomies()) {
 			taxonomyField.addItem(value.getCode());
 			taxonomyField.setItemCaption(value.getCode(), value.getTitle());
 		}

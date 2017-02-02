@@ -68,6 +68,10 @@ public class ConstellioEIMConfigs {
 			"	{ name: 'styles', items: [ 'Styles', 'Format', 'Font', 'FontSize' ] },\n" + 
 			"	{ name: 'colors', items: [ 'TextColor', 'BGColor' ] },\n" + 
 			"	{ name: 'tools', items: [ 'Maximize', 'ShowBlocks' ] }";
+	
+	public static final SystemConfiguration DEFAULT_START_TAB;
+	
+	public static final SystemConfiguration DEFAULT_TAXONOMY;
 
 	static {
 		SystemConfigurationGroup others = new SystemConfigurationGroup(null, "others");
@@ -102,6 +106,8 @@ public class ConstellioEIMConfigs {
 		add(BATCH_PROCESSING_MODE = others.createEnum("batchProcessingMode", BatchProcessingMode.class)
 				.withDefaultValue(BatchProcessingMode.ALL_METADATA_OF_SCHEMA).whichIsHidden());
 		add(TRASH_PURGE_DELAI = others.createInteger("trashPurgeDelaiInDays").withDefaultValue(30));
+		add(DEFAULT_START_TAB = others.createString("defaultStartTab").withDefaultValue("taxonomies"));
+		add(DEFAULT_TAXONOMY = others.createString("defaultTaxonomy"));
 
 		SystemConfigurationGroup search = new SystemConfigurationGroup(null, "search");
 		add(SEARCH_SORT_TYPE = search.createEnum("sortType", SearchSortType.class).withDefaultValue(SearchSortType.RELEVENCE));
@@ -216,6 +222,14 @@ public class ConstellioEIMConfigs {
 	
 	public String getCKEditorToolbarConfig() {
 		return manager.getValue(CKEDITOR_TOOLBAR_CONFIG);
+	}
+	
+	public String getDefaultStartTab() {
+		return manager.getValue(DEFAULT_START_TAB);
+	}
+	
+	public String getDefaultTaxonomy() {
+		return manager.getValue(DEFAULT_TAXONOMY);
 	}
 
 }

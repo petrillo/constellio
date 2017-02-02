@@ -138,9 +138,10 @@ public class AppLayerFactory extends LayerFactory {
 		} catch (OptimisticLockingConfiguration optimisticLockingConfiguration) {
 			throw new RuntimeException(optimisticLockingConfiguration);
 		}
-		labelTemplateManager = new LabelTemplateManager(dataLayerFactory.getConfigManager());
+		labelTemplateManager = new LabelTemplateManager(dataLayerFactory.getConfigManager(), this);
 		this.navigatorConfigService = new NavigatorConfigurationService();
 		this.systemCheckManager = add(new SystemCheckManager(this));
+
 	}
 
 	private void setDefaultLocale() {
@@ -185,9 +186,7 @@ public class AppLayerFactory extends LayerFactory {
 
 	public AppManagementService newApplicationService() {
 		IOServicesFactory ioServicesFactory = dataLayerFactory.getIOServicesFactory();
-		return new AppManagementService(ioServicesFactory, foldersLocator, systemGlobalConfigsManager,
-				new ConstellioEIMConfigs(modelLayerFactory.getSystemConfigurationsManager()), pluginManager,
-				newUpgradeAppRecoveryService());
+		return new AppManagementService(this, foldersLocator);
 	}
 
 	public UpgradeAppRecoveryService newUpgradeAppRecoveryService() {
@@ -237,6 +236,7 @@ public class AppLayerFactory extends LayerFactory {
 						throw new RuntimeException(e);
 					}
 				} else {
+					LOGGER.info("No more in rollback mode...");
 					throw exception;
 				}
 			}

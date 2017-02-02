@@ -1,17 +1,18 @@
 package com.constellio.app.modules.rm;
 
-import static com.constellio.app.modules.rm.ConstellioRMModule.ID;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import com.constellio.app.modules.rm.configScripts.EnableOrDisableCalculatorsManualMetadataScript;
 import com.constellio.app.modules.rm.model.enums.AllowModificationOfArchivisticStatusAndExpectedDatesChoice;
 import com.constellio.app.modules.rm.model.enums.DecommissioningDateBasedOn;
+import com.constellio.app.modules.rm.model.enums.DefaultTabInFolderDisplay;
 import com.constellio.app.modules.rm.model.enums.DocumentsTypeChoice;
 import com.constellio.model.entities.configs.SystemConfiguration;
 import com.constellio.model.entities.configs.SystemConfigurationGroup;
 import com.constellio.model.services.configs.SystemConfigurationsManager;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.constellio.app.modules.rm.ConstellioRMModule.ID;
 
 public class RMConfigs {
 
@@ -53,7 +54,9 @@ public class RMConfigs {
 			WORKFLOWS_ENABLED,
 			ENFORCE_CATEGORY_AND_RULE_RELATIONSHIP_IN_FOLDER,
 			ALLOW_MODIFICATION_OF_ARCHIVISTIC_STATUS_AND_EXPECTED_DATES,
-			CALCULATED_METADATAS_BASED_ON_FIRST_TIMERANGE_PART;
+			CALCULATED_METADATAS_BASED_ON_FIRST_TIMERANGE_PART,
+			DEFAULT_TAB_IN_FOLDER_DISPLAY,
+			UNIFORM_SUBDIVISION_ENABLED;
 	;
 
 	// Category configs
@@ -175,6 +178,8 @@ public class RMConfigs {
 
 		add(ACTIVES_IN_CONTAINER_ALLOWED = decommissioning.createBooleanFalseByDefault("activesInContainerAllowed"));
 
+		add(UNIFORM_SUBDIVISION_ENABLED = decommissioning.createBooleanFalseByDefault("uniformSubdivisionEnabled"));
+
 		SystemConfigurationGroup trees = new SystemConfigurationGroup(ID, "trees");
 
 		add(DISPLAY_SEMI_ACTIVE_RECORDS_IN_TREES = trees.createBooleanFalseByDefault("displaySemiActiveInTrees"));
@@ -220,6 +225,8 @@ public class RMConfigs {
 
 		add(CALCULATED_METADATAS_BASED_ON_FIRST_TIMERANGE_PART = decommissioning
 				.createBooleanTrueByDefault("calculatedMetadatasBasedOnFirstTimerangePart"));
+		
+		add(DEFAULT_TAB_IN_FOLDER_DISPLAY = others.createString("defaultTabInFolderDisplay").withDefaultValue(DefaultTabInFolderDisplay.CONTENT.getCode()));
 	}
 
 	static void add(SystemConfiguration configuration) {
@@ -388,6 +395,10 @@ public class RMConfigs {
 		return manager.getValue(WORKFLOWS_ENABLED);
 	}
 
+	public boolean areUniformSubdivisionEnabled() {
+		return manager.getValue(UNIFORM_SUBDIVISION_ENABLED);
+	}
+
 	public DocumentsTypeChoice getDocumentsTypesChoice() {
 		return manager.getValue(DOCUMENTS_TYPES_CHOICE);
 	}
@@ -395,4 +406,9 @@ public class RMConfigs {
 	public boolean isCalculateOpenDateBasedOnFirstTimerangePart() {
 		return manager.getValue(CALCULATED_METADATAS_BASED_ON_FIRST_TIMERANGE_PART);
 	}
+	
+	public String getDefaultTabInFolderDisplay() {
+		return manager.getValue(DEFAULT_TAB_IN_FOLDER_DISPLAY);
+	}
+	
 }
