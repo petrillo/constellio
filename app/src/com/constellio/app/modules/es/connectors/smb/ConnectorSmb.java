@@ -58,8 +58,7 @@ public class ConnectorSmb extends Connector {
 	static final String RESUME_OF_TRAVERSAL = "Resume of traversal";
 	static final String END_OF_TRAVERSAL = "End of traversal";
 
-	private static final int MAX_JOBS_PER_GET_JOBS_CALL = 10_000;
-	private static final int MIN_JOBS_PER_GET_JOBS_CALL = 20;
+	private static final int MAX_JOBS_PER_GET_JOBS_CALL = 200;
 
 	private ConnectorSmbInstance connectorInstance;
 	private ConnectorSmbUtils smbUtils;
@@ -195,12 +194,7 @@ public class ConnectorSmb extends Connector {
 	public List<ConnectorJob> getJobs() {
 		List<ConnectorJob> jobs = new ArrayList<>();
 
-		long docs = es.getRecordServices().documentsCount();
-		long jobsCount = docs / 100;
-		jobsCount = Math.min(jobsCount, MAX_JOBS_PER_GET_JOBS_CALL);
-		jobsCount = Math.max(jobsCount, MIN_JOBS_PER_GET_JOBS_CALL);
-
-		while (!jobsQueue.isEmpty() && jobs.size() < jobsCount) {
+		while (!jobsQueue.isEmpty() && jobs.size() < MAX_JOBS_PER_GET_JOBS_CALL) {
 			SmbConnectorJob queuedJob = jobsQueue.poll();
 			jobs.add(queuedJob);
 		}
@@ -239,7 +233,7 @@ public class ConnectorSmb extends Connector {
 		}
 
 		getLogger().info(END_OF_TRAVERSAL, "Connector instance " + connectorInstance.getId() +
-				" Old TraversalCode : \"" + oldTraversalCode + "\" New TraversalCode : \"" + newTraversalCode + "\"",
+						" Old TraversalCode : \"" + oldTraversalCode + "\" New TraversalCode : \"" + newTraversalCode + "\"",
 				new LinkedHashMap<String, String>());
 	}
 
