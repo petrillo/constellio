@@ -384,14 +384,22 @@ public class DisplayDocumentViewImpl extends BaseViewImpl implements DisplayDocu
 					return layout;
 				}
 			};
-
-			copyContentButton = new LinkButton($("DocumentContextMenu.copyContent")) {
-				@Override
-				protected void buttonClick(ClickEvent event) {
-					presenter.copyContentButtonClicked();
-				}
-			};
-
+			
+			actionMenuButtons.add(renameContentButton);
+		}
+		
+		// Metadatas duplication - CONSTELLIOEIM-560 - CONSTELLIOEIM-491
+		// Documents must be duplicatable all the time 
+		copyContentButton = new LinkButton($("DocumentContextMenu.copyContent")) {
+			@Override
+			protected void buttonClick(ClickEvent event) {
+				presenter.copyContentButtonClicked();
+			}
+		};
+		
+		actionMenuButtons.add(copyContentButton);
+		
+		if (presenter.hasContent()) {
 			sign = new WindowButton($("DocumentContextMenu.sign"), $("DocumentContextMenu.sign"),
 					WindowConfiguration.modalDialog("40%", "300px")) {
 				@Override
@@ -434,9 +442,6 @@ public class DisplayDocumentViewImpl extends BaseViewImpl implements DisplayDocu
 					return layout;
 				}
 			};
-
-			actionMenuButtons.add(renameContentButton);
-			actionMenuButtons.add(copyContentButton);
 
 			publishButton = new LinkButton($("DocumentContextMenu.publish")) {
 				@Override

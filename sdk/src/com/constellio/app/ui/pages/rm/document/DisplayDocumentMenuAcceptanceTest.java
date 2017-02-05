@@ -5,6 +5,8 @@ import static com.constellio.app.ui.pages.rm.document.DisplayDocumentMenuAccepta
 import static com.constellio.app.ui.pages.rm.document.DisplayDocumentMenuAcceptanceTest.AddEditDocumentAction.MODIFY;
 import static com.constellio.app.ui.pages.rm.document.DisplayDocumentMenuAcceptanceTest.AddEditDocumentAction.SHARE;
 import static com.constellio.app.ui.pages.rm.document.DisplayDocumentMenuAcceptanceTest.AddEditDocumentAction.UPLOAD;
+import static com.constellio.app.ui.pages.rm.document.DisplayDocumentMenuAcceptanceTest.AddEditDocumentAction.DUPLICATE;
+import static com.constellio.app.ui.pages.rm.document.DisplayDocumentMenuAcceptanceTest.AddEditDocumentAction.FAVORITE;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,7 +36,7 @@ import com.constellio.sdk.tests.selenium.adapters.constellio.ConstellioWebElemen
 public class DisplayDocumentMenuAcceptanceTest extends ConstellioTest {
 
 	enum AddEditDocumentAction {
-		MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE
+		MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE, DUPLICATE, FAVORITE
 	}
 
 	RecordFormWebElement zeForm;
@@ -66,16 +68,16 @@ public class DisplayDocumentMenuAcceptanceTest extends ConstellioTest {
 		logAsInZeCollection(aliceWonderland);
 
 		navigateToADocumentInUA10();
-		assertThatOnlyAvailableActionsAre(UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(UPLOAD, FAVORITE, SHARE, DUPLICATE);
 
 		navigateToSemiActiveDocumentInUA10();
-		assertThatOnlyAvailableActionsAre(UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(UPLOAD, FAVORITE, SHARE, DUPLICATE);
 
 		navigateToDestroyedDocumentInUA30();
-		assertThatOnlyAvailableActionsAre();
+		assertThatOnlyAvailableActionsAre(FAVORITE, DUPLICATE);
 
 		navigateToDepositedFolderInUA30();
-		assertThatOnlyAvailableActionsAre();
+		assertThatOnlyAvailableActionsAre(FAVORITE, DUPLICATE);
 	}
 
 	@Test
@@ -85,16 +87,16 @@ public class DisplayDocumentMenuAcceptanceTest extends ConstellioTest {
 		logAsInZeCollection(admin);
 
 		navigateToADocumentInUA10();
-		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(MODIFY, DUPLICATE, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE, FAVORITE);
 
 		navigateToSemiActiveDocumentInUA10();
-		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(MODIFY, DUPLICATE, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE, FAVORITE);
 
 		navigateToDestroyedDocumentInUA30();
-		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(MODIFY, DUPLICATE, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE, FAVORITE);
 
 		navigateToDepositedFolderInUA30();
-		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(MODIFY, DUPLICATE, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE, FAVORITE);
 	}
 
 	@Test
@@ -106,16 +108,16 @@ public class DisplayDocumentMenuAcceptanceTest extends ConstellioTest {
 		logAsInZeCollection(bobGratton);
 
 		navigateToADocumentInUA10();
-		assertThatOnlyAvailableActionsAre(MODIFY, UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(MODIFY, DUPLICATE, UPLOAD, SHARE, FAVORITE);
 
 		navigateToSemiActiveDocumentInUA10();
-		assertThatOnlyAvailableActionsAre(UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(MODIFY, DUPLICATE, UPLOAD, SHARE, FAVORITE);
 
 		navigateToDestroyedDocumentInUA30();
-		assertThatOnlyAvailableActionsAre();
+		assertThatOnlyAvailableActionsAre(DUPLICATE, FAVORITE);
 
 		navigateToDepositedFolderInUA30();
-		assertThatOnlyAvailableActionsAre();
+		assertThatOnlyAvailableActionsAre(DUPLICATE, FAVORITE);
 	}
 
 	@Test
@@ -128,16 +130,16 @@ public class DisplayDocumentMenuAcceptanceTest extends ConstellioTest {
 		logAsInZeCollection(bobGratton);
 
 		navigateToADocumentInUA10();
-		assertThatOnlyAvailableActionsAre(MODIFY, UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(MODIFY, UPLOAD, SHARE, DUPLICATE, FAVORITE);
 
 		navigateToSemiActiveDocumentInUA10();
-		assertThatOnlyAvailableActionsAre(UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(MODIFY, UPLOAD, SHARE, DUPLICATE, FAVORITE);
 
 		navigateToDestroyedDocumentInUA30();
-		assertThatOnlyAvailableActionsAre(SHARE);
+		assertThatOnlyAvailableActionsAre(SHARE, DUPLICATE, FAVORITE);
 
 		navigateToDepositedFolderInUA30();
-		assertThatOnlyAvailableActionsAre(SHARE);
+		assertThatOnlyAvailableActionsAre(SHARE, DUPLICATE, FAVORITE);
 	}
 
 	@Test
@@ -150,16 +152,16 @@ public class DisplayDocumentMenuAcceptanceTest extends ConstellioTest {
 		logAsInZeCollection(bobGratton);
 
 		navigateToADocumentInUA10();
-		assertThatOnlyAvailableActionsAre(MODIFY, UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(MODIFY, UPLOAD, SHARE, DUPLICATE, FAVORITE);
 
 		navigateToSemiActiveDocumentInUA10();
-		assertThatOnlyAvailableActionsAre(UPLOAD);
+		assertThatOnlyAvailableActionsAre(MODIFY, DUPLICATE, SHARE, FAVORITE, UPLOAD);
 
 		navigateToDestroyedDocumentInUA30();
-		assertThatOnlyAvailableActionsAre();
+		assertThatOnlyAvailableActionsAre(DUPLICATE, FAVORITE);
 
 		navigateToDepositedFolderInUA30();
-		assertThatOnlyAvailableActionsAre();
+		assertThatOnlyAvailableActionsAre(DUPLICATE, FAVORITE);
 	}
 
 	private void givenUserRoleHas(String permission) {
@@ -184,10 +186,10 @@ public class DisplayDocumentMenuAcceptanceTest extends ConstellioTest {
 		logAsInZeCollection(charlesFrancoisXavier);
 
 		navigateToADocumentInUA10();
-		assertThatOnlyAvailableActionsAre(MODIFY, UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(MODIFY, UPLOAD, SHARE, DUPLICATE, FAVORITE);
 
 		navigateToSemiActiveDocumentInUA10();
-		assertThatOnlyAvailableActionsAre(UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(MODIFY, UPLOAD, SHARE, DUPLICATE, FAVORITE);
 
 		navigateToDestroyedDocumentInUA30();
 		assertThatOnlyAvailableActionsAre();
@@ -204,13 +206,13 @@ public class DisplayDocumentMenuAcceptanceTest extends ConstellioTest {
 		logAsInZeCollection(dakota);
 
 		navigateToADocumentInUA10();
-		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE, DUPLICATE, FAVORITE);
 
 		navigateToSemiActiveDocumentInUA10();
-		assertThatOnlyAvailableActionsAre(MANAGE_AUTHORIZATIONS, UPLOAD, DELETE, SHARE);
+		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE, DUPLICATE, FAVORITE);
 
 		navigateToDestroyedDocumentInUA10();
-		assertThatOnlyAvailableActionsAre(MANAGE_AUTHORIZATIONS);
+		assertThatOnlyAvailableActionsAre(MANAGE_AUTHORIZATIONS, DUPLICATE, FAVORITE);
 	}
 
 	@Test
@@ -222,31 +224,31 @@ public class DisplayDocumentMenuAcceptanceTest extends ConstellioTest {
 		logAsInZeCollection(edouard);
 
 		navigateToADocumentInUA11();
-		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE, DUPLICATE, FAVORITE);
 
 		navigateToADocumentInUA12();
-		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE, DUPLICATE, FAVORITE);
 
 		navigateToADocumentInUA30();
-		assertThatOnlyAvailableActionsAre(MODIFY, UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(MODIFY, UPLOAD, SHARE, DUPLICATE, FAVORITE);
 
 		navigateToSemiActiveDocumentInUA11();
-		assertThatOnlyAvailableActionsAre(DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE, DUPLICATE, FAVORITE);
 
 		navigateToSemiActiveDocumentInUA12();
-		assertThatOnlyAvailableActionsAre(DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE, DUPLICATE, FAVORITE);
 
 		navigateToSemiActiveDocumentInUA30();
-		assertThatOnlyAvailableActionsAre(UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(MODIFY, UPLOAD, SHARE, DUPLICATE, FAVORITE);
 
 		navigateToDestroyedDocumentInUA11();
-		assertThatOnlyAvailableActionsAre(MANAGE_AUTHORIZATIONS);
+		assertThatOnlyAvailableActionsAre(MANAGE_AUTHORIZATIONS, DUPLICATE, FAVORITE);
 
 		navigateToDestroyedDocumentInUA12();
-		assertThatOnlyAvailableActionsAre(MANAGE_AUTHORIZATIONS);
+		assertThatOnlyAvailableActionsAre(MANAGE_AUTHORIZATIONS, DUPLICATE, FAVORITE);
 
 		navigateToDestroyedDocumentInUA30();
-		assertThatOnlyAvailableActionsAre();
+		assertThatOnlyAvailableActionsAre(DUPLICATE, FAVORITE);
 
 	}
 
@@ -259,25 +261,25 @@ public class DisplayDocumentMenuAcceptanceTest extends ConstellioTest {
 		logAsInZeCollection(gandalf);
 
 		navigateToADocumentInUA10();
-		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(MODIFY, DUPLICATE, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE, FAVORITE);
 
 		navigateToADocumentInUA30();
-		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE, DUPLICATE, FAVORITE);
 
 		navigateToSemiActiveDocumentInUA10();
-		assertThatOnlyAvailableActionsAre(DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE, DUPLICATE, FAVORITE);
 
 		navigateToSemiActiveDocumentInUA30();
-		assertThatOnlyAvailableActionsAre(DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE, DUPLICATE, FAVORITE);
 
 		navigateToDestroyedDocumentInUA10();
-		assertThatOnlyAvailableActionsAre(MANAGE_AUTHORIZATIONS);
+		assertThatOnlyAvailableActionsAre(MANAGE_AUTHORIZATIONS, DUPLICATE, FAVORITE);
 
 		navigateToDestroyedDocumentInUA30();
-		assertThatOnlyAvailableActionsAre(MANAGE_AUTHORIZATIONS);
+		assertThatOnlyAvailableActionsAre(MANAGE_AUTHORIZATIONS, DUPLICATE, FAVORITE);
 
 		navigateToDepositedFolderInUA30();
-		assertThatOnlyAvailableActionsAre(MANAGE_AUTHORIZATIONS);
+		assertThatOnlyAvailableActionsAre(MANAGE_AUTHORIZATIONS, DUPLICATE, FAVORITE);
 	}
 
 	@Test
@@ -287,43 +289,43 @@ public class DisplayDocumentMenuAcceptanceTest extends ConstellioTest {
 		logAsInZeCollection(chuckNorris);
 
 		navigateToADocumentInUA10();
-		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE, DUPLICATE, FAVORITE);
 
 		navigateToADocumentInUA11();
-		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE, DUPLICATE, FAVORITE);
 
 		navigateToADocumentInUA12();
-		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE, DUPLICATE, FAVORITE);
 
 		navigateToADocumentInUA30();
-		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE, DUPLICATE, FAVORITE);
 
 		navigateToSemiActiveDocumentInUA10();
-		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE, DUPLICATE, FAVORITE);
 
 		navigateToSemiActiveDocumentInUA11();
-		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE, DUPLICATE, FAVORITE);
 
 		navigateToSemiActiveDocumentInUA12();
-		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE, DUPLICATE, FAVORITE);
 
 		navigateToSemiActiveDocumentInUA30();
-		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE, DUPLICATE, FAVORITE);
 
 		navigateToDestroyedDocumentInUA10();
-		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE, DUPLICATE, FAVORITE);
 
 		navigateToDestroyedDocumentInUA11();
-		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE, DUPLICATE, FAVORITE);
 
 		navigateToDestroyedDocumentInUA12();
-		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE, DUPLICATE, FAVORITE);
 
 		navigateToDestroyedDocumentInUA30();
-		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE, DUPLICATE, FAVORITE);
 
 		navigateToDepositedFolderInUA30();
-		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE);
+		assertThatOnlyAvailableActionsAre(MODIFY, DELETE, MANAGE_AUTHORIZATIONS, UPLOAD, SHARE, DUPLICATE, FAVORITE);
 	}
 
 	private void logAsInZeCollection(String user) {
@@ -415,6 +417,14 @@ public class DisplayDocumentMenuAcceptanceTest extends ConstellioTest {
 		return assertThatButtonState("Téléverser");
 	}
 
+	private org.assertj.core.api.ObjectAssert<ComponentState> assertThatFavoriteButtonState() {
+		return assertThatButtonState("Ajouter à vos favoris");
+	}
+
+	private org.assertj.core.api.ObjectAssert<ComponentState> assertThatDuplicateButtonState() {
+		return assertThatButtonState("Dupliquer le document");
+	}
+
 	private void assertThatOnlyAvailableActionsAre(AddEditDocumentAction... expectedActions) {
 		List<AddEditDocumentAction> expectedActionsList = asList(expectedActions);
 
@@ -446,6 +456,18 @@ public class DisplayDocumentMenuAcceptanceTest extends ConstellioTest {
 			assertThatShareButtonState().isEqualTo(ComponentState.ENABLED);
 		} else {
 			assertThatShareButtonState().isEqualTo(ComponentState.INVISIBLE);
+		}
+
+		if (expectedActionsList.contains(DUPLICATE)) {
+			assertThatDuplicateButtonState().isEqualTo(ComponentState.ENABLED);
+		} else {
+			assertThatDuplicateButtonState().isEqualTo(ComponentState.INVISIBLE);
+		}
+
+		if (expectedActionsList.contains(FAVORITE)) {
+			assertThatFavoriteButtonState().isEqualTo(ComponentState.ENABLED);
+		} else {
+			assertThatFavoriteButtonState().isEqualTo(ComponentState.INVISIBLE);
 		}
 	}
 

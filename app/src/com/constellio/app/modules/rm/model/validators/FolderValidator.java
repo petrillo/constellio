@@ -5,6 +5,7 @@ import com.constellio.app.modules.rm.wrappers.Category;
 import com.constellio.app.modules.rm.wrappers.Folder;
 import com.constellio.app.modules.rm.wrappers.RetentionRule;
 import com.constellio.app.modules.rm.wrappers.UniformSubdivision;
+import com.constellio.model.entities.records.wrappers.RecordWrapper;
 import com.constellio.model.entities.schemas.validation.RecordValidator;
 import com.constellio.model.services.records.RecordValidatorParams;
 
@@ -39,7 +40,7 @@ public class FolderValidator implements RecordValidator {
 
 				params.getValidationErrors().add(FolderValidator.class, FOLDER_UNIFORM_SUBDIVISION_MUST_BE_RELATED_TO_ITS_RULE, parameters);
 			}
-		} else if (params.getConfigProvider().get(RMConfigs.ENFORCE_CATEGORY_AND_RULE_RELATIONSHIP_IN_FOLDER)) {
+		} else if (params.getConfigProvider().<Boolean>get(RMConfigs.ENFORCE_CATEGORY_AND_RULE_RELATIONSHIP_IN_FOLDER)) {
 			Category category = Category.wrap(params.getRecord(folder.getCategory()), params.getTypes());
 			 if (!category.getRententionRules().contains(retentionRule.getId())) {
 				Map<String, Object> parameters = new HashMap<>();

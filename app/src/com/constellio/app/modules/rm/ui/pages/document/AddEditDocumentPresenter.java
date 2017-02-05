@@ -139,11 +139,15 @@ public class AddEditDocumentPresenter extends SingleSchemaBasePresenter<AddEditD
 	private void populateFromExistingDocument(String existingDocumentId) {
 		Document document = rmSchemasRecordsServices.getDocument(existingDocumentId);
 		Content content = document.getContent();
-		ContentVersion contentVersion = content.getCurrentVersion();
-		ContentVersionVO contentVersionVO = contentVersionToVOBuilder.build(content, contentVersion);
-		contentVersionVO.setMajorVersion(contentVersion.isMajor());
-		contentVersionVO.setVersion(contentVersion.getVersion());
-		documentVO.setContent(contentVersionVO);
+		
+		if (content != null) {
+			ContentVersion contentVersion = content.getCurrentVersion();
+			ContentVersionVO contentVersionVO = contentVersionToVOBuilder.build(content, contentVersion);
+			contentVersionVO.setMajorVersion(contentVersion.isMajor());
+			contentVersionVO.setVersion(contentVersion.getVersion());
+			documentVO.setContent(contentVersionVO);
+		}
+		
 		documentVO.setTitle(document.getTitle() + " (" + $("AddEditDocumentViewImpl.copy") + ")");
 		documentVO.setFolder(document.getFolder());
 	}
@@ -336,17 +340,20 @@ public class AddEditDocumentPresenter extends SingleSchemaBasePresenter<AddEditD
 		}
 		ContentManager contentManager = modelLayerFactory.getContentManager();
 		ContentVersionVO contentVO = documentVO.getContent();
-		Boolean majorVersion = contentVO.isMajorVersion();
-		String fileName = contentVO.getFileName();
-		String hash = contentVO.getHash();
-		ContentVersionDataSummary contentVersionDataSummary = contentManager.getContentVersionSummary(hash);
-		Content copiedContent;
-		if (majorVersion != null && majorVersion) {
-			copiedContent = contentManager.createMajor(getCurrentUser(), fileName, contentVersionDataSummary);
-		} else {
-			copiedContent = contentManager.createMinor(getCurrentUser(), fileName, contentVersionDataSummary);
+		
+		if (contentVO != null) {
+			Boolean majorVersion = contentVO.isMajorVersion();
+			String fileName = contentVO.getFileName();
+			String hash = contentVO.getHash();
+			ContentVersionDataSummary contentVersionDataSummary = contentManager.getContentVersionSummary(hash);
+			Content copiedContent;
+			if (majorVersion != null && majorVersion) {
+				copiedContent = contentManager.createMajor(getCurrentUser(), fileName, contentVersionDataSummary);
+			} else {
+				copiedContent = contentManager.createMinor(getCurrentUser(), fileName, contentVersionDataSummary);
+			}
+			record.set(contentMetadata, copiedContent);
 		}
-		record.set(contentMetadata, copiedContent);
 	}
 
 	private RMSchemasRecordsServices rmSchemas() {
