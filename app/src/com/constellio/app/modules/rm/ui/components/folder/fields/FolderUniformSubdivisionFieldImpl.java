@@ -1,11 +1,16 @@
 package com.constellio.app.modules.rm.ui.components.folder.fields;
 
+import com.constellio.app.modules.rm.wrappers.UniformSubdivision;
 import com.constellio.app.ui.framework.components.converters.RecordIdToCaptionConverter;
-import com.vaadin.ui.ComboBox;
+import com.constellio.app.ui.framework.components.fields.record.RecordComboBox;
 
-public class FolderUniformSubdivisionFieldImpl extends ComboBox implements FolderUniformSubdivisionField {
+public class FolderUniformSubdivisionFieldImpl extends RecordComboBox implements FolderUniformSubdivisionField {
 
 	private RecordIdToCaptionConverter captionConverter = new RecordIdToCaptionConverter();
+
+	public FolderUniformSubdivisionFieldImpl() {
+		super(UniformSubdivision.DEFAULT_SCHEMA);
+	}
 
 	@Override
 	public String getItemCaption(Object itemId) {
