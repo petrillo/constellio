@@ -54,6 +54,7 @@ import com.constellio.model.entities.records.wrappers.UserDocument;
 import com.constellio.model.entities.schemas.Metadata;
 import com.constellio.model.entities.schemas.MetadataSchema;
 import com.constellio.model.entities.schemas.MetadataSchemasRuntimeException;
+import com.constellio.model.entities.schemas.Schemas;
 import com.constellio.model.entities.schemas.entries.DataEntryType;
 import com.constellio.model.services.contents.ContentManager;
 import com.constellio.model.services.contents.ContentVersionDataSummary;
@@ -148,8 +149,21 @@ public class AddEditDocumentPresenter extends SingleSchemaBasePresenter<AddEditD
 			documentVO.setContent(contentVersionVO);
 		}
 		
+		MetadataSchema schema = document.getSchema();
+		for (Metadata metadata : schema.getMetadatas().onlyEnabled().onlyNonSystemReserved().onlyManuals().onlyDuplicable()) {
+			String localCode = metadata.getLocalCode();
+			
+			if(Document.FORM_CREATED_BY.equals(localCode)) {
+				documentVO.set(metadata.getCode(), getCurrentUser());
+			} else if(Document.FORM_CREATED_ON.equals(localCode)) {
+				documentVO.set(metadata.getCode(), TimeProvider.getLocalDateTime());
+			} else if (!Document.CONTENT.equals(localCode)) {
+				Object value = document.getWrappedRecord().get(metadata);
+				documentVO.set(metadata.getCode(), value);
+			} 
+		}
+		
 		documentVO.setTitle(document.getTitle() + " (" + $("AddEditDocumentViewImpl.copy") + ")");
-		documentVO.setFolder(document.getFolder());
 	}
 
 	@Override
