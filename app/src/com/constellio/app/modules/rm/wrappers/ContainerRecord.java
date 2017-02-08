@@ -20,6 +20,7 @@ public class ContainerRecord extends RecordWrapper {
 	public static final String ADMINISTRATIVE_UNITS = "administrativeUnits";
 	public static final String BORROW_DATE = "borrowDate";
 	public static final String BORROWER = "borrower";
+	public static final String BORROW_HISTORY = "borrowHistory";
 	public static final String COMPLETION_DATE = "completionDate";
 	public static final String DECOMMISSIONING_TYPE = "decommissioningType";
 	public static final String DESCRIPTION = "description";
@@ -134,6 +135,10 @@ public class ContainerRecord extends RecordWrapper {
 
 	public String getBorrower() {
 		return get(BORROWER);
+	}
+
+	public String getBorrowHistory() {
+		return get(BORROW_HISTORY);
 	}
 
 	public ContainerRecord setBorrower(Record borrower) {

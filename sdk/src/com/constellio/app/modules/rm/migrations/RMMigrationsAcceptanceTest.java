@@ -58,6 +58,7 @@ public class RMMigrationsAcceptanceTest extends ConstellioTest {
 						metadataSchemaTypes);
 				whenMigratingToCurrentVersionThenEmailDocumentTypeIsNotLogicallyDeleted();
 				whenMigratingToCurrentVersionThenAllSchemaTypeHasNewCommonMetadatas(metadataSchemaTypes);
+				whenMigrateToCurrentVersionThenContainerRecordHasBorrowHistoryMetadata();
 			}
 		}
 	}
@@ -274,6 +275,14 @@ public class RMMigrationsAcceptanceTest extends ConstellioTest {
 		assertThat(rgdRole.getOperationPermissions()).containsAll(RMPermissionsTo.PERMISSIONS.getAll());
 		assertThat(rgdRole.getOperationPermissions()).containsAll(CorePermissions.PERMISSIONS.getAll());
 		assertThat(rgdRole.getOperationPermissions()).has(noDuplicates());
+	}
+	
+	private void whenMigrateToCurrentVersionThenContainerRecordHasBorrowHistoryMetadata() {
+		MetadataSchema containerRecordSchema = rm.containerRecord.schema();
+		
+		Metadata borrowHistory = containerRecordSchema.get(ContainerRecord.BORROW_HISTORY);
+		assertThat(borrowHistory).isNotNull();
+		assertThat(borrowHistory.getType()).isEqualTo(MetadataValueType.STRUCTURE);
 	}
 	//--------------------------------------------------------------
 

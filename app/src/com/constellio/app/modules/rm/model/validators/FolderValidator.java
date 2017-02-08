@@ -23,7 +23,7 @@ public class FolderValidator implements RecordValidator {
 	}
 
 	private void validate(Folder folder, RecordValidatorParams params) {
-		if (params.getConfigProvider().get(RMConfigs.ENFORCE_CATEGORY_AND_RULE_RELATIONSHIP_IN_FOLDER)) {
+		if (params.getConfigProvider().<Boolean>get(RMConfigs.ENFORCE_CATEGORY_AND_RULE_RELATIONSHIP_IN_FOLDER)) {
 			RetentionRule retentionRule = RetentionRule.wrap(params.getRecord(folder.getRetentionRule()), params.getTypes());
 			Category category = Category.wrap(params.getRecord(folder.getCategory()), params.getTypes());
 			if (!category.getRententionRules().contains(retentionRule.getId())) {

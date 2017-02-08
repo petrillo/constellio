@@ -354,6 +354,10 @@ public class RMGeneratedSchemaRecordsServices extends SchemasRecordsServices {
 			return metadata("borrower");
 		}
 
+		public Metadata borrowHistory() {
+			return metadata("borrowHistory");
+		}
+
 		public Metadata capacity() {
 			return metadata("capacity");
 		}

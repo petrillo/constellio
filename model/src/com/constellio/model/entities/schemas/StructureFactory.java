@@ -2,10 +2,10 @@ package com.constellio.model.entities.schemas;
 
 import java.io.Serializable;
 
-public interface StructureFactory extends Serializable {
+public interface StructureFactory<T extends ModifiableStructure> extends Serializable {
 
-	ModifiableStructure build(String string);
+	T build(String string);
 
-	String toString(ModifiableStructure structure);
+	String toString(T structure);
 
 }
