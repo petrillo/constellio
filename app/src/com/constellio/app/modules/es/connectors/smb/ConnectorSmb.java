@@ -34,6 +34,7 @@ import com.constellio.model.services.records.RecordServicesException;
 import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
+import org.joda.time.DateTime;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -58,7 +59,7 @@ public class ConnectorSmb extends Connector {
 	static final String RESUME_OF_TRAVERSAL = "Resume of traversal";
 	static final String END_OF_TRAVERSAL = "End of traversal";
 
-	private static final int MAX_JOBS_PER_GET_JOBS_CALL = 200;
+	private static final int MAX_JOBS_PER_GET_JOBS_CALL = 500;
 
 	private ConnectorSmbInstance connectorInstance;
 	private ConnectorSmbUtils smbUtils;
@@ -73,6 +74,8 @@ public class ConnectorSmb extends Connector {
 	private String connectorId;
 	private SmbConnectorContext context;
 	private SmbConnectorContextServices contextServices;
+
+	private DateTime lastSave;
 
 	public ConnectorSmb() {
 		urlComparator = new SmbUrlComparator();
@@ -166,7 +169,10 @@ public class ConnectorSmb extends Connector {
 
 	@Override
 	public void afterJobs(List<ConnectorJob> jobs) {
-		contextServices.save(context);
+		if (lastSave == null || lastSave.plusMinutes(15).isBeforeNow()) {
+			contextServices.save(context);
+			lastSave = new DateTime();
+		}
 	}
 
 	@Override
