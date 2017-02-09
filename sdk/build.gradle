@@ -1,34 +1,4 @@
-plugins {
-    id "org.sonarqube" version "2.2"
-}
-
-plugins {
-    id "fi.jasoft.plugin.vaadin" version '0.11.4'
-}
-
-vaadin {
-    version '7.7.4'
-    addon.title = "constellio"
-
-    widgetset 'com.constellio.app.ui.application.widgetset.AppWidgetset'
-    manageWidgetset true
-
-    debug true
-    debugPort 8000
-    profiler true
-
-    manageRepositories = true
-    manageDependencies true
-
-    serverPort 8080
-
-    jvmArgs()
-
-    //mainSourceSet sourceSets.main.allJava
-
-    vaadin.plugin.themesDirectory 'VAADIN/themes/constellio'
-    vaadin.plugin.themeAutoRecompile true
-}
+apply plugin: 'org.sonarqube'
 
 dependencies {
     testCompile project(":data")
