@@ -1,5 +1,6 @@
 plugins {
-    id "org.sonarqube" version "1.2"
+    id "fi.jasoft.plugin.vaadin" version '0.11.4' apply false
+    id "org.sonarqube" version "1.2" apply false
 }
 
 apply plugin: 'war'
@@ -13,15 +14,12 @@ allprojects {
     apply plugin: 'eclipse'
     apply plugin: 'idea'
 
-    applicationDefaultJvmArgs = ["-XX:MaxPermSize=256m"]
-
     sourceCompatibility = 1.7
+    targetCompatibility = 1.7
 
     tasks.withType(JavaCompile) {
         options.encoding = 'UTF-8'
         options.fork = true
-        options.forkOptions.setMemoryMaximumSize("2g")
-        options.forkOptions.setJvmArgs(["-XX:MaxPermSize=256m"])
     }
 
     tasks.withType(Javadoc) {
@@ -47,13 +45,6 @@ allprojects {
         }
     }
 
-
-    test {
-        minHeapSize = "128m"
-        maxHeapSize = "3g"
-        jvmArgs '-XX:MaxPermSize=256m'
-    }
-
     repositories {
         mavenCentral()
         maven {
@@ -67,22 +58,25 @@ allprojects {
             name "sonatype vaadin"
             url "https://oss.sonatype.org/content/repositories/vaadin/"
         }
-        flatDir {
-            dirs: 'libs'
+        maven {
+            url 'http://jaspersoft.artifactoryonline.com/jaspersoft/third-party-ce-artifacts/'
+        }
+        maven {
+            url 'http://jasperreports.sourceforge.net/maven2'
         }
     }
 
     dependencies {
         testCompile 'nl.jqno.equalsverifier:equalsverifier:1.4.1'
-        testCompile 'org.jacoco:org.jacoco.agent:0.7.1.201405082137'
-        testCompile 'org.jacoco:org.jacoco.ant:0.7.1.201405082137'
+        testCompile 'org.jacoco:org.jacoco.agent:0.7.5+'
+        testCompile 'org.jacoco:org.jacoco.ant:0.7.5+'
 
         compile "com.cybozu.labs:langdetect:1.1-20120112"
         compile "com.eaio.uuid:uuid:3.2"
         compile "org.jdom:jdom:2.0.2"
         compile "org.apache.poi:poi-ooxml:3.12"
         compile "org.apache.poi:poi:3.12"
-        compile "org.eclipse.jetty.aggregate:jetty-all-server:8.1.10.v20130312"
+        compile "org.eclipse.jetty.aggregate:jetty-all-server:8.2.0.v20160908"
         compile "org.slf4j:slf4j-log4j12:1.7.7"
         compile "org.slf4j:slf4j-api:1.7.7"
         compile "jspf:jspf.core:1.0.0"
@@ -105,16 +99,6 @@ allprojects {
         compile "javax.servlet.jsp:jsp-api:2.2"
         compile "com.auxilii.msgparser:msgparser-1.12"
         compile "com.sun.messaging.mq:jaxm-api:4.4.1"
-
-        compile files("libs/commons-beanutils-1.8.2.jar")
-        compile files("libs/commons-collections-3.2.1.jar")
-        compile files("libs/commons-dbcp-1.2.2.jar")
-        compile files("libs/commons-digester-2.1.jar")
-        compile files("libs/groovy-all-2.0.1.jar")
-        compile files("libs/iText-2.1.7.jar")
-        compile files("libs/jasperreports-6.3.0.jar")
-        compile files("libs/com.lowagie.text-2.1.7.jar")
-        compile files("libs/barbecue-1.5-beta1.jar")
     }
 
     configurations {
@@ -123,7 +107,7 @@ allprojects {
     }
 
     jar {
-        version = '7.0.5'
+        version = "7.0.5"
     }
 }
 
@@ -138,6 +122,23 @@ war {
         }
         from("reportsRecource/") {
             into("resources/reports")
+        }
+    }
+
+    if (new File(rootDir, "../constellio-plugins").exists()) {
+        def updatePlugins = [":plugins:plugin001", ":plugins:plugin002", ":plugins:plugin003", ":plugins:plugin004",
+                             ":plugins:plugin005", ":plugins:plugin006", ":plugins:plugin007", ":plugins:plugin008",
+                             ":plugins:plugin009", ":plugins:plugin010", ":plugins:plugin012", ":plugins:plugin015",
+                             ":plugins:plugin016", ":plugins:plugin017", ":plugins:plugin018", ":plugins:plugin019",
+                             ":plugins:plugin020"]
+        def installPlugins = [':plugins:plugin023']
+
+        from(files(updatePlugins.collect { project(it).jar.outputs.files })) {
+            into "plugins-to-update"
+        }
+
+        from(files(installPlugins.collect { project(it).jar.outputs.files })) {
+            into "plugins-to-install"
         }
     }
 
@@ -169,31 +170,6 @@ task compilePlugin() {
     }
 }
 
-task compileAllPlugins() {
-    dependsOn project(":plugins:plugin001").build
-    dependsOn project(":plugins:plugin002").build
-    dependsOn project(":plugins:plugin003").build
-    dependsOn project(":plugins:plugin004").build
-    dependsOn project(":plugins:plugin005").build
-    dependsOn project(":plugins:plugin006").build
-    dependsOn project(":plugins:plugin007").build
-    dependsOn project(":plugins:plugin008").build
-    dependsOn project(":plugins:plugin009").build
-    dependsOn project(":plugins:plugin010").build
-    dependsOn project(":plugins:plugin011").build
-    dependsOn project(":plugins:plugin012").build
-    dependsOn project(":plugins:plugin013").build
-    dependsOn project(":plugins:plugin014").build
-    dependsOn project(":plugins:plugin015").build
-    dependsOn project(":plugins:plugin016").build
-    dependsOn project(":plugins:plugin017").build
-    dependsOn project(":plugins:plugin018").build
-    dependsOn project(":plugins:plugin019").build
-    dependsOn project(":plugins:plugin020").build
-    dependsOn project(":plugins:plugin021").build
-    dependsOn project(":plugins:plugin023").build
-}
-
 task unWar(type: Copy) {
     def outputDir = buildDir.getAbsolutePath() + "/tmp/war_tmp/"
 
@@ -223,18 +199,6 @@ eclipse {
     }
 }
 
-sonarqube {
-    properties {
-        property "sonar.host.url", "http://167.114.79.165:81"
-        property "sonar.jdbc.url", "jdbc:mysql://167.114.79.165/sonar"
-        property "sonar.jdbc.driverClassName", "com.mysql.jdbc.Driver"
-        property "sonar.jdbc.username", "sonar"
-        property "sonar.jdbc.password", "6BKWMnLtrSNH"
-        property "sonar.java.coveragePlugin", "jacoco"
-        property "sonar.skipPackageDesign", "true"
-    }
-}
-
 jacocoTestReport {
     group = "reporting"
     reports {
@@ -251,4 +215,3 @@ test {
 }
 
 mainClassName = 'com.constellio.app.start.MainConstellio'
-

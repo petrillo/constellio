@@ -1,32 +1,38 @@
-plugins {
-    id "fi.jasoft.plugin.vaadin" version '0.11.4'
+apply plugin: 'fi.jasoft.plugin.vaadin'
+
+repositories {
+
 }
 
 vaadin {
-
     version '7.7.4'
     addon.title = "constellio"
-
-    widgetset 'com.constellio.app.ui.application.widgetset.AppWidgetset'
-    manageWidgetset false
-
-    debug true
-    debugPort 8000
-    profiler true
 
     manageRepositories = true
     manageDependencies true
 
-    serverPort 8080
-
-    jvmArgs()
-
     mainSourceSet sourceSets.main.allJava
 
-    plugin.themesDirectory 'WebContent/VAADIN/themes/constellio'
-    plugin.themeAutoRecompile true
-    plugin.useClassPathJar true
-    plugin.logToConsole = true
+    useClassPathJar true
+    logToConsole = true
+}
+
+vaadinCompile {
+    widgetset 'com.constellio.app.ui.application.widgetset.AppWidgetset'
+    manageWidgetset false
+    profiler true
+}
+
+vaadinThemeCompile {
+    themesDirectory 'WebContent/VAADIN/themes/constellio'
+}
+
+vaadinRun {
+    debug true
+    debugPort 8000
+    serverPort 8080
+    jvmArgs()
+    themeAutoRecompile true
 }
 
 dependencies {
@@ -75,14 +81,9 @@ dependencies {
     compile "com.google.code.gson:gson:1.7.2"
     compile "com.sun.messaging.mq:jaxm-api:4.4.1"
     compile "org.vaadin.addons:ckeditor-wrapper-for-vaadin:7.11.0"
-
     compile "org.samba.jcifs:jcifs_gcm:322"
     compile "vaadin:mediaelementjs-player:1.2.6"
     compile "org.apache.commons:commons-jexl3:3.0"
-
-    //compile "com.vaadin:vaadin-client-compiler:7.7.4"
-    //compile files("libs/vaadin-breadcrumb-1.7.3.jar")
-
     compile "juh:juh:3.2.1"
     compile "jurt:jurt:3.2.1"
     compile "ridl:ridl:3.2.1"
@@ -92,6 +93,7 @@ dependencies {
     compile "com.jgoodies:jgoodies-common:1.7.0"
     compile "nl.bitwalker:UserAgentUtils:1.2.4"
     compile "org.jasig.cas:cas-client-core:3.1.10"
+    compile 'net.sf.jasperreports:jasperreports:6.4.0'
 }
 
 war {

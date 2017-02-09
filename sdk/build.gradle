@@ -1,30 +1,4 @@
-plugins {
-    id "fi.jasoft.plugin.vaadin" version '0.11.4'
-}
-
-vaadin {
-    version '7.7.4'
-    addon.title = "constellio"
-
-    widgetset 'com.constellio.app.ui.application.widgetset.AppWidgetset'
-    manageWidgetset true
-
-    debug true
-    debugPort 8000
-    profiler true
-
-    manageRepositories = true
-    manageDependencies true
-
-    serverPort 8080
-
-    jvmArgs()
-
-    //mainSourceSet sourceSets.main.allJava
-
-    vaadin.plugin.themesDirectory 'VAADIN/themes/constellio'
-    vaadin.plugin.themeAutoRecompile true
-}
+apply plugin: 'org.sonarqube'
 
 dependencies {
     testCompile project(":data")
@@ -43,13 +17,6 @@ dependencies {
     testCompile "org.slf4j:slf4j-log4j12:1.7.7"
     testCompile "org.slf4j:slf4j-api:1.7.7"
     testCompile "javax.servlet:javax.servlet-api:3.1.0"
-    testCompile "com.vaadin:vaadin-shared:7.7.4"
-    testCompile "com.vaadin:vaadin-client:7.7.4"
-    testCompile "com.vaadin:vaadin-server:7.7.4"
-    testCompile "com.vaadin:vaadin-themes:7.7.4"
-    testCompile "com.vaadin:vaadin-client-compiled:7.7.4"
-//    testCompile "com.vaadin:vaadin-client-compiler:7.7.4"
-    testCompile "com.vaadin:vaadin-sass-compiler:0.9.11"
     testCompile "javax.servlet:javax.servlet-api:3.1.0"
     testCompile "javax.servlet.jsp:jsp-api:2.2"
     testCompile "junit:junit:4.11"
@@ -60,7 +27,7 @@ dependencies {
     testCompile "com.github.detro.ghostdriver:phantomjsdriver:1.1.0"
     testCompile "org.apache.zookeeper:zookeeper:3.4.6"
     testCompile "javax.validation:validation-api:1.0.0.GA"
-    testCompile "com.squareup:javapoet:1.7.0";
+    testCompile "com.squareup:javapoet:1.7.0"
 
     compile project(":data")
     compile project(":model")
@@ -75,18 +42,12 @@ dependencies {
     compile "com.github.detro.ghostdriver:phantomjsdriver:1.1.0"
     compile "javax.servlet:javax.servlet-api:3.1.0"
     compile "javax.servlet.jsp:jsp-api:2.2"
-    compile "com.vaadin:vaadin-shared:7.7.4"
-    compile "com.vaadin:vaadin-client:7.7.4"
-    compile "com.vaadin:vaadin-server:7.7.4"
-    compile "com.vaadin:vaadin-themes:7.7.4"
-    compile "com.vaadin:vaadin-client-compiled:7.7.4"
-//    compile "com.vaadin:vaadin-client-compiler:7.7.4"
-    compile "com.vaadin:vaadin-sass-compiler:0.9.11"
     compile "org.apache.solr:solr-solrj:5.0.0"
     compile "org.apache.solr:solr-core:5.0.0"
     compile "org.apache.zookeeper:zookeeper:3.4.6"
     compile "javax.validation:validation-api:1.1.0.Final"
-
+    compile "org.joda:joda-convert:1.8.1"
+    compile "com.google.code.findbugs:jsr305:3.0.0"
 }
 configurations {
     compile.exclude group: "org.ow2.asm:asm:asm-debug-all-5.0.1"
@@ -124,6 +85,8 @@ artifacts {
     testArtifacts jarTest
 }
 
+project.tasks["sonarqube"].dependsOn "build"
+
 sonarqube {
     properties {
         property "sonar.jacoco.reportPath", "$projectDir/sdk/build/jacoco/test.exec"
@@ -131,5 +94,22 @@ sonarqube {
         property "sonar.projectName", "constellio"
         property "sonar.projectKey", "constellio"
         property "sonar.sources", "src/"
+    }
+}
+
+sourceSets {
+    sonar {
+        java {
+        }
+    }
+}
+
+task buildSonarSourceset() {
+    List projectsList = [":app", ":model", ":data"];
+
+    projectsList.each {
+        project(it).sourceSets.main.allSource.srcDirs.each {
+            sourceSets.sonar.allJava.srcDirs += it;
+        }
     }
 }

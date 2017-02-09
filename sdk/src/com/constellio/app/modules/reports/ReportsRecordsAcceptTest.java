@@ -1,5 +1,23 @@
 package com.constellio.app.modules.reports;
 
+import static com.constellio.model.services.search.query.logical.LogicalSearchQueryOperators.from;
+import static junit.framework.TestCase.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.List;
+
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.input.SAXBuilder;
+import org.joda.time.LocalDate;
+import org.junit.Before;
+import org.junit.Test;
+
 import com.constellio.app.modules.reports.wrapper.ReportConfig;
 import com.constellio.app.modules.rm.RMTestRecords;
 import com.constellio.app.modules.rm.services.RMSchemasRecordsServices;
@@ -19,33 +37,6 @@ import com.constellio.model.services.search.SearchServices;
 import com.constellio.model.services.search.query.logical.condition.LogicalSearchCondition;
 import com.constellio.sdk.tests.ConstellioTest;
 import com.constellio.sdk.tests.annotations.InDevelopmentTest;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Collections2;
-import com.vaadin.data.Container;
-import net.sf.jasperreports.engine.JRParameter;
-import net.sf.jasperreports.engine.JasperFillManager;
-import net.sf.jasperreports.engine.query.JRXPathQueryExecuterFactory;
-import net.sf.jasperreports.engine.util.JRLoader;
-import net.sf.jasperreports.engine.util.JRXmlUtils;
-import org.apache.commons.digester.Rule;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
-import org.joda.time.LocalDate;
-import org.junit.*;
-import org.krysalis.barcode4j.BarcodeException;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.lang.reflect.Field;
-import java.util.*;
-import java.util.regex.Pattern;
-
-import static com.constellio.model.services.search.query.logical.LogicalSearchQueryOperators.from;
-import static junit.framework.TestCase.fail;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Created by Nicolas D'amours & Charles Blanchette on 2017-01-16.
@@ -70,7 +61,7 @@ public class ReportsRecordsAcceptTest extends ConstellioTest {
         contentManager = getModelLayerFactory().getContentManager();
     }
 
-    @Test
+    //@Test
     public void createReportLabelAndAssignData() throws Exception {
         String title = "test REcords 1";
         String file = "C:\\Users\\Marco\\JaspersoftWorkspace\\MyReports\\Avery_5162_Vide.jasper";
@@ -89,7 +80,7 @@ public class ReportsRecordsAcceptTest extends ConstellioTest {
         assertThat(retour.getJasperfile().getCurrentVersion().getHash()).isEqualTo(c.getCurrentVersion().getHash());
     }
 
-    @Test
+    //@Test
     public void createRecordsLabelAndAssignData() throws Exception {
         String title = "Test records 2";
         String file = "C:\\Users\\Marco\\JaspersoftWorkspace\\MyReports\\Avery_5162_Vide.jasper";
@@ -255,8 +246,8 @@ public class ReportsRecordsAcceptTest extends ConstellioTest {
         assertThat(meta.getChildren()).isNullOrEmpty();
     }
 
-    @Test
-    @InDevelopmentTest
+    //@Test
+   //@InDevelopmentTest
     public void UseCompiledJasperFileAndXmlToCreatePDF() throws Exception {
         String xml = ru.convertContainerToXML(null);
         ru.createPDFFromXmlAndJasperFile(xml, new File("C:\\Users\\Marco\\Desktop\\Avery_5159_Container.jasper"), "test");

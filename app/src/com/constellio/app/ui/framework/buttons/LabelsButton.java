@@ -3,16 +3,15 @@ package com.constellio.app.ui.framework.buttons;
 import static com.constellio.app.ui.i18n.i18n.$;
 import static com.constellio.model.services.search.query.logical.LogicalSearchQueryOperators.from;
 
-import java.io.*;
+import java.io.File;
+import java.io.InputStream;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
-import com.constellio.app.extensions.AppLayerCollectionExtensions;
-import com.constellio.app.modules.rm.ConstellioRMModule;
-import com.constellio.app.modules.rm.extensions.api.RMModuleExtensions;
-import com.constellio.app.modules.rm.extensions.api.reports.RMReportBuilderFactories;
+import org.apache.commons.io.FileUtils;
+
 import com.constellio.app.modules.rm.model.labelTemplate.LabelTemplate;
-import com.constellio.app.modules.rm.reports.factories.labels.LabelsReportParameters;
 import com.constellio.app.modules.rm.services.RMSchemasRecordsServices;
 import com.constellio.app.modules.rm.services.reports.ReportUtils;
 import com.constellio.app.modules.rm.wrappers.Folder;
@@ -21,19 +20,13 @@ import com.constellio.app.services.factories.AppLayerFactory;
 import com.constellio.app.ui.entities.LabelParametersVO;
 import com.constellio.app.ui.framework.components.BaseForm;
 import com.constellio.app.ui.framework.components.LabelViewer;
-import com.constellio.app.ui.framework.components.ReportViewer;
-import com.constellio.app.ui.framework.reports.NewReportWriterFactory;
-import com.constellio.app.ui.pages.base.BaseViewImpl;
-import com.constellio.data.utils.Factory;
 import com.constellio.model.entities.records.Content;
 import com.constellio.model.frameworks.validation.ValidationException;
-import com.constellio.model.services.contents.ContentImpl;
 import com.constellio.model.services.contents.ContentManager;
 import com.constellio.model.services.factories.ModelLayerFactory;
 import com.constellio.model.services.search.SearchServices;
 import com.constellio.model.services.search.query.logical.LogicalSearchQuery;
 import com.constellio.model.services.search.query.logical.condition.LogicalSearchCondition;
-import com.sun.org.apache.xml.internal.security.algorithms.implementations.IntegrityHmac;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.fieldgroup.PropertyId;
@@ -42,10 +35,7 @@ import com.vaadin.ui.AbstractSelect.ItemCaptionMode;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.TextField;
-import org.apache.commons.el.Logger;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.beanutils.converters.StringConverter;
-import org.eclipse.jetty.deploy.App;
+
 
 public class LabelsButton extends WindowButton {
     @PropertyId("startPosition")
