@@ -26,7 +26,7 @@ public class BorrowHistoryFactory implements StructureFactory<BorrowHistory> {
 	private static String BORROWER_USER_NAME = "bun=";
 	private static String APPROVING_ID = "ai=";
 	private static String APPROVING_USER_NAME = "aun=";
-	private static String PLANNED_BORROW_DATE = "pbd=";
+	private static String PLANIFIED_RETURN_DATE = "prd=";
 	private static String BORROW_DATE = "bd=";
 	private static String RETURN_DATE = "rd=";
 
@@ -69,7 +69,7 @@ public class BorrowHistoryFactory implements StructureFactory<BorrowHistory> {
 				extractValue(BORROWER_USER_NAME, st.nextToken()),
 				extractValue(APPROVING_ID, st.nextToken()),
 				extractValue(APPROVING_USER_NAME, st.nextToken()),
-				extractValue(PLANNED_BORROW_DATE, st.nextToken()),
+				extractValue(PLANIFIED_RETURN_DATE, st.nextToken()),
 				extractValue(BORROW_DATE, st.nextToken()),
 				extractValue(RETURN_DATE, st.nextToken())
 		);
@@ -102,7 +102,7 @@ public class BorrowHistoryFactory implements StructureFactory<BorrowHistory> {
 		sb.append(encode(BORROWER_USER_NAME, bh.getBorrowerUserName())).append(FIELD_SEPARATOR);
 		sb.append(encode(APPROVING_ID, bh.getApprovingId())).append(FIELD_SEPARATOR);
 		sb.append(encode(APPROVING_USER_NAME, bh.getApprovingUserName())).append(FIELD_SEPARATOR);
-		sb.append(encode(PLANNED_BORROW_DATE, bh.getPlannedBorrowDateFormatted())).append(FIELD_SEPARATOR);
+		sb.append(encode(PLANIFIED_RETURN_DATE, bh.getPlanifiedReturnDateFormatted())).append(FIELD_SEPARATOR);
 		sb.append(encode(BORROW_DATE, bh.getBorrowDateFormatted())).append(FIELD_SEPARATOR);
 		sb.append(encode(RETURN_DATE, bh.getReturnDateFormatted()));
 

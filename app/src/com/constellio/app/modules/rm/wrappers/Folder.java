@@ -13,6 +13,7 @@ import com.constellio.app.modules.rm.model.enums.FolderMediaType;
 import com.constellio.app.modules.rm.model.enums.FolderStatus;
 import com.constellio.app.modules.rm.model.enums.RetentionType;
 import com.constellio.app.modules.rm.services.borrowingServices.BorrowingType;
+import com.constellio.app.modules.rm.wrappers.structures.BorrowHistory;
 import com.constellio.app.modules.rm.wrappers.structures.Comment;
 import com.constellio.app.modules.rm.wrappers.structures.PendingAlert;
 import com.constellio.app.modules.rm.wrappers.type.FolderType;
@@ -80,6 +81,7 @@ public class Folder extends RMObject {
 	public static final String BORROW_USER = "borrowUser";
 	public static final String BORROW_USER_ENTERED = "borrowUserEntered";
 	public static final String BORROWING_TYPE = "borrowingType";
+	public static final String BORROW_HISTORY = "borrowHistory";
 	public static final String LINEAR_SIZE = "linearSize";
 	public static final String ALERT_USERS_WHEN_AVAILABLE = "alertUsersWhenAvailable";
 	public static final String PENDING_ALERTS = "pendingAlerts";
@@ -579,6 +581,15 @@ public class Folder extends RMObject {
 
 	public Folder setBorrowType(BorrowingType borrowType) {
 		set(BORROWING_TYPE, borrowType);
+		return this;
+	}
+
+	public BorrowHistory getBorrowHistory() {
+		return get(BORROW_HISTORY);
+	}
+
+	public Folder setBorrowHistory(BorrowHistory borrowHistory) {
+		set(BORROW_HISTORY, borrowHistory);
 		return this;
 	}
 

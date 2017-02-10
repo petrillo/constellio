@@ -13,10 +13,10 @@ import com.constellio.sdk.tests.ConstellioTest;
 public class BorrowHistoryFactoryAcceptanceTest extends ConstellioTest {
 
 	private static final Date RETURN_DATE = new Date();
-	private static final Date PLANNED_BORROW_DATE = RETURN_DATE;
+	private static final Date PLANIFIED_RETURN_DATE = RETURN_DATE;
 	private static final String BORROWER_USER_NAME = "borrowerUserName";
 	private static final String BORROWER_ID = "borrowerId";
-	private static final Date BORROW_DATE = PLANNED_BORROW_DATE;
+	private static final Date BORROW_DATE = PLANIFIED_RETURN_DATE;
 	private static final String APPROVING_USER_NAME = "approvingUserName";
 	private static final String APPROVING_ID = "approvingId";
 
@@ -42,7 +42,7 @@ public class BorrowHistoryFactoryAcceptanceTest extends ConstellioTest {
 		assertThat(borrowHistory.getBorrowDate()).isNull();
 		assertThat(borrowHistory.getBorrowerId()).isNull();
 		assertThat(borrowHistory.getBorrowerUserName()).isNull();
-		assertThat(borrowHistory.getPlannedBorrowDate()).isNull();
+		assertThat(borrowHistory.getPlanifiedReturnDate()).isNull();
 		assertThat(borrowHistory.getReturnDate()).isNull();
 
 		borrowHistory = new BorrowHistory().setApprovingUserName(APPROVING_USER_NAME);
@@ -52,7 +52,7 @@ public class BorrowHistoryFactoryAcceptanceTest extends ConstellioTest {
 		assertThat(borrowHistory.getBorrowDate()).isNull();
 		assertThat(borrowHistory.getBorrowerId()).isNull();
 		assertThat(borrowHistory.getBorrowerUserName()).isNull();
-		assertThat(borrowHistory.getPlannedBorrowDate()).isNull();
+		assertThat(borrowHistory.getPlanifiedReturnDate()).isNull();
 		assertThat(borrowHistory.getReturnDate()).isNull();
 
 		borrowHistory = new BorrowHistory().setBorrowDate(BORROW_DATE);
@@ -62,7 +62,7 @@ public class BorrowHistoryFactoryAcceptanceTest extends ConstellioTest {
 		assertThat(borrowHistory.getBorrowDate()).isEqualTo(BORROW_DATE);
 		assertThat(borrowHistory.getBorrowerId()).isNull();
 		assertThat(borrowHistory.getBorrowerUserName()).isNull();
-		assertThat(borrowHistory.getPlannedBorrowDate()).isNull();
+		assertThat(borrowHistory.getPlanifiedReturnDate()).isNull();
 		assertThat(borrowHistory.getReturnDate()).isNull();
 
 		borrowHistory = new BorrowHistory().setBorrowerId(BORROWER_ID);
@@ -72,7 +72,7 @@ public class BorrowHistoryFactoryAcceptanceTest extends ConstellioTest {
 		assertThat(borrowHistory.getBorrowDate()).isNull();
 		assertThat(borrowHistory.getBorrowerId()).isEqualTo(BORROWER_ID);
 		assertThat(borrowHistory.getBorrowerUserName()).isNull();
-		assertThat(borrowHistory.getPlannedBorrowDate()).isNull();
+		assertThat(borrowHistory.getPlanifiedReturnDate()).isNull();
 		assertThat(borrowHistory.getReturnDate()).isNull();
 
 		borrowHistory = new BorrowHistory().setBorrowerUserName(BORROWER_USER_NAME);
@@ -82,17 +82,17 @@ public class BorrowHistoryFactoryAcceptanceTest extends ConstellioTest {
 		assertThat(borrowHistory.getBorrowDate()).isNull();
 		assertThat(borrowHistory.getBorrowerId()).isNull();
 		assertThat(borrowHistory.getBorrowerUserName()).isEqualTo(BORROWER_USER_NAME);
-		assertThat(borrowHistory.getPlannedBorrowDate()).isNull();
+		assertThat(borrowHistory.getPlanifiedReturnDate()).isNull();
 		assertThat(borrowHistory.getReturnDate()).isNull();
 
-		borrowHistory = new BorrowHistory().setPlannedBorrowDate(PLANNED_BORROW_DATE);
+		borrowHistory = new BorrowHistory().setPlanifiedReturnDate(PLANIFIED_RETURN_DATE);
 		assertThat(borrowHistory.isDirty()).isTrue();
 		assertThat(borrowHistory.getApprovingId()).isNull();
 		assertThat(borrowHistory.getApprovingUserName()).isNull();
 		assertThat(borrowHistory.getBorrowDate()).isNull();
 		assertThat(borrowHistory.getBorrowerId()).isNull();
 		assertThat(borrowHistory.getBorrowerUserName()).isNull();
-		assertThat(borrowHistory.getPlannedBorrowDate()).isEqualTo(PLANNED_BORROW_DATE);
+		assertThat(borrowHistory.getPlanifiedReturnDate()).isEqualTo(PLANIFIED_RETURN_DATE);
 		assertThat(borrowHistory.getReturnDate()).isNull();
 
 		borrowHistory = new BorrowHistory().setReturnDate(RETURN_DATE);
@@ -102,19 +102,19 @@ public class BorrowHistoryFactoryAcceptanceTest extends ConstellioTest {
 		assertThat(borrowHistory.getBorrowDate()).isNull();
 		assertThat(borrowHistory.getBorrowerId()).isNull();
 		assertThat(borrowHistory.getBorrowerUserName()).isNull();
-		assertThat(borrowHistory.getPlannedBorrowDate()).isNull();
+		assertThat(borrowHistory.getPlanifiedReturnDate()).isNull();
 		assertThat(borrowHistory.getReturnDate()).isEqualTo(RETURN_DATE);
 
 		borrowHistory = new BorrowHistory().setApprovingId(APPROVING_ID).setApprovingUserName(APPROVING_USER_NAME)
 				.setBorrowDate(BORROW_DATE).setBorrowerId(BORROWER_ID).setBorrowerUserName(BORROWER_USER_NAME)
-				.setPlannedBorrowDate(PLANNED_BORROW_DATE).setReturnDate(RETURN_DATE);
+				.setPlanifiedReturnDate(PLANIFIED_RETURN_DATE).setReturnDate(RETURN_DATE);
 		assertThat(borrowHistory.isDirty()).isTrue();
 		assertThat(borrowHistory.getApprovingId()).isEqualTo(APPROVING_ID);
 		assertThat(borrowHistory.getApprovingUserName()).isEqualTo(APPROVING_USER_NAME);
 		assertThat(borrowHistory.getBorrowDate()).isEqualTo(BORROW_DATE);
 		assertThat(borrowHistory.getBorrowerId()).isEqualTo(BORROWER_ID);
 		assertThat(borrowHistory.getBorrowerUserName()).isEqualTo(BORROWER_USER_NAME);
-		assertThat(borrowHistory.getPlannedBorrowDate()).isEqualTo(PLANNED_BORROW_DATE);
+		assertThat(borrowHistory.getPlanifiedReturnDate()).isEqualTo(PLANIFIED_RETURN_DATE);
 		assertThat(borrowHistory.getReturnDate()).isEqualTo(RETURN_DATE);
 	}
 
@@ -122,7 +122,7 @@ public class BorrowHistoryFactoryAcceptanceTest extends ConstellioTest {
 	public void whenConvertingStructureWithAllValuesThenRemainsEqual() {
 		BorrowHistory borrowHistory = new BorrowHistory().setApprovingId(APPROVING_ID)
 				.setApprovingUserName(APPROVING_USER_NAME).setBorrowDate(BORROW_DATE).setBorrowerId(BORROWER_ID)
-				.setBorrowerUserName(BORROWER_USER_NAME).setPlannedBorrowDate(PLANNED_BORROW_DATE)
+				.setBorrowerUserName(BORROWER_USER_NAME).setPlanifiedReturnDate(PLANIFIED_RETURN_DATE)
 				.setReturnDate(RETURN_DATE);
 		
 		String toString = factory.toString(borrowHistory);
@@ -130,6 +130,9 @@ public class BorrowHistoryFactoryAcceptanceTest extends ConstellioTest {
 		
 		BorrowHistory build = factory.build(toString);
 		assertThat(build).isEqualTo(borrowHistory);
+		
+		String toString2 = factory.toString(build);
+		assertThat(toString2).isEqualTo(toString);
 	}
 
 	@Test
@@ -141,13 +144,16 @@ public class BorrowHistoryFactoryAcceptanceTest extends ConstellioTest {
 		
 		BorrowHistory build = factory.build(toString);
 		assertThat(build).isEqualTo(borrowHistory);
+		
+		String toString2 = factory.toString(build);
+		assertThat(toString2).isEqualTo(toString);
 	}
 
 	@Test
 	public void whenHavingHistoryThenRemainsEqual() {
 		BorrowHistory borrowHistory = new BorrowHistory().setApprovingId(APPROVING_ID)
 				.setApprovingUserName(APPROVING_USER_NAME).setBorrowDate(BORROW_DATE).setBorrowerId(BORROWER_ID)
-				.setBorrowerUserName(BORROWER_USER_NAME).setPlannedBorrowDate(PLANNED_BORROW_DATE)
+				.setBorrowerUserName(BORROWER_USER_NAME).setPlanifiedReturnDate(PLANIFIED_RETURN_DATE)
 				.setReturnDate(RETURN_DATE);
 		
 		borrowHistory.pushToHistory();
@@ -167,7 +173,7 @@ public class BorrowHistoryFactoryAcceptanceTest extends ConstellioTest {
 	public void currentCanNotBePushedTwiceInHistoryWithoutNewModification() {
 		BorrowHistory borrowHistory = new BorrowHistory().setApprovingId(APPROVING_ID)
 				.setApprovingUserName(APPROVING_USER_NAME).setBorrowDate(BORROW_DATE).setBorrowerId(BORROWER_ID)
-				.setBorrowerUserName(BORROWER_USER_NAME).setPlannedBorrowDate(PLANNED_BORROW_DATE)
+				.setBorrowerUserName(BORROWER_USER_NAME).setPlanifiedReturnDate(PLANIFIED_RETURN_DATE)
 				.setReturnDate(RETURN_DATE);
 		
 		borrowHistory.pushToHistory();
@@ -185,7 +191,7 @@ public class BorrowHistoryFactoryAcceptanceTest extends ConstellioTest {
 	public void whenPushedToHistoryAndNeverChangedNoMoreHistoryIsSerialized() {
 		BorrowHistory borrowHistory = new BorrowHistory().setApprovingId(APPROVING_ID)
 				.setApprovingUserName(APPROVING_USER_NAME).setBorrowDate(BORROW_DATE).setBorrowerId(BORROWER_ID)
-				.setBorrowerUserName(BORROWER_USER_NAME).setPlannedBorrowDate(PLANNED_BORROW_DATE)
+				.setBorrowerUserName(BORROWER_USER_NAME).setPlanifiedReturnDate(PLANIFIED_RETURN_DATE)
 				.setReturnDate(RETURN_DATE);
 		
 		borrowHistory.pushToHistory();

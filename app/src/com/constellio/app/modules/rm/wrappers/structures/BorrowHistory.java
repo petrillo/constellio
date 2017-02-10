@@ -26,7 +26,7 @@ public class BorrowHistory implements ModifiableStructure {
 	private String borrowerUserName;
 	private String approvingId;
 	private String approvingUserName;
-	private Date plannedBorrowDate;
+	private Date planifiedReturnDate;
 	private Date borrowDate;
 	private Date returnDate;
 	private boolean dirty;
@@ -38,21 +38,21 @@ public class BorrowHistory implements ModifiableStructure {
 	public BorrowHistory() {
 	}
 
-	protected BorrowHistory(String id, String borrowerId, String borrowerUserName, String approvingId,
-			String approvingUserName, Date plannedBorrowDate, Date borrowDate, Date returnDate) {
+	public BorrowHistory(String id, String borrowerId, String borrowerUserName, String approvingId,
+			String approvingUserName, Date planifiedReturnDate, Date borrowDate, Date returnDate) {
 		this.id = id;
 		this.borrowerId = borrowerId;
 		this.borrowerUserName = borrowerUserName;
 		this.approvingId = approvingId;
 		this.approvingUserName = approvingUserName;
-		this.plannedBorrowDate = plannedBorrowDate;
+		this.planifiedReturnDate = planifiedReturnDate;
 		this.borrowDate = borrowDate;
 		this.returnDate = returnDate;
 	}
 
 	protected BorrowHistory(String id, String borrowerId, String borrowerUserName, String approvingId,
-			String approvingUserName, String plannedBorrowDate, String borrowDate, String returnDate) {
-		this(id, borrowerId, borrowerUserName, approvingId, approvingUserName, parseDate(plannedBorrowDate),
+			String approvingUserName, String planifiedReturnDate, String borrowDate, String returnDate) {
+		this(id, borrowerId, borrowerUserName, approvingId, approvingUserName, parseDate(planifiedReturnDate),
 				parseDate(borrowDate), parseDate(returnDate));
 	}
 
@@ -66,43 +66,43 @@ public class BorrowHistory implements ModifiableStructure {
 		return this;
 	}
 
-	public BorrowHistory setApprovingId(String approvingId) {
+	protected BorrowHistory setApprovingId(String approvingId) {
 		this.dirty = true;
 		this.approvingId = approvingId;
 		return this;
 	}
 
-	public BorrowHistory setApprovingUserName(String approvingUserName) {
+	protected BorrowHistory setApprovingUserName(String approvingUserName) {
 		this.dirty = true;
 		this.approvingUserName = approvingUserName;
 		return this;
 	}
 
-	public BorrowHistory setBorrowDate(Date borrowDate) {
+	protected BorrowHistory setBorrowDate(Date borrowDate) {
 		this.dirty = true;
 		this.borrowDate = borrowDate;
 		return this;
 	}
 
-	public BorrowHistory setBorrowerId(String borrowerId) {
+	protected BorrowHistory setBorrowerId(String borrowerId) {
 		this.dirty = true;
 		this.borrowerId = borrowerId;
 		return this;
 	}
 
-	public BorrowHistory setBorrowerUserName(String borrowerUserName) {
+	protected BorrowHistory setBorrowerUserName(String borrowerUserName) {
 		this.dirty = true;
 		this.borrowerUserName = borrowerUserName;
 		return this;
 	}
 
-	public BorrowHistory setPlannedBorrowDate(Date plannedBorrowDate) {
+	protected BorrowHistory setPlanifiedReturnDate(Date planifiedReturnDate) {
 		this.dirty = true;
-		this.plannedBorrowDate = plannedBorrowDate;
+		this.planifiedReturnDate = planifiedReturnDate;
 		return this;
 	}
 
-	public BorrowHistory setReturnDate(Date returnDate) {
+	protected BorrowHistory setReturnDate(Date returnDate) {
 		this.dirty = true;
 		this.returnDate = returnDate;
 		return this;
@@ -136,12 +136,12 @@ public class BorrowHistory implements ModifiableStructure {
 		return borrowerUserName;
 	}
 
-	public Date getPlannedBorrowDate() {
-		return plannedBorrowDate;
+	public Date getPlanifiedReturnDate() {
+		return planifiedReturnDate;
 	}
 
-	public String getPlannedBorrowDateFormatted() {
-		return formatDate(plannedBorrowDate);
+	public String getPlanifiedReturnDateFormatted() {
+		return formatDate(planifiedReturnDate);
 	}
 
 	public Date getReturnDate() {
@@ -169,14 +169,35 @@ public class BorrowHistory implements ModifiableStructure {
 		return ListUtils.unmodifiableList(initHistory());
 	}
 
-	public void pushToHistory() {
+	// TODO : ajouter une méthode qui permet d'emprunter et pusher dans history
+	// TODO : ajouter une méthode qui permet de faire un retour (date de retour
+	// - vider la date de planified)
+	// Changer attribut planifiedReturnDate en planifiedReturnDate
+	protected void pushToHistory() {
 		List<BorrowHistory> his = initHistory();
 		boolean notValid = !his.isEmpty() && equalsWithoutHistory(his.get(0));
 
 		if (!notValid) {
-			his.add(new BorrowHistory(id, borrowerId, borrowerUserName, approvingId, approvingUserName, plannedBorrowDate,
-					borrowDate, returnDate));
+			his.add(new BorrowHistory(id, borrowerId, borrowerUserName, approvingId, approvingUserName,
+					planifiedReturnDate, borrowDate, returnDate));
 		}
+	}
+
+	public void emprunter(String borrowerId, String borrowerUserName, String approvingId, String approvingUserName,
+			Date planifiedReturnDate, Date borrowDate) {
+		pushToHistory();
+
+		this.borrowerId = borrowerId;
+		this.borrowerUserName = borrowerUserName;
+		this.approvingId = approvingId;
+		this.approvingUserName = approvingUserName;
+		this.planifiedReturnDate = planifiedReturnDate;
+		this.borrowDate = borrowDate;
+	}
+
+	public void retourner(Date returnDate) {
+		this.planifiedReturnDate = null;
+		this.returnDate = returnDate;
 	}
 
 	protected boolean equalsWithoutHistory(BorrowHistory borrowHistory) {

@@ -2,6 +2,7 @@ package com.constellio.app.modules.rm.wrappers;
 
 import java.util.List;
 
+import com.constellio.app.modules.rm.wrappers.structures.BorrowHistory;
 import com.constellio.app.modules.rm.wrappers.structures.Comment;
 
 import org.joda.time.LocalDate;
@@ -137,12 +138,17 @@ public class ContainerRecord extends RecordWrapper {
 		return get(BORROWER);
 	}
 
-	public String getBorrowHistory() {
+	public BorrowHistory getBorrowHistory() {
 		return get(BORROW_HISTORY);
 	}
 
 	public ContainerRecord setBorrower(Record borrower) {
 		set(BORROWER, borrower);
+		return this;
+	}
+
+	public ContainerRecord setBorrowHistory(BorrowHistory borrowHistory) {
+		set(BORROW_HISTORY, borrowHistory);
 		return this;
 	}
 

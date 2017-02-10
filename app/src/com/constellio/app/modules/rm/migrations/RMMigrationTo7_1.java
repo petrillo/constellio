@@ -1,17 +1,24 @@
 package com.constellio.app.modules.rm.migrations;
 
+import java.util.Date;
 import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.constellio.app.entities.modules.MetadataSchemasAlterationHelper;
 import com.constellio.app.entities.modules.MigrationResourcesProvider;
 import com.constellio.app.entities.modules.MigrationScript;
+import com.constellio.app.modules.rm.services.RMGeneratedSchemaRecordsServices.SchemaTypeShortcuts_containerRecord_default;
+import com.constellio.app.modules.rm.services.RMGeneratedSchemaRecordsServices.SchemaTypeShortcuts_folder_default;
 import com.constellio.app.modules.rm.services.RMSchemasRecordsServices;
 import com.constellio.app.modules.rm.wrappers.ContainerRecord;
+import com.constellio.app.modules.rm.wrappers.Folder;
 import com.constellio.app.modules.rm.wrappers.structures.BorrowHistory;
 import com.constellio.app.services.factories.AppLayerFactory;
 import com.constellio.model.entities.records.ActionExecutorInBatch;
 import com.constellio.model.entities.records.Record;
 import com.constellio.model.entities.records.Transaction;
+import com.constellio.model.entities.schemas.MetadataSchema;
 import com.constellio.model.entities.schemas.MetadataValueType;
 import com.constellio.model.services.records.RecordServices;
 import com.constellio.model.services.schemas.builders.MetadataSchemaBuilder;
@@ -34,25 +41,29 @@ public class RMMigrationTo7_1 implements MigrationScript {
 	public void migrate(String collection, MigrationResourcesProvider migrationResourcesProvider,
 			AppLayerFactory appLayerFactory) throws Exception {
 
-		SchemaFavoriteFolderAlternation alternation = new SchemaFavoriteFolderAlternation(collection, migrationResourcesProvider, appLayerFactory);
+		SchemaAlternation alternation = new SchemaAlternation(collection, migrationResourcesProvider, appLayerFactory);
 		alternation.migrate();
-		
+
+		RMSchemasRecordsServices rm = new RMSchemasRecordsServices(collection, appLayerFactory);
 		SearchServices searchServices = appLayerFactory.getModelLayerFactory().newSearchServices();
 		RecordServices recordServices = appLayerFactory.getModelLayerFactory().newRecordServices();
-		CreateInitialHistoryFromOldVersion batch = new CreateInitialHistoryFromOldVersion(searchServices, "Create Initial Borrow History", 100);
-		RMSchemasRecordsServices rm = new RMSchemasRecordsServices(collection, appLayerFactory);
-		batch.setRmSchemasRecordsServices(rm);
-		batch.setRecordServices(recordServices);
-		batch.execute(composeLogicalSearchCondition(rm));
-	}
-	
-	private LogicalSearchCondition composeLogicalSearchCondition(RMSchemasRecordsServices rm) {
-		return LogicalSearchQueryOperators.from(rm.containerRecord.schema()).returnAll();
-	}
-	
-	private static class SchemaFavoriteFolderAlternation extends MetadataSchemasAlterationHelper {
 
-		public SchemaFavoriteFolderAlternation(String collection, MigrationResourcesProvider migrationResourcesProvider,
+		InitBorrowHistoryForContainerRecordFromOldVersion batchContainer = new InitBorrowHistoryForContainerRecordFromOldVersion(
+				searchServices, "Init Containers Borrow History", 100);
+		batchContainer.setRmSchemasRecordsServices(rm);
+		batchContainer.setRecordServices(recordServices);
+		batchContainer.execute();
+
+		InitBorrowHistoryForFolderFromOldVersion batchFolder = new InitBorrowHistoryForFolderFromOldVersion(
+				searchServices, "Init Folders Borrow History", 100);
+		batchFolder.setRmSchemasRecordsServices(rm);
+		batchFolder.setRecordServices(recordServices);
+		batchFolder.execute();
+	}
+
+	private class SchemaAlternation extends MetadataSchemasAlterationHelper {
+
+		public SchemaAlternation(String collection, MigrationResourcesProvider migrationResourcesProvider,
 				AppLayerFactory appLayerFactory) {
 			super(collection, migrationResourcesProvider, appLayerFactory);
 		}
@@ -60,46 +71,120 @@ public class RMMigrationTo7_1 implements MigrationScript {
 		@Override
 		protected void migrate(MetadataSchemaTypesBuilder typesBuilder) {
 			MetadataSchemaBuilder schema = typesBuilder.getSchema(ContainerRecord.DEFAULT_SCHEMA);
-			
+
+			if (!schema.hasMetadata(ContainerRecord.BORROW_HISTORY)) {
+				schema.createUndeletable(ContainerRecord.BORROW_HISTORY).setType(MetadataValueType.STRUCTURE);
+			}
+
+			schema = typesBuilder.getSchema(Folder.DEFAULT_SCHEMA);
+
 			if (!schema.hasMetadata(ContainerRecord.BORROW_HISTORY)) {
 				schema.createUndeletable(ContainerRecord.BORROW_HISTORY).setType(MetadataValueType.STRUCTURE);
 			}
 		}
 	}
-	
-	private static class CreateInitialHistoryFromOldVersion extends ActionExecutorInBatch {
-		private RecordServices recordServices;
-		private RMSchemasRecordsServices rm;
-		
-		public CreateInitialHistoryFromOldVersion(SearchServices searchServices, String actionName, int batchSize) {
+
+	private abstract class InitBorrowHistoryFromOldVersion extends ActionExecutorInBatch {
+		protected RecordServices recordServices;
+		protected RMSchemasRecordsServices rm;
+
+		public InitBorrowHistoryFromOldVersion(SearchServices searchServices, String actionName, int batchSize) {
 			super(searchServices, actionName, batchSize);
 		}
 
 		public void setRecordServices(RecordServices recordServices) {
 			this.recordServices = recordServices;
 		}
-		
+
 		public void setRmSchemasRecordsServices(RMSchemasRecordsServices rmSchemasRecordsServices) {
 			this.rm = rmSchemasRecordsServices;
 		}
-		
+
+		public void execute() throws Exception {
+			execute(composeLogicalSearchCondition(getSchema()));
+		}
+
+		protected LogicalSearchCondition composeLogicalSearchCondition(MetadataSchema schema) {
+			return LogicalSearchQueryOperators.from(schema).returnAll();
+		}
+
+		protected abstract MetadataSchema getSchema();
+	}
+
+	private class InitBorrowHistoryForContainerRecordFromOldVersion extends InitBorrowHistoryFromOldVersion {
+
+		public InitBorrowHistoryForContainerRecordFromOldVersion(SearchServices searchServices, String actionName,
+				int batchSize) {
+			super(searchServices, actionName, batchSize);
+		}
+
+		protected MetadataSchema getSchema() {
+			return getSchemaType().schema();
+		}
+
+		private SchemaTypeShortcuts_containerRecord_default getSchemaType() {
+			return rm.containerRecord;
+		}
+
 		@Override
 		public void doActionOnBatch(List<Record> records) throws Exception {
 			Transaction transaction = new Transaction();
-			
+
 			for (Record record : records) {
-				BorrowHistory bh = new BorrowHistory();
-				
-				bh.setBorrowDate(record.get(rm.containerRecord.borrowDate()))
-					.setBorrowerUserName(record.get(rm.containerRecord.borrower()))
-					.setPlannedBorrowDate(record.get(rm.containerRecord.planifiedReturnDate()))
-					.setReturnDate(record.get(rm.containerRecord.realReturnDate()));
-				
-				record.set(rm.containerRecord.borrowHistory(), bh);
-				
-				transaction.add(record);
+				String borrowerId = record.get(getSchemaType().borrower());
+				Date borrowDate = record.get(getSchemaType().borrowDate());
+
+				Date planifiedReturnDate = record.get(getSchemaType().planifiedReturnDate());
+				Date returnDate = record.get(getSchemaType().realReturnDate());
+
+				if (StringUtils.isNotBlank(borrowerId) && borrowDate != null) {
+					BorrowHistory bh = new BorrowHistory(null, borrowerId, null, null, null, planifiedReturnDate,
+							borrowDate, returnDate);
+
+					record.set(getSchemaType().borrowHistory(), bh);
+					transaction.add(record);
+				}
 			}
-			
+
+			recordServices.execute(transaction);
+		}
+	}
+
+	private class InitBorrowHistoryForFolderFromOldVersion extends InitBorrowHistoryFromOldVersion {
+
+		public InitBorrowHistoryForFolderFromOldVersion(SearchServices searchServices, String actionName,
+				int batchSize) {
+			super(searchServices, actionName, batchSize);
+		}
+
+		protected MetadataSchema getSchema() {
+			return getSchemaType().schema();
+		}
+
+		private SchemaTypeShortcuts_folder_default getSchemaType() {
+			return rm.folder;
+		}
+
+		@Override
+		public void doActionOnBatch(List<Record> records) throws Exception {
+			Transaction transaction = new Transaction();
+
+			for (Record record : records) {
+				String borrowerId = record.get(getSchemaType().borrowUser());
+				Date borrowDate = record.get(getSchemaType().borrowDate());
+
+				Date planifiedReturnDate = record.get(getSchemaType().borrowPreviewReturnDate());
+				Date returnDate = record.get(getSchemaType().borrowReturnDate());
+
+				if (StringUtils.isNotBlank(borrowerId) && borrowDate != null) {
+					BorrowHistory bh = new BorrowHistory(null, borrowerId, null, null, null, planifiedReturnDate,
+							borrowDate, returnDate);
+
+					record.set(getSchemaType().borrowHistory(), bh);
+					transaction.add(record);
+				}
+			}
+
 			recordServices.execute(transaction);
 		}
 	}

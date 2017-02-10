@@ -1150,6 +1150,10 @@ public class RMGeneratedSchemaRecordsServices extends SchemasRecordsServices {
 			return metadata("borrowingType");
 		}
 
+		public Metadata borrowHistory() {
+			return metadata("borrowHistory");
+		}
+
 		public Metadata calendarYear() {
 			return metadata("calendarYear");
 		}
