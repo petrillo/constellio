@@ -1,15 +1,18 @@
 package com.constellio.app.modules.rm.migrations;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
+import org.joda.time.base.BaseLocal;
 
 import com.constellio.app.entities.modules.MetadataSchemasAlterationHelper;
 import com.constellio.app.entities.modules.MigrationResourcesProvider;
 import com.constellio.app.entities.modules.MigrationScript;
-import com.constellio.app.modules.rm.services.RMGeneratedSchemaRecordsServices.SchemaTypeShortcuts_containerRecord_default;
-import com.constellio.app.modules.rm.services.RMGeneratedSchemaRecordsServices.SchemaTypeShortcuts_folder_default;
 import com.constellio.app.modules.rm.services.RMSchemasRecordsServices;
 import com.constellio.app.modules.rm.wrappers.ContainerRecord;
 import com.constellio.app.modules.rm.wrappers.Folder;
@@ -18,6 +21,7 @@ import com.constellio.app.services.factories.AppLayerFactory;
 import com.constellio.model.entities.records.ActionExecutorInBatch;
 import com.constellio.model.entities.records.Record;
 import com.constellio.model.entities.records.Transaction;
+import com.constellio.model.entities.schemas.Metadata;
 import com.constellio.model.entities.schemas.MetadataSchema;
 import com.constellio.model.entities.schemas.MetadataValueType;
 import com.constellio.model.services.records.RecordServices;
@@ -108,22 +112,44 @@ public class RMMigrationTo7_1 implements MigrationScript {
 			return LogicalSearchQueryOperators.from(schema).returnAll();
 		}
 
+		protected Date toDate(BaseLocal bl) {
+			if (bl instanceof LocalDate) {
+				return ((LocalDate) bl).toDate();
+			} else if (bl instanceof LocalDateTime) {
+				return ((LocalDateTime) bl).toDate();
+			} else {
+				return null;
+			}
+		}
+
+		protected void setRecordBorrowHistory(Record r, String bi, BaseLocal bd, BaseLocal prd, BaseLocal rd,
+				Transaction t) {
+
+			if (StringUtils.isNotBlank(bi) && bd != null) {
+				BorrowHistory bh = new BorrowHistory(null, bi, null, null, null, toDate(prd), toDate(bd), toDate(rd));
+
+				r.set(getMetadataBorrowHistory(), bh);
+				t.add(r);
+			}
+		}
+
 		protected abstract MetadataSchema getSchema();
+
+		protected abstract Metadata getMetadataBorrowHistory();
 	}
 
 	private class InitBorrowHistoryForContainerRecordFromOldVersion extends InitBorrowHistoryFromOldVersion {
 
-		public InitBorrowHistoryForContainerRecordFromOldVersion(SearchServices searchServices, String actionName,
-				int batchSize) {
-			super(searchServices, actionName, batchSize);
+		public InitBorrowHistoryForContainerRecordFromOldVersion(SearchServices ss, String an, int bs) {
+			super(ss, an, bs);
 		}
 
 		protected MetadataSchema getSchema() {
-			return getSchemaType().schema();
+			return rm.containerRecord.schema();
 		}
 
-		private SchemaTypeShortcuts_containerRecord_default getSchemaType() {
-			return rm.containerRecord;
+		protected Metadata getMetadataBorrowHistory() {
+			return rm.containerRecord.borrowHistory();
 		}
 
 		@Override
@@ -131,38 +157,30 @@ public class RMMigrationTo7_1 implements MigrationScript {
 			Transaction transaction = new Transaction();
 
 			for (Record record : records) {
-				String borrowerId = record.get(getSchemaType().borrower());
-				Date borrowDate = record.get(getSchemaType().borrowDate());
+				ContainerRecord container = rm.wrapContainerRecord(record);
 
-				Date planifiedReturnDate = record.get(getSchemaType().planifiedReturnDate());
-				Date returnDate = record.get(getSchemaType().realReturnDate());
-
-				if (StringUtils.isNotBlank(borrowerId) && borrowDate != null) {
-					BorrowHistory bh = new BorrowHistory(null, borrowerId, null, null, null, planifiedReturnDate,
-							borrowDate, returnDate);
-
-					record.set(getSchemaType().borrowHistory(), bh);
-					transaction.add(record);
-				}
+				setRecordBorrowHistory(record, container.getBorrower(), container.getBorrowDate(),
+						container.getPlanifiedReturnDate(), container.getRealReturnDate(), transaction);
 			}
 
-			recordServices.execute(transaction);
+			if (CollectionUtils.isNotEmpty(transaction.getModifiedRecords())) {
+				recordServices.execute(transaction);
+			}
 		}
 	}
 
 	private class InitBorrowHistoryForFolderFromOldVersion extends InitBorrowHistoryFromOldVersion {
 
-		public InitBorrowHistoryForFolderFromOldVersion(SearchServices searchServices, String actionName,
-				int batchSize) {
-			super(searchServices, actionName, batchSize);
+		public InitBorrowHistoryForFolderFromOldVersion(SearchServices ss, String an, int bs) {
+			super(ss, an, bs);
 		}
 
 		protected MetadataSchema getSchema() {
-			return getSchemaType().schema();
+			return rm.folder.schema();
 		}
 
-		private SchemaTypeShortcuts_folder_default getSchemaType() {
-			return rm.folder;
+		protected Metadata getMetadataBorrowHistory() {
+			return rm.folder.borrowHistory();
 		}
 
 		@Override
@@ -170,22 +188,15 @@ public class RMMigrationTo7_1 implements MigrationScript {
 			Transaction transaction = new Transaction();
 
 			for (Record record : records) {
-				String borrowerId = record.get(getSchemaType().borrowUser());
-				Date borrowDate = record.get(getSchemaType().borrowDate());
+				Folder folder = rm.wrapFolder(record);
 
-				Date planifiedReturnDate = record.get(getSchemaType().borrowPreviewReturnDate());
-				Date returnDate = record.get(getSchemaType().borrowReturnDate());
-
-				if (StringUtils.isNotBlank(borrowerId) && borrowDate != null) {
-					BorrowHistory bh = new BorrowHistory(null, borrowerId, null, null, null, planifiedReturnDate,
-							borrowDate, returnDate);
-
-					record.set(getSchemaType().borrowHistory(), bh);
-					transaction.add(record);
-				}
+				setRecordBorrowHistory(record, folder.getBorrowUser(), folder.getBorrowDate(),
+						folder.getBorrowPreviewReturnDate(), folder.getBorrowReturnDate(), transaction);
 			}
 
-			recordServices.execute(transaction);
+			if (CollectionUtils.isNotEmpty(transaction.getModifiedRecords())) {
+				recordServices.execute(transaction);
+			}
 		}
 	}
 }
