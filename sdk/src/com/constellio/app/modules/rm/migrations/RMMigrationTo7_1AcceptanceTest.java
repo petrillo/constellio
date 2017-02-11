@@ -1,7 +1,5 @@
 package com.constellio.app.modules.rm.migrations;
 
-import static com.constellio.model.services.search.query.logical.LogicalSearchQueryOperators.allConditions;
-import static com.constellio.model.services.search.query.logical.LogicalSearchQueryOperators.anyConditions;
 import static com.constellio.model.services.search.query.logical.LogicalSearchQueryOperators.from;
 import static com.constellio.model.services.search.query.logical.LogicalSearchQueryOperators.where;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,6 +47,8 @@ public class RMMigrationTo7_1AcceptanceTest extends ConstellioTest {
 		List<Record> search = searchServices.search(new LogicalSearchQuery(from(rmcr.schema())
 				.whereAnyCondition(where(rmcr.borrowDate()).isNull(), where(rmcr.borrower()).isNull())));
 
+		assertThat(search).isNotEmpty();
+
 		for (Record record : search) {
 			ContainerRecord cr = rm.wrapContainerRecord(record);
 			assertThat(cr.getBorrowHistory()).isNull();
@@ -56,6 +56,8 @@ public class RMMigrationTo7_1AcceptanceTest extends ConstellioTest {
 
 		search = searchServices
 				.search(new LogicalSearchQuery(from(rmcr.schema()).where(rmcr.borrowHistory()).isNotNull()));
+
+		assertThat(search).isNotEmpty();
 
 		for (Record record : search) {
 			ContainerRecord cr = rm.wrapContainerRecord(record);
@@ -69,6 +71,8 @@ public class RMMigrationTo7_1AcceptanceTest extends ConstellioTest {
 		List<Record> search = searchServices.search(new LogicalSearchQuery(from(rmf.schema())
 				.whereAnyCondition(where(rmf.borrowDate()).isNull(), where(rmf.borrowUser()).isNull())));
 
+		assertThat(search).isNotEmpty();
+
 		for (Record record : search) {
 			Folder f = rm.wrapFolder(record);
 			assertThat(f.getBorrowHistory()).isNull();
@@ -76,6 +80,8 @@ public class RMMigrationTo7_1AcceptanceTest extends ConstellioTest {
 
 		search = searchServices
 				.search(new LogicalSearchQuery(from(rmf.schema()).where(rmf.borrowHistory()).isNotNull()));
+
+		assertThat(search).isNotEmpty();
 
 		for (Record record : search) {
 			Folder f = rm.wrapFolder(record);
