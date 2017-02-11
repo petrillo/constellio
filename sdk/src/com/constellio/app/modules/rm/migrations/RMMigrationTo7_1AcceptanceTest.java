@@ -39,36 +39,48 @@ public class RMMigrationTo7_1AcceptanceTest extends ConstellioTest {
 
 		givenSchemaHasABorrowHistoryReference(rm.containerRecord.schema());
 		givenSpecificContainerRecordCasesWithoutBorrowHistory();
-		
+
 		givenSchemaHasABorrowHistoryReference(rm.folder.schema());
 		givenSpecificFolderCasesWithoutBorrowHistory();
 	}
 
 	private void givenSpecificContainerRecordCasesWithoutBorrowHistory() {
 		SchemaTypeShortcuts_containerRecord_default rmcr = rm.containerRecord;
-		List<Record> search = searchServices.search(new LogicalSearchQuery(from(rmcr.schema()).whereAllConditions(anyConditions(
-				allConditions(where(rmcr.borrowDate()).isNull(),
-						where(rmcr.borrower()).isNotNull()),
-				allConditions(where(rmcr.borrowDate()).isNotNull(),
-						where(rmcr.borrower()).isNull())))));
-		
+		List<Record> search = searchServices.search(new LogicalSearchQuery(from(rmcr.schema())
+				.whereAnyCondition(where(rmcr.borrowDate()).isNull(), where(rmcr.borrower()).isNull())));
+
 		for (Record record : search) {
 			ContainerRecord cr = rm.wrapContainerRecord(record);
 			assertThat(cr.getBorrowHistory()).isNull();
+		}
+
+		search = searchServices
+				.search(new LogicalSearchQuery(from(rmcr.schema()).where(rmcr.borrowHistory()).isNotNull()));
+
+		for (Record record : search) {
+			ContainerRecord cr = rm.wrapContainerRecord(record);
+			assertThat(cr.getBorrowDate()).isNotNull();
+			assertThat(cr.getBorrower()).isNotNull();
 		}
 	}
 
 	private void givenSpecificFolderCasesWithoutBorrowHistory() {
 		SchemaTypeShortcuts_folder_default rmf = rm.folder;
-		List<Record> search = searchServices.search(new LogicalSearchQuery(from(rmf.schema()).whereAllConditions(anyConditions(
-				allConditions(where(rmf.borrowDate()).isNull(),
-						where(rmf.borrowUser()).isNotNull()),
-				allConditions(where(rmf.borrowDate()).isNotNull(),
-						where(rmf.borrowUser()).isNull())))));
-		
+		List<Record> search = searchServices.search(new LogicalSearchQuery(from(rmf.schema())
+				.whereAnyCondition(where(rmf.borrowDate()).isNull(), where(rmf.borrowUser()).isNull())));
+
 		for (Record record : search) {
 			Folder f = rm.wrapFolder(record);
 			assertThat(f.getBorrowHistory()).isNull();
+		}
+
+		search = searchServices
+				.search(new LogicalSearchQuery(from(rmf.schema()).where(rmf.borrowHistory()).isNotNull()));
+
+		for (Record record : search) {
+			Folder f = rm.wrapFolder(record);
+			assertThat(f.getBorrowDate()).isNotNull();
+			assertThat(f.getBorrowUser()).isNotNull();
 		}
 	}
 

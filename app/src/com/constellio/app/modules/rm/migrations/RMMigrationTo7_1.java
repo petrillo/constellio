@@ -190,7 +190,7 @@ public class RMMigrationTo7_1 implements MigrationScript {
 			for (Record record : records) {
 				Folder folder = rm.wrapFolder(record);
 
-				setRecordBorrowHistory(record, folder.getBorrowUser(), folder.getBorrowDate(),
+				setRecordBorrowHistory(record, folder.getBorrowUserEntered(), folder.getBorrowDate(),
 						folder.getBorrowPreviewReturnDate(), folder.getBorrowReturnDate(), transaction);
 			}
 
