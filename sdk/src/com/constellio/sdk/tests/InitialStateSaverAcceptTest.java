@@ -196,46 +196,46 @@ public class InitialStateSaverAcceptTest extends ConstellioTest {
 
 		@Override
 		public void visit(Record record) {
-			Folder container = rm.wrapFolder(record);
+			Folder folder = rm.wrapFolder(record);
 
 			LocalDate planifiedReturnDate = borrowDate.plusMonths(RandomUtils.nextInt(0, maxMonthIncrement));
 
 			switch (nextCaseIndex()) {
 			case 0:
-				container.setBorrowDate(toLocalDateTime(borrowDate));
-				container.setBorrowUserEntered(users.get(RandomUtils.nextInt(0, users.size())).getId());
-				container.setBorrowPreviewReturnDate(planifiedReturnDate);
-				container
-						.setBorrowReturnDate(toLocalDateTime(planifiedReturnDate.plusDays(RandomUtils.nextInt(0, 10))));
+				folder.setBorrowDate(toLocalDateTime(borrowDate));
+				folder.setBorrowUserEntered(users.get(RandomUtils.nextInt(0, users.size())).getId());
+				folder.setBorrowUser(folder.getBorrowUserEntered());
+				folder.setBorrowPreviewReturnDate(planifiedReturnDate);
+				folder.setBorrowReturnDate(toLocalDateTime(planifiedReturnDate.plusDays(RandomUtils.nextInt(0, 10))));
 				break;
 
 			case 1:
-				container.setBorrowDate(toLocalDateTime(borrowDate));
-				container.setBorrowUserEntered(users.get(RandomUtils.nextInt(0, users.size())).getId());
-				container.setBorrowPreviewReturnDate(planifiedReturnDate);
-				container.setBorrowReturnDate(
-						toLocalDateTime(planifiedReturnDate.minusDays(RandomUtils.nextInt(0, 10))));
+				folder.setBorrowDate(toLocalDateTime(borrowDate));
+				folder.setBorrowUserEntered(users.get(RandomUtils.nextInt(0, users.size())).getId());
+				folder.setBorrowUser(folder.getBorrowUserEntered());
+				folder.setBorrowPreviewReturnDate(planifiedReturnDate);
+				folder.setBorrowReturnDate(toLocalDateTime(planifiedReturnDate.minusDays(RandomUtils.nextInt(0, 10))));
 				break;
 
 			case 2:
-				container.setBorrowDate(toLocalDateTime(borrowDate));
-				container.setBorrowUserEntered(users.get(RandomUtils.nextInt(0, users.size())).getId());
-				container.setBorrowPreviewReturnDate(planifiedReturnDate);
-				container.setBorrowed(true);
+				folder.setBorrowDate(toLocalDateTime(borrowDate));
+				folder.setBorrowUserEntered(users.get(RandomUtils.nextInt(0, users.size())).getId());
+				folder.setBorrowUser(folder.getBorrowUserEntered());
+				folder.setBorrowPreviewReturnDate(planifiedReturnDate);
+				folder.setBorrowed(true);
 				break;
 
 			case 3:
-				container.setBorrowDate(toLocalDateTime(borrowDate));
-				container.setBorrowPreviewReturnDate(planifiedReturnDate);
-				container
-						.setBorrowReturnDate(toLocalDateTime(planifiedReturnDate.plusDays(RandomUtils.nextInt(0, 10))));
+				folder.setBorrowDate(toLocalDateTime(borrowDate));
+				folder.setBorrowPreviewReturnDate(planifiedReturnDate);
+				folder.setBorrowReturnDate(toLocalDateTime(planifiedReturnDate.plusDays(RandomUtils.nextInt(0, 10))));
 				break;
 
 			case 4:
-				container.setBorrowUserEntered(users.get(RandomUtils.nextInt(0, users.size())).getId());
-				container.setBorrowPreviewReturnDate(planifiedReturnDate);
-				container
-						.setBorrowReturnDate(toLocalDateTime(planifiedReturnDate.plusDays(RandomUtils.nextInt(0, 10))));
+				folder.setBorrowUserEntered(users.get(RandomUtils.nextInt(0, users.size())).getId());
+				folder.setBorrowUser(folder.getBorrowUserEntered());
+				folder.setBorrowPreviewReturnDate(planifiedReturnDate);
+				folder.setBorrowReturnDate(toLocalDateTime(planifiedReturnDate.plusDays(RandomUtils.nextInt(0, 10))));
 				break;
 
 			default:
