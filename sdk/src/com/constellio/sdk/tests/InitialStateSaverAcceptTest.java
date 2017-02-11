@@ -1,5 +1,6 @@
 package com.constellio.sdk.tests;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.RandomUtils;
@@ -57,7 +58,7 @@ public class InitialStateSaverAcceptTest extends ConstellioTest {
 		newWebDriver(loggedAsUserInCollection(admin, zeCollection));
 		waitUntilICloseTheBrowsers();
 	}
-	
+
 	@Test
 	public void saveModifiedStateOnStart() throws Exception {
 
@@ -82,36 +83,49 @@ public class InitialStateSaverAcceptTest extends ConstellioTest {
 		SearchServices searchServices = getModelLayerFactory().newSearchServices();
 		RecordServices recordServices = getModelLayerFactory().newRecordServices();
 		Transaction transaction = new Transaction();
-		
-		List<Record> search = searchServices.search(
-				new LogicalSearchQuery(LogicalSearchQueryOperators.from(rb.getSchema()).returnAll()));
+
+		List<Record> search = searchServices
+				.search(new LogicalSearchQuery(LogicalSearchQueryOperators.from(rb.getSchema()).returnAll()));
 		for (Record record : search) {
 			rb.visit(record);
 
-			transaction.addAll(record);
+			transaction.add(record);
 		}
-		
+
 		recordServices.execute(transaction);
 	}
-	
+
 	private abstract class RecordBorrower {
 		protected final RMSchemasRecordsServices rm;
 		protected int maxMonthIncrement = 5;
 		protected LocalDate borrowDate = LocalDate.now().minusMonths(maxMonthIncrement);
 		protected List<User> users;
 
+		private List<Integer> cases = new ArrayList<Integer>();
+
 		public RecordBorrower(RMSchemasRecordsServices rm) {
 			this.rm = rm;
-			
-			UsersExtension usersExtension = (UsersExtension) new UsersExtension().using(getModelLayerFactory().newUserServices());
+
+			UsersExtension usersExtension = (UsersExtension) new UsersExtension()
+					.using(getModelLayerFactory().newUserServices());
 			users = usersExtension.getUsers(zeCollection);
 		}
-		
+
+		protected int nextCaseIndex() {
+			if (cases.isEmpty()) {
+				for (int i = 0; i < 6; i++) {
+					cases.add(i);
+				}
+			}
+
+			return cases.remove(RandomUtils.nextInt(0, cases.size()));
+		}
+
 		public abstract MetadataSchema getSchema();
-		
+
 		public abstract void visit(Record record);
 	}
-	
+
 	private class ContainerRecordBorrower extends RecordBorrower {
 
 		public ContainerRecordBorrower(RMSchemasRecordsServices rm) {
@@ -129,7 +143,7 @@ public class InitialStateSaverAcceptTest extends ConstellioTest {
 
 			LocalDate planifiedReturnDate = borrowDate.plusMonths(RandomUtils.nextInt(0, maxMonthIncrement));
 
-			switch (RandomUtils.nextInt(0, 7)) {
+			switch (nextCaseIndex()) {
 			case 0:
 				container.setBorrowDate(borrowDate);
 				container.setBorrower(users.get(RandomUtils.nextInt(0, users.size())));
@@ -164,12 +178,12 @@ public class InitialStateSaverAcceptTest extends ConstellioTest {
 				break;
 
 			default:
-				
+
 				break;
 			}
 		}
 	}
-	
+
 	private class FolderRecordBorrower extends RecordBorrower {
 
 		public FolderRecordBorrower(RMSchemasRecordsServices rm) {
@@ -186,20 +200,22 @@ public class InitialStateSaverAcceptTest extends ConstellioTest {
 			Folder container = rm.wrapFolder(record);
 
 			LocalDate planifiedReturnDate = borrowDate.plusMonths(RandomUtils.nextInt(0, maxMonthIncrement));
-			
-			switch (RandomUtils.nextInt(0, 7)) {
+
+			switch (nextCaseIndex()) {
 			case 0:
 				container.setBorrowDate(toLocalDateTime(borrowDate));
 				container.setBorrowUserEntered(users.get(RandomUtils.nextInt(0, users.size())).getId());
 				container.setBorrowPreviewReturnDate(planifiedReturnDate);
-				container.setBorrowReturnDate(toLocalDateTime(planifiedReturnDate.plusDays(RandomUtils.nextInt(0, 10))));
+				container
+						.setBorrowReturnDate(toLocalDateTime(planifiedReturnDate.plusDays(RandomUtils.nextInt(0, 10))));
 				break;
 
 			case 1:
 				container.setBorrowDate(toLocalDateTime(borrowDate));
 				container.setBorrowUserEntered(users.get(RandomUtils.nextInt(0, users.size())).getId());
 				container.setBorrowPreviewReturnDate(planifiedReturnDate);
-				container.setBorrowReturnDate(toLocalDateTime(planifiedReturnDate.minusDays(RandomUtils.nextInt(0, 10))));
+				container.setBorrowReturnDate(
+						toLocalDateTime(planifiedReturnDate.minusDays(RandomUtils.nextInt(0, 10))));
 				break;
 
 			case 2:
@@ -212,21 +228,23 @@ public class InitialStateSaverAcceptTest extends ConstellioTest {
 			case 3:
 				container.setBorrowDate(toLocalDateTime(borrowDate));
 				container.setBorrowPreviewReturnDate(planifiedReturnDate);
-				container.setBorrowReturnDate(toLocalDateTime(planifiedReturnDate.plusDays(RandomUtils.nextInt(0, 10))));
+				container
+						.setBorrowReturnDate(toLocalDateTime(planifiedReturnDate.plusDays(RandomUtils.nextInt(0, 10))));
 				break;
 
 			case 4:
 				container.setBorrowUserEntered(users.get(RandomUtils.nextInt(0, users.size())).getId());
 				container.setBorrowPreviewReturnDate(planifiedReturnDate);
-				container.setBorrowReturnDate(toLocalDateTime(planifiedReturnDate.plusDays(RandomUtils.nextInt(0, 10))));
+				container
+						.setBorrowReturnDate(toLocalDateTime(planifiedReturnDate.plusDays(RandomUtils.nextInt(0, 10))));
 				break;
 
 			default:
-				
+
 				break;
 			}
 		}
-		
+
 		private LocalDateTime toLocalDateTime(LocalDate localDate) {
 			return LocalDateTime.fromDateFields(localDate.toDate());
 		}
