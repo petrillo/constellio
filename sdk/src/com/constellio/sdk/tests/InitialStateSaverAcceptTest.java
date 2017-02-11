@@ -1,6 +1,7 @@
 package com.constellio.sdk.tests;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.RandomUtils;
@@ -113,9 +114,7 @@ public class InitialStateSaverAcceptTest extends ConstellioTest {
 
 		protected int nextCaseIndex() {
 			if (cases.isEmpty()) {
-				for (int i = 0; i < 6; i++) {
-					cases.add(i);
-				}
+				cases.addAll(Arrays.asList(0, 1, 2, 3, 4, 5));
 			}
 
 			return cases.remove(RandomUtils.nextInt(0, cases.size()));
