@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.File;
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import com.constellio.app.modules.rm.services.RMGeneratedSchemaRecordsServices.SchemaTypeShortcuts_containerRecord_default;
@@ -28,13 +29,16 @@ public class RMMigrationTo7_1AcceptanceTest extends ConstellioTest {
 	private RMSchemasRecordsServices rm;
 	private SearchServices searchServices;
 
-	@Test
-	public void givenMetadataIsCreatedWhenMigrating() {
+	@Before
+	public void setUp() {
 		givenPreviousSaveStateToLoad();
 
 		rm = new RMSchemasRecordsServices(zeCollection, getAppLayerFactory());
 		searchServices = getModelLayerFactory().newSearchServices();
+	}
 
+	@Test
+	public void givenMetadataIsCreatedWhenMigrating() {
 		givenSchemaHasABorrowHistoryReference(rm.containerRecord.schema());
 		givenSpecificContainerRecordCasesWithoutBorrowHistory();
 
