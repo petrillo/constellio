@@ -9,12 +9,12 @@ import com.constellio.app.modules.es.connectors.smb.service.SmbShareService;
 import com.constellio.app.modules.es.connectors.smb.utils.ConnectorSmbUtils;
 import com.constellio.app.modules.es.connectors.smb.utils.SmbUrlComparator;
 import com.constellio.app.modules.es.connectors.spi.ConnectorEventObserver;
-import com.constellio.app.modules.es.connectors.spi.ConnectorJob;
+import com.constellio.app.modules.es.model.connectors.smb.ConnectorSmbDocument;
+import com.constellio.app.modules.es.model.connectors.smb.ConnectorSmbFolder;
 import com.constellio.app.modules.es.model.connectors.smb.ConnectorSmbInstance;
+import org.apache.commons.codec.binary.StringUtils;
 
-import java.util.Collections;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.List;
 
 public class SmbJobFactoryImpl implements SmbJobFactory {
 	public static enum SmbJobCategory {
@@ -80,10 +80,19 @@ public class SmbJobFactoryImpl implements SmbJobFactory {
 						job = new SmbNewDocumentRetrievalJob(params);
 					} else {
 						SmbModificationIndicator shareIndicator = smbShareService.getModificationIndicator(url);
-						if (shareIndicator == null) {
+						List<ConnectorSmbDocument> documents = params.getSmbRecordService().getDocuments(url);
+						if (documents.size() > 1 || shareIndicator == null) {
+							//Multiple urls in database or no documents on share
 							job = new SmbDeleteJob(params);
 						} else if (contextIndicator.getParentId() == null || !contextIndicator.equals(shareIndicator)) {
+							//Misplaced document or document modified
 							job = new SmbNewDocumentRetrievalJob(params);
+						} else {
+							ConnectorSmbFolder parentFolder = params.getSmbRecordService().getFolder(params.getParentUrl());
+							String parentId = SmbRecordService.getSafeId(parentFolder);
+							if (!StringUtils.equals(parentId, contextIndicator.getParentId())) {
+								job = new SmbNewDocumentRetrievalJob(params);
+							}
 						}
 					}
 				}
