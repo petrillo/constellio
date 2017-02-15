@@ -39,7 +39,7 @@ public class SmbRecordService {
 		return folderId;
 	}
 
-	private List<ConnectorSmbDocument> getDocuments(String url) {
+	public List<ConnectorSmbDocument> getDocuments(String url) {
 		return es.searchConnectorSmbDocuments(es.fromConnectorSmbDocumentWhereConnectorIs(connectorInstance)
 				.andWhere(es.connectorSmbDocument.url())
 				.isEqualTo(url));

@@ -11,6 +11,7 @@ import com.constellio.app.modules.es.model.connectors.smb.ConnectorSmbFolder;
 import com.constellio.app.modules.es.services.crawler.DeleteEventOptions;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import static com.constellio.model.services.records.RecordLogicalDeleteOptions.LogicallyDeleteTaxonomyRecordsBehavior.LOGICALLY_DELETE_THEM;
 import static com.constellio.model.services.records.RecordPhysicalDeleteOptions.PhysicalDeleteTaxonomyRecordsBehavior.PHYSICALLY_DELETE_THEM;
@@ -61,9 +62,9 @@ public class SmbDeleteJob extends SmbConnectorJob {
 				jobParams.getEventObserver().deleteEvents(options, folderToDelete);
 			}
 		} else {
-			ConnectorSmbDocument documentToDelete = jobParams.getSmbRecordService().getDocument(url);
-			if (documentToDelete != null) {
-				jobParams.getEventObserver().deleteEvents(documentToDelete);
+			List<ConnectorSmbDocument> documentsToDelete = jobParams.getSmbRecordService().getDocuments(url);
+			if (!documentsToDelete.isEmpty()) {
+				jobParams.getEventObserver().deleteEvents(documentsToDelete.toArray(new ConnectorSmbDocument[0]));
 			}
 		}
 		jobParams.getConnector().getContext().delete(url);
