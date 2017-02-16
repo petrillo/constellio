@@ -15,21 +15,20 @@ import com.constellio.model.services.schemas.builders.MetadataSchemaTypesBuilder
 
 import static com.constellio.app.modules.es.model.connectors.smb.ConnectorSmbInstance.FORCE_SYNC_TREE;
 
-public class ESMigrationTo6_6 extends MigrationHelper implements MigrationScript {
+public class ESMigrationTo6_5_56 extends MigrationHelper implements MigrationScript {
 
 	MigrationResourcesProvider migrationResourcesProvider;
 
 	@Override
 	public String getVersion() {
-		return "6.6";
+		return "6.5.56";
 	}
-
 	@Override
 	public void migrate(String collection, MigrationResourcesProvider migrationResourcesProvider, AppLayerFactory appLayerFactory)
 			throws Exception {
 		this.migrationResourcesProvider = migrationResourcesProvider;
 
-		new SchemaAlterationFor6_6(collection, migrationResourcesProvider, appLayerFactory).migrate();
+		new SchemaAlterationFor6_5_56(collection, migrationResourcesProvider, appLayerFactory).migrate();
 		updateFormAndDisplay(collection, appLayerFactory);
 	}
 
@@ -46,17 +45,17 @@ public class ESMigrationTo6_6 extends MigrationHelper implements MigrationScript
 		manager.execute(transaction.build());
 	}
 
-	static class SchemaAlterationFor6_6 extends MetadataSchemasAlterationHelper {
+	static class SchemaAlterationFor6_5_56 extends MetadataSchemasAlterationHelper {
 		MetadataSchemaTypes types;
 
-		protected SchemaAlterationFor6_6(String collection, MigrationResourcesProvider migrationResourcesProvider,
+		protected SchemaAlterationFor6_5_56(String collection, MigrationResourcesProvider migrationResourcesProvider,
 				AppLayerFactory appLayerFactory) {
 			super(collection, migrationResourcesProvider, appLayerFactory);
 			types = appLayerFactory.getModelLayerFactory().getMetadataSchemasManager().getSchemaTypes(collection);
 		}
 
 		public String getVersion() {
-			return "6.6";
+			return "6.5.56";
 		}
 
 		@Override
