@@ -157,6 +157,7 @@ public abstract class SearchViewImpl<T extends SearchPresenter> extends BaseView
 		Component zipButton = new Link($("ReportViewer.download", "(zip)"),
 				new DownloadStreamResource(presenter.getZippedContents(), presenter.getZippedContentsFilename()));
 		zipButton.addStyleName(ValoTheme.BUTTON_LINK);
+		zipButton.setVisible(presenter.isAllowDownloadZip());
 		return results.createSummary(actions, zipButton);
 	}
 
@@ -193,7 +194,7 @@ public abstract class SearchViewImpl<T extends SearchPresenter> extends BaseView
 
 	protected SearchResultTable buildDetailedResultsTable() {
 		SearchResultContainer container = buildResultContainer();
-		SearchResultDetailedTable srTable = new SearchResultDetailedTable(container);
+		SearchResultDetailedTable srTable = new SearchResultDetailedTable(container, presenter.isAllowDownloadZip());
 
 		int totalResults = container.size();
 		int totalAmountOfPages =  srTable.getTotalAmountOfPages();
@@ -426,6 +427,7 @@ public abstract class SearchViewImpl<T extends SearchPresenter> extends BaseView
 			}
 		};
 		selectDeselectAllButton.addStyleName(ValoTheme.BUTTON_LINK);
+		selectDeselectAllButton.setVisible(presenter.isAllowDownloadZip());
 		return selectDeselectAllButton;
 	}
 

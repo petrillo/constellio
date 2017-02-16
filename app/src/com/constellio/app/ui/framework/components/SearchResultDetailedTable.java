@@ -29,16 +29,14 @@ public class SearchResultDetailedTable extends BasePagedTable<SearchResultContai
 
 	private Set<Object> selected;
 	private Set<SelectionChangeListener> listeners;
-
-	public SearchResultDetailedTable(SearchResultContainer container) {
-		this(container, true);
-	}
+	private boolean withCheckBoxes;
 
 	public SearchResultDetailedTable(SearchResultContainer container, boolean withCheckBoxes) {
 		super(container);
 
 		listeners = new HashSet<>();
 		selected = new HashSet<>();
+		this.withCheckBoxes = withCheckBoxes;
 		if (withCheckBoxes) {
 			addGeneratedColumn(CHECKBOX_PROPERTY, new ColumnGenerator() {
 				@Override
@@ -122,6 +120,7 @@ public class SearchResultDetailedTable extends BasePagedTable<SearchResultContai
 
 		final Label selectedCount = new Label($("SearchResultTable.selection", selected.size()));
 		selectedCount.setSizeUndefined();
+		selectedCount.setVisible(withCheckBoxes);
 
 		final HorizontalLayout selection = new HorizontalLayout(selectedCount);
 		selection.setComponentAlignment(selectedCount, Alignment.MIDDLE_LEFT);
