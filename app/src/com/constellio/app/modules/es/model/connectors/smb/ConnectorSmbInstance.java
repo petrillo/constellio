@@ -20,6 +20,8 @@ public class ConnectorSmbInstance extends ConnectorInstance<ConnectorSmbInstance
 
 	public static final String SKIP_SHARE_ACCESS_CONTROL = "skipShareAccessControl";
 
+	public static final String FORCE_SYNC_TREE = "forceSyncTree";
+
 	public ConnectorSmbInstance(Record record, MetadataSchemaTypes types) {
 		super(record, types, SCHEMA_CODE);
 	}
@@ -105,6 +107,15 @@ public class ConnectorSmbInstance extends ConnectorInstance<ConnectorSmbInstance
 
 	public ConnectorSmbInstance setSkipShareAccessControl(boolean skipShareAccessControl) {
 		set(SKIP_SHARE_ACCESS_CONTROL, skipShareAccessControl);
+		return this;
+	}
+
+	public boolean isForceSyncTree() {
+		return getBooleanWithDefaultValue(FORCE_SYNC_TREE, false);
+	}
+
+	public ConnectorSmbInstance setForceSyncTree(boolean forceSyncTree) {
+		set(FORCE_SYNC_TREE, forceSyncTree);
 		return this;
 	}
 

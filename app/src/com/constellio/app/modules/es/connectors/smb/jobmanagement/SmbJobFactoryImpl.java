@@ -79,19 +79,27 @@ public class SmbJobFactoryImpl implements SmbJobFactory {
 					if (contextIndicator == null) {
 						job = new SmbNewDocumentRetrievalJob(params);
 					} else {
+						if (connectorInstance.isForceSyncTree()) {
+							List<ConnectorSmbDocument> documents = params.getSmbRecordService().getDocuments(url);
+							if (documents.size() > 1) {
+								job = new SmbDeleteJob(params);
+								break;
+							}
+						}
 						SmbModificationIndicator shareIndicator = smbShareService.getModificationIndicator(url);
-						List<ConnectorSmbDocument> documents = params.getSmbRecordService().getDocuments(url);
-						if (documents.size() > 1 || shareIndicator == null) {
+						if (shareIndicator == null) {
 							//Multiple urls in database or no documents on share
 							job = new SmbDeleteJob(params);
 						} else if (contextIndicator.getParentId() == null || !contextIndicator.equals(shareIndicator)) {
 							//Misplaced document or document modified
 							job = new SmbNewDocumentRetrievalJob(params);
 						} else {
-							ConnectorSmbFolder parentFolder = params.getSmbRecordService().getFolder(params.getParentUrl());
-							String parentId = SmbRecordService.getSafeId(parentFolder);
-							if (!StringUtils.equals(parentId, contextIndicator.getParentId())) {
-								job = new SmbNewDocumentRetrievalJob(params);
+							if (connectorInstance.isForceSyncTree()) {
+								ConnectorSmbFolder parentFolder = params.getSmbRecordService().getFolder(params.getParentUrl());
+								String parentId = SmbRecordService.getSafeId(parentFolder);
+								if (!StringUtils.equals(parentId, contextIndicator.getParentId())) {
+									job = new SmbNewDocumentRetrievalJob(params);
+								}
 							}
 						}
 					}
