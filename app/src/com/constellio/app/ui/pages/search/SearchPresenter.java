@@ -173,7 +173,6 @@ public abstract class SearchPresenter<T extends SearchView> extends BasePresente
 		ConstellioModulesManager modulesManager = constellioFactories.getAppLayerFactory().getModulesManager();
 		Module rmModule = modulesManager.getInstalledModule(ConstellioRMModule.ID);
 		allowDownloadZip = modulesManager.isModuleEnabled(collection, rmModule);
-		System.out.println();
 	}
 
 	public void resetFacetAndOrder() {
