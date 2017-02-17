@@ -30,7 +30,7 @@ import com.constellio.model.entities.schemas.AllowedReferences;
 import com.constellio.model.services.search.query.logical.criteria.MeasuringUnitTime;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.BeanItemContainer;
-import com.vaadin.data.util.converter.StringToDoubleConverter;
+import com.vaadin.data.util.converter.StringToIntegerConverter;
 import com.vaadin.server.Resource;
 import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Alignment;
@@ -71,7 +71,8 @@ public class AdvancedSearchCriteriaComponent extends Table {
 		addGeneratedColumn(DELETE_BUTTON, new DeleteButtonGenerator());
 
 		setColumnHeaderMode(ColumnHeaderMode.HIDDEN);
-		setVisibleColumns(LEFT_PARENS_FIELD, METADATA_FIELD, VALUE_FIELD, RIGHT_PARENS_FIELD, OPERATOR_FIELD, DELETE_BUTTON);
+		setVisibleColumns(LEFT_PARENS_FIELD, METADATA_FIELD, VALUE_FIELD, RIGHT_PARENS_FIELD, OPERATOR_FIELD,
+				DELETE_BUTTON);
 		setColumnExpandRatio(VALUE_FIELD, 1);
 	}
 
@@ -133,7 +134,8 @@ public class AdvancedSearchCriteriaComponent extends Table {
 
 			for (MetadataVO metadata : presenter.getMetadataAllowedInCriteria()) {
 				comboBox.addItem(metadata);
-				comboBox.setItemCaption(metadata, metadata.getLabel(ConstellioUI.getCurrentSessionContext().getCurrentLocale()));
+				comboBox.setItemCaption(metadata,
+						metadata.getLabel(ConstellioUI.getCurrentSessionContext().getCurrentLocale()));
 			}
 			MetadataVO metadataVO = presenter.getMetadataVO(criterion.getMetadataCode());
 			comboBox.setValue(metadataVO);
@@ -173,9 +175,8 @@ public class AdvancedSearchCriteriaComponent extends Table {
 			switch (criterion.getMetadataType()) {
 			case STRING:
 			case TEXT:
-				return criterion.getSearchOperator() == SearchOperator.IN_HIERARCHY ?
-						buildHierarchyValueCriterion(criterion) :
-						buildStringValueComponent(criterion);
+				return criterion.getSearchOperator() == SearchOperator.IN_HIERARCHY
+						? buildHierarchyValueCriterion(criterion) : buildStringValueComponent(criterion);
 			case DATE:
 			case DATE_TIME:
 				return buildDateValueComponent(criterion);
@@ -194,7 +195,7 @@ public class AdvancedSearchCriteriaComponent extends Table {
 
 		private Component buildReferenceValueComponent(final Criterion criterion) {
 			MetadataVO metadata = presenter.getMetadataVO(criterion.getMetadataCode());
-			
+
 			final Field<?> value = buildReferenceEntryField(metadata.getAllowedReferences(), criterion);
 
 			final ComboBox operator = buildIsEmptyIsNotEmptyComponent(criterion);
@@ -205,8 +206,8 @@ public class AdvancedSearchCriteriaComponent extends Table {
 					SearchOperator newOperator = (SearchOperator) operator.getValue();
 					if (newOperator != null) {
 						criterion.setSearchOperator(newOperator);
-						value.setVisible(
-								!newOperator.equals(SearchOperator.IS_NULL) && !newOperator.equals(SearchOperator.IS_NOT_NULL));
+						value.setVisible(!newOperator.equals(SearchOperator.IS_NULL)
+								&& !newOperator.equals(SearchOperator.IS_NOT_NULL));
 					} else {
 						value.setVisible(true);
 					}
@@ -225,8 +226,8 @@ public class AdvancedSearchCriteriaComponent extends Table {
 		private Field<?> buildReferenceEntryField(AllowedReferences references, final Criterion criterion) {
 			String allowedSchemaType = references.getAllowedSchemaType();
 			Set<String> allowedSchemas = references.getAllowedSchemas();
-			String firstAllowedSchema = !allowedSchemas.isEmpty() ? allowedSchemas.iterator().next() : null; 
-			
+			String firstAllowedSchema = !allowedSchemas.isEmpty() ? allowedSchemas.iterator().next() : null;
+
 			final LookupRecordField field = new LookupRecordField(allowedSchemaType, firstAllowedSchema);
 			field.setWindowZIndex(BaseWindow.OVER_ADVANCED_SEARCH_FORM_Z_INDEX);
 			field.setWidth("100%");
@@ -256,7 +257,8 @@ public class AdvancedSearchCriteriaComponent extends Table {
 			exact.addValueChangeListener(new ValueChangeListener() {
 				@Override
 				public void valueChange(Property.ValueChangeEvent event) {
-					criterion.setSearchOperator(exact.getValue() ? SearchOperator.EQUALS : SearchOperator.CONTAINS_TEXT);
+					criterion
+							.setSearchOperator(exact.getValue() ? SearchOperator.EQUALS : SearchOperator.CONTAINS_TEXT);
 				}
 			});
 
@@ -265,18 +267,7 @@ public class AdvancedSearchCriteriaComponent extends Table {
 			operator.addValueChangeListener(new ValueChangeListener() {
 				@Override
 				public void valueChange(Property.ValueChangeEvent event) {
-					SearchOperator newOperator = (SearchOperator) operator.getValue();
-					if (newOperator != null) {
-						criterion.setSearchOperator(newOperator);
-						value.setVisible(
-								!newOperator.equals(SearchOperator.IS_NULL) && !newOperator.equals(SearchOperator.IS_NOT_NULL));
-						exact.setVisible(
-								!newOperator.equals(SearchOperator.IS_NULL) && !newOperator.equals(SearchOperator.IS_NOT_NULL));
-					} else {
-						criterion.setSearchOperator(searchOperator);
-						value.setVisible(true);
-						exact.setVisible(true);
-					}
+					computeVisibility(criterion, value, exact, searchOperator, operator);
 				}
 			});
 			HorizontalLayout component = new HorizontalLayout(operator, value, exact);
@@ -285,7 +276,25 @@ public class AdvancedSearchCriteriaComponent extends Table {
 			component.setWidth("100%");
 			component.setSpacing(true);
 
+			computeVisibility(criterion, value, exact, searchOperator, operator);
+			
 			return component;
+		}
+		
+		private void computeVisibility(final Criterion criterion, final TextField value, final CheckBox exact,
+				final SearchOperator searchOperator, final ComboBox operator) {
+			SearchOperator newOperator = (SearchOperator) operator.getValue();
+			if (newOperator != null) {
+				criterion.setSearchOperator(newOperator);
+				value.setVisible(!newOperator.equals(SearchOperator.IS_NULL)
+						&& !newOperator.equals(SearchOperator.IS_NOT_NULL));
+				exact.setVisible(!newOperator.equals(SearchOperator.IS_NULL)
+						&& !newOperator.equals(SearchOperator.IS_NOT_NULL));
+			} else {
+				criterion.setSearchOperator(searchOperator);
+				value.setVisible(true);
+				exact.setVisible(true);
+			}
 		}
 
 		private Component buildHierarchyValueCriterion(final Criterion criterion) {
@@ -346,7 +355,8 @@ public class AdvancedSearchCriteriaComponent extends Table {
 
 		private void addIsEmptyIsNotEmpty(final Criterion criterion, final ComboBox operator) {
 
-			Object defaultValue = criterion.getSearchOperator() != null ? criterion.getSearchOperator() : SearchOperator.EQUALS;
+			Object defaultValue = criterion.getSearchOperator() != null ? criterion.getSearchOperator()
+					: SearchOperator.EQUALS;
 
 			operator.addItem(SearchOperator.EQUALS);
 			operator.setItemCaption(SearchOperator.EQUALS, "=");
@@ -375,7 +385,7 @@ public class AdvancedSearchCriteriaComponent extends Table {
 					criterion.setValue(value.getValue());
 				}
 			});
-			//value.setVisible();
+			// value.setVisible();
 
 			final SearchOperator searchOperator = criterion.getSearchOperator();
 			final ComboBox operator = buildIsEmptyIsNotEmptyComponent(criterion);
@@ -385,7 +395,8 @@ public class AdvancedSearchCriteriaComponent extends Table {
 					SearchOperator newOperator = (SearchOperator) operator.getValue();
 					if (newOperator != null) {
 						criterion.setSearchOperator(newOperator);
-						boolean visible = !newOperator.equals(SearchOperator.IS_NULL) && !newOperator.equals(SearchOperator.IS_NOT_NULL);
+						boolean visible = !newOperator.equals(SearchOperator.IS_NULL)
+								&& !newOperator.equals(SearchOperator.IS_NOT_NULL);
 						value.setVisible(visible);
 						if (!visible) {
 							criterion.setValue(null);
@@ -406,7 +417,8 @@ public class AdvancedSearchCriteriaComponent extends Table {
 		}
 
 		private Component buildDateValueComponent(final Criterion criterion) {
-			// We only want to display a date, but we need a full datetime, so we cannot use a JodaDateField here
+			// We only want to display a date, but we need a full datetime, so
+			// we cannot use a JodaDateField here
 			Component relativeSearchComponent = buildRelativeSearchComboBox(criterion, false);
 			Component endRelativeSearchComponent = buildRelativeSearchComboBox(criterion, true);
 			ComboBox operator = buildComparisonComboBox(criterion, relativeSearchComponent, endRelativeSearchComponent);
@@ -468,7 +480,8 @@ public class AdvancedSearchCriteriaComponent extends Table {
 		private ComboBox buildComparisonComboBox(final Criterion criterion, final Component firstComponent,
 				final Component endComponent) {
 
-			Object defaultValue = criterion.getSearchOperator() != null ? criterion.getSearchOperator() : SearchOperator.EQUALS;
+			Object defaultValue = criterion.getSearchOperator() != null ? criterion.getSearchOperator()
+					: SearchOperator.EQUALS;
 
 			final ComboBox operator = new ComboBox();
 			operator.setWidth("150px");
@@ -548,7 +561,7 @@ public class AdvancedSearchCriteriaComponent extends Table {
 			final TextField textValue = new TextField();
 			textValue.setWidth("100px");
 			textValue.setNullRepresentation("");
-			textValue.setConverter(new StringToDoubleConverter());
+			textValue.setConverter(new StringToIntegerConverter());
 			try {
 				textValue.setConvertedValue(value);
 			} catch (Exception e) {
@@ -556,10 +569,12 @@ public class AdvancedSearchCriteriaComponent extends Table {
 			textValue.addValueChangeListener(new ValueChangeListener() {
 				@Override
 				public void valueChange(Property.ValueChangeEvent event) {
-					if (!isEndValue) {
-						criterion.setValue(textValue.getConvertedValue());
-					} else {
-						criterion.setEndValue(textValue.getConvertedValue());
+					if (textValue.isVisible()) {
+						if (!isEndValue) {
+							criterion.setValue(textValue.getConvertedValue());
+						} else {
+							criterion.setEndValue(textValue.getConvertedValue());
+						}
 					}
 				}
 			});
@@ -589,13 +604,13 @@ public class AdvancedSearchCriteriaComponent extends Table {
 
 			Object defaultRelativeSearchOperatorValue;
 			if (isEndValue) {
-				defaultRelativeSearchOperatorValue = criterion.getRelativeCriteria().getEndRelativeSearchOperator() != null ?
-						criterion.getRelativeCriteria().getEndRelativeSearchOperator() :
-						RelativeSearchOperator.EQUALS;
+				defaultRelativeSearchOperatorValue = criterion.getRelativeCriteria()
+						.getEndRelativeSearchOperator() != null
+								? criterion.getRelativeCriteria().getEndRelativeSearchOperator()
+								: RelativeSearchOperator.EQUALS;
 			} else {
-				defaultRelativeSearchOperatorValue = criterion.getRelativeCriteria().getRelativeSearchOperator() != null ?
-						criterion.getRelativeCriteria().getRelativeSearchOperator() :
-						RelativeSearchOperator.EQUALS;
+				defaultRelativeSearchOperatorValue = criterion.getRelativeCriteria().getRelativeSearchOperator() != null
+						? criterion.getRelativeCriteria().getRelativeSearchOperator() : RelativeSearchOperator.EQUALS;
 			}
 			final ComboBox relativeSearchOperatorCombo = new ComboBox();
 			relativeSearchOperatorCombo.setWidth("150px");
@@ -617,7 +632,8 @@ public class AdvancedSearchCriteriaComponent extends Table {
 			relativeSearchOperatorCombo.addValueChangeListener(new ValueChangeListener() {
 				@Override
 				public void valueChange(Property.ValueChangeEvent event) {
-					configureVisibility(relativeSearchOperatorCombo, date, textValue, isEndValue, criterion, measuringTimeField);
+					configureVisibility(relativeSearchOperatorCombo, date, textValue, isEndValue, criterion,
+							measuringTimeField);
 				}
 			});
 
@@ -628,13 +644,14 @@ public class AdvancedSearchCriteriaComponent extends Table {
 			horizontalLayoutLabel.setComponentAlignment(label, Alignment.MIDDLE_CENTER);
 			horizontalLayoutLabel.setVisible(isEndValue);
 
-			HorizontalLayout component = new HorizontalLayout(horizontalLayoutLabel, relativeSearchOperatorCombo, date, textValue,
-					measuringTimeField);
+			HorizontalLayout component = new HorizontalLayout(horizontalLayoutLabel, relativeSearchOperatorCombo, date,
+					textValue, measuringTimeField);
 			component.setComponentAlignment(horizontalLayoutLabel, Alignment.MIDDLE_CENTER);
 			component.setSpacing(true);
 			component.setVisible(!isEndValue);
 
-			configureVisibility(relativeSearchOperatorCombo, date, textValue, isEndValue, criterion, measuringTimeField);
+			configureVisibility(relativeSearchOperatorCombo, date, textValue, isEndValue, criterion,
+					measuringTimeField);
 
 			return component;
 		}
@@ -723,7 +740,8 @@ public class AdvancedSearchCriteriaComponent extends Table {
 			field.addValueChangeListener(new ValueChangeListener() {
 				@Override
 				public void valueChange(Property.ValueChangeEvent event) {
-					source.getItem(itemId).getItemProperty(propertyId).setValue(symbol.equals(event.getProperty().getValue()));
+					source.getItem(itemId).getItemProperty(propertyId)
+							.setValue(symbol.equals(event.getProperty().getValue()));
 				}
 			});
 			return field;
