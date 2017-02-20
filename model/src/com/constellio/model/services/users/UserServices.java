@@ -870,9 +870,11 @@ public class UserServices {
 		UserCredential user = getUser(username);
 		List<String> collections = collectionsListManager.getCollectionsExcludingSystem();
 		for (String collection : collections) {
-			String userId = this.getUserInCollection(user.getUsername(), collection).getId();
-			if (searchServices.hasResults(from(metadataSchemasManager.getSchemaTypes(collection).getSchemaTypes()).where(Schemas.ALL_REFERENCES).isEqualTo(userId))) {
-				throw new UserServicesRuntimeException.UserServicesRuntimeException_CannotSafeDeletePhysically(username);
+			if (user.getCollections().contains(collection)) {
+				String userId = this.getUserInCollection(user.getUsername(), collection).getId();
+				if (searchServices.hasResults(from(metadataSchemasManager.getSchemaTypes(collection).getSchemaTypes()).where(Schemas.ALL_REFERENCES).isEqualTo(userId))) {
+					throw new UserServicesRuntimeException.UserServicesRuntimeException_CannotSafeDeletePhysically(username);
+				}
 			}
 		}
 		recordServices.logicallyDelete(((SolrUserCredential) user).getWrappedRecord(), User.GOD);
