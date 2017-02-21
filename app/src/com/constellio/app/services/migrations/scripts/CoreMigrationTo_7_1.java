@@ -1,9 +1,13 @@
 package com.constellio.app.services.migrations.scripts;
 
-import static com.constellio.model.services.search.query.logical.LogicalSearchQueryOperators.from;
+import static com.constellio.app.services.migrations.CoreRoles.ADMINISTRATOR;
+import static com.constellio.model.entities.CorePermissions.MANAGE_SEQUENCE;
+import static com.constellio.app.modules.rm.constants.RMRoles.RGD;
+import static java.util.Arrays.asList;
 
 import com.constellio.app.modules.reports.wrapper.Printable;
 import com.constellio.model.entities.schemas.MetadataValueType;
+import com.constellio.model.services.security.roles.RolesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +47,11 @@ public class CoreMigrationTo_7_1 implements MigrationScript {
             MetadataSchemaBuilder builder = typesBuilder.createNewSchemaType(Printable.SCHEMA_TYPE).getDefaultSchema();
             builder.create(Printable.JASPERFILE).setType(MetadataValueType.CONTENT).setUndeletable(true).setEssential(true).defineDataEntry().asManual();
             builder.create(Printable.ISDELETABLE).setType(MetadataValueType.BOOLEAN).setUndeletable(true).setDefaultValue(true).defineDataEntry().asManual();
+            //Add Permissions
+            RolesManager rolesManager = modelLayerFactory.getRolesManager();
+            rolesManager.updateRole(
+                    rolesManager.getRole(collection, ADMINISTRATOR).withNewPermissions(asList(MANAGE_SEQUENCE))
+            );
         }
     }
 }

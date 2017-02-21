@@ -360,6 +360,10 @@ public class CoreViews {
 		navigator.navigateTo(viewPath);
 	}
 
+	public void manageSequence() {
+		navigator.navigateTo(NavigatorConfigurationService.SEQUENCE_MANAGEMENT);
+	}
+
 	public void manageCollections() {
 		navigator.navigateTo(NavigatorConfigurationService.COLLECTION_MANAGEMENT);
 	}

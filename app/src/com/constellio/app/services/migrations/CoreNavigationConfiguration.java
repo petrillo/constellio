@@ -80,6 +80,8 @@ public class CoreNavigationConfiguration implements Serializable {
 	public static final String SEARCH_BOOST_BY_QUERY_ICON = "images/icons/config/boost-text-search.png";
 	public static final String PRINTABLE_MANAGEMENT = "printableManagement";
 	public static final String PRINTABLE_MANAGEMENT_ICON = "images/icons/config/printer.png";
+	public static final String SEQUENCE_MANAGEMENT = "sequenceManagement";
+	public static final String SEQUENCE_MANAGEMENT_ICON = "images/icons/config/sequence.png";
 
 	public static final String ADMIN_MODULE = "adminModule";
 	public static final String HOME = "home";
@@ -413,6 +415,18 @@ public class CoreNavigationConfiguration implements Serializable {
 			@Override
 			public ComponentState getStateFor(User user, AppLayerFactory appLayerFactory) {
 				return visibleIf(user.has(CorePermissions.MANAGE_TRASH).globally());
+			}
+		});
+		config.add(AdminView.SYSTEM_SECTION, new NavigationItem.Active(SEQUENCE_MANAGEMENT, SEQUENCE_MANAGEMENT_ICON) {
+
+			@Override
+			public void activate(Navigation navigate) {
+				navigate.to().manageSequence();
+			}
+
+			@Override
+			public ComponentState getStateFor(User user, AppLayerFactory appLayerFactory) {
+				return visibleIf(user.has(CorePermissions.MANAGE_SEQUENCE).globally());
 			}
 		});
 	}

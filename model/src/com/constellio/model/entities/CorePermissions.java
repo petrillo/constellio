@@ -45,6 +45,7 @@ public class CorePermissions {
 	public static final String MANAGE_SYSTEM_UPDATES = permission(SYSTEM_MANAGEMENT, "manageSystemUpdates");
 	public static final String MANAGE_LDAP = permission(SYSTEM_MANAGEMENT, "ldapConfigurationManagement");
 	public static final String MANAGE_LABELS = permission(SYSTEM_MANAGEMENT, "manageLabels");
+	public static final String MANAGE_SEQUENCE = permission(SYSTEM_MANAGEMENT, "manageSequence");
 
 	public static final List<String> SYSTEM_MANAGEMENT_PERMISSIONS = PERMISSIONS.getGroup(SYSTEM_MANAGEMENT);
 

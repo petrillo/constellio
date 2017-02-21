@@ -53,6 +53,7 @@ import com.constellio.app.ui.pages.management.schemas.metadata.AddEditMetadataVi
 import com.constellio.app.ui.pages.management.schemas.schema.AddEditSchemaMetadataViewImpl;
 import com.constellio.app.ui.pages.management.schemas.schema.AddEditSchemaViewImpl;
 import com.constellio.app.ui.pages.management.schemas.type.ListSchemaViewImpl;
+import com.constellio.app.ui.pages.management.sequence.SequenceManagementViewImpl;
 import com.constellio.app.ui.pages.management.taxonomy.*;
 import com.constellio.app.ui.pages.management.updates.UpdateManagerViewImpl;
 import com.constellio.app.ui.pages.management.valueDomains.ListValueDomainViewImpl;
@@ -145,6 +146,7 @@ public class NavigatorConfigurationService implements Serializable {
 	public static final String LABEL_AJOUT = "addLabel";
 	public static final String LABEL_VIEW = "viewLabel";
 	public static final String REPORT_VIEW = "viewReport";
+	public static final String SEQUENCE_MANAGEMENT = "sequenceManagement";
 
 	public static final String ADD_FACET_CONFIGURATION = "addFacetConfiguration";
 	public static final String EDIT_FACET_CONFIGURATION = "editFacetConfiguration";
@@ -260,6 +262,7 @@ public class NavigatorConfigurationService implements Serializable {
 		viewProviders.add(new ClassBasedViewProvider(LABEL_AJOUT, AddEditLabelViewImpl.class));
 		viewProviders.add(new ClassBasedViewProvider(LABEL_VIEW, LabelViewImpl.class));
 		viewProviders.add(new ClassBasedViewProvider(REPORT_VIEW, ReportConfigViewImpl.class));
+		viewProviders.add(new ClassBasedViewProvider(SEQUENCE_MANAGEMENT, SequenceManagementViewImpl.class));
 	}
 
 	public void configure(Navigator navigator) {

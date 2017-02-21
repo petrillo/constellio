@@ -34,6 +34,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.constellio.app.modules.rm.constants.RMRoles.RGD;
+import static com.constellio.model.entities.CorePermissions.MANAGE_SEQUENCE;
 import static com.constellio.model.entities.schemas.MetadataValueType.STRING;
 import static java.util.Arrays.asList;
 
@@ -144,6 +146,9 @@ public class RMMigrationTo7_1 extends MigrationHelper implements MigrationScript
         private void setupRoles(String collection, RolesManager manager, MigrationResourcesProvider provider) {
             manager.updateRole(
                     manager.getRole(collection, RMRoles.MANAGER).withNewPermissions(asList(MANAGE_LABELS_PERMISSION)));
+            manager.updateRole(
+                    manager.getRole(collection, RGD).withNewPermissions(asList(MANAGE_SEQUENCE))
+            );
         }
     }
 
