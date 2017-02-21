@@ -18,6 +18,10 @@ public class TransactionRecordsReindexation {
 		this.reindexAllMetadatas = false;
 	}
 
+	public TransactionRecordsReindexation(Metadata... reindexMetadatas) {
+		this.reindexMetadatas = new MetadataList(reindexMetadatas);
+	}
+
 	public TransactionRecordsReindexation(MetadataList reindexMetadatas) {
 		this.reindexMetadatas = reindexMetadatas;
 	}

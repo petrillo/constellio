@@ -50,6 +50,7 @@ public class RecordAutomaticMetadataServicesCalculationTest extends ConstellioTe
 
 	RecordAutomaticMetadataServices services;
 	@Mock RecordProvider recordProvider;
+	@Mock RecordServices recordServices;
 
 	@Mock MetadataSchemasManager schemasManager;
 
@@ -94,7 +95,7 @@ public class RecordAutomaticMetadataServicesCalculationTest extends ConstellioTe
 		define(schemasManager).using(schemas.withCalculatedDaysBetweenLocalDateAndAnotherSchemaRequiredDate(false));
 
 		services = spy(new RecordAutomaticMetadataServices(schemasManager, taxonomiesManager, systemConfigurationsManager,
-				modelLayerLogger, searchServices));
+				modelLayerLogger, searchServices, recordServices));
 
 		record = spy(new TestRecord(zeSchema));
 
@@ -114,7 +115,7 @@ public class RecordAutomaticMetadataServicesCalculationTest extends ConstellioTe
 		Map<Dependency, Object> valuesMap = new HashMap<>();
 		RecordImpl zeRecord = new TestRecord("zeSchema", "zeCollection", "zeId");
 
-		services.addValuesFromSpecialDependencies(zeRecord, recordProvider, valuesMap, SpecialDependencies.IDENTIFIER);
+		services.addValuesFromSpecialDependencies(zeRecord, recordProvider, valuesMap, SpecialDependencies.IDENTIFIER, schemas.getTypes());
 
 		assertThat(valuesMap).containsEntry(SpecialDependencies.IDENTIFIER, "zeId").hasSize(1);
 	}

@@ -25,11 +25,15 @@ import com.constellio.model.entities.calculators.dependencies.Dependency;
 import com.constellio.model.entities.calculators.dependencies.DynamicLocalDependency;
 import com.constellio.model.entities.calculators.dependencies.HierarchyDependencyValue;
 import com.constellio.model.entities.calculators.dependencies.LocalDependency;
+import com.constellio.model.entities.calculators.dependencies.RecordAuthsDependencyValue;
 import com.constellio.model.entities.calculators.dependencies.ReferenceDependency;
 import com.constellio.model.entities.calculators.dependencies.SpecialDependencies;
 import com.constellio.model.entities.calculators.dependencies.SpecialDependency;
 import com.constellio.model.entities.records.Record;
 import com.constellio.model.entities.records.TransactionRecordsReindexation;
+import com.constellio.model.entities.records.wrappers.Group;
+import com.constellio.model.entities.records.wrappers.SolrAuthorizationDetails;
+import com.constellio.model.entities.records.wrappers.User;
 import com.constellio.model.entities.schemas.Metadata;
 import com.constellio.model.entities.schemas.MetadataSchema;
 import com.constellio.model.entities.schemas.MetadataSchemaType;
@@ -41,8 +45,11 @@ import com.constellio.model.entities.schemas.entries.AggregationType;
 import com.constellio.model.entities.schemas.entries.CalculatedDataEntry;
 import com.constellio.model.entities.schemas.entries.CopiedDataEntry;
 import com.constellio.model.entities.schemas.entries.DataEntryType;
+import com.constellio.model.entities.security.Authorization;
 import com.constellio.model.services.configs.SystemConfigurationsManager;
 import com.constellio.model.services.factories.ModelLayerLogger;
+import com.constellio.model.services.records.cache.RecordsCache;
+import com.constellio.model.services.records.cache.RecordsCaches;
 import com.constellio.model.services.schemas.MetadataList;
 import com.constellio.model.services.schemas.MetadataSchemasManager;
 import com.constellio.model.services.schemas.SchemaUtils;
@@ -50,6 +57,7 @@ import com.constellio.model.services.search.SPEQueryResponse;
 import com.constellio.model.services.search.SearchServices;
 import com.constellio.model.services.search.query.logical.LogicalSearchQuery;
 import com.constellio.model.services.taxonomies.TaxonomiesManager;
+import com.constellio.model.utils.Lazy;
 
 public class RecordAutomaticMetadataServices {
 
@@ -60,16 +68,20 @@ public class RecordAutomaticMetadataServices {
 	private final TaxonomiesManager taxonomiesManager;
 	private final SystemConfigurationsManager systemConfigurationsManager;
 	private final SearchServices searchServices;
+	private final RecordServices recordServices;
+	private final RecordsCaches caches;
 
 	public RecordAutomaticMetadataServices(MetadataSchemasManager schemasManager, TaxonomiesManager taxonomiesManager,
 			SystemConfigurationsManager systemConfigurationsManager, ModelLayerLogger modelLayerLogger,
-			SearchServices searchServices) {
+			SearchServices searchServices, RecordServices recordServices) {
 		super();
 		this.modelLayerLogger = modelLayerLogger;
 		this.schemasManager = schemasManager;
 		this.taxonomiesManager = taxonomiesManager;
 		this.systemConfigurationsManager = systemConfigurationsManager;
 		this.searchServices = searchServices;
+		this.recordServices = recordServices;
+		this.caches = recordServices.getRecordsCaches();
 	}
 
 	public void updateAutomaticMetadatas(RecordImpl record, RecordProvider recordProvider,
@@ -177,6 +189,9 @@ public class RecordAutomaticMetadataServices {
 			if (dependency == SpecialDependencies.HIERARCHY) {
 				calculatorDependencyModified = true;
 
+			} else if (dependency == SpecialDependencies.RECORD_AUTHS) {
+				calculatorDependencyModified = true;
+
 			} else if (dependency == SpecialDependencies.IDENTIFIER) {
 				calculatorDependencyModified = true;
 
@@ -250,7 +265,7 @@ public class RecordAutomaticMetadataServices {
 				values.put(dependency, configValue);
 
 			} else if (dependency instanceof SpecialDependency<?>) {
-				addValuesFromSpecialDependencies(record, recordProvider, values, dependency);
+				addValuesFromSpecialDependencies(record, recordProvider, values, dependency, types);
 			}
 		}
 		return true;
@@ -295,9 +310,12 @@ public class RecordAutomaticMetadataServices {
 	}
 
 	void addValuesFromSpecialDependencies(RecordImpl record, RecordProvider recordProvider,
-			Map<Dependency, Object> values, Dependency dependency) {
+			Map<Dependency, Object> values, Dependency dependency, final MetadataSchemaTypes types) {
 		if (dependency == SpecialDependencies.HIERARCHY) {
 			addValueForTaxonomyDependency(record, recordProvider, values, dependency);
+
+		} else if (dependency == SpecialDependencies.RECORD_AUTHS) {
+			addRecordAuthsValue(record, recordProvider, values, dependency, types);
 
 		} else if (dependency == SpecialDependencies.IDENTIFIER) {
 			values.put(dependency, record.getId());
@@ -319,6 +337,65 @@ public class RecordAutomaticMetadataServices {
 		} else {
 			return addMultivalueReference(record, recordProvider, values, referenceDependency, referenceMetadata);
 		}
+	}
+
+	boolean addRecordAuthsValue(final RecordImpl record, RecordProvider recordProvider, final Map<Dependency, Object> values,
+			final Dependency dependency, final MetadataSchemaTypes types) {
+
+		final List<String> removedAuths = record.getList(Schemas.ALL_REMOVED_AUTHS);
+		Taxonomy principalTaxonomy = taxonomiesManager.getPrincipalTaxonomy(record.getCollection());
+		final List<String> taxoSchemaTypes =
+				principalTaxonomy == null ? new ArrayList<String>() : principalTaxonomy.getSchemaTypes();
+
+		final Lazy<List<Authorization>> auths = new Lazy<List<Authorization>>() {
+			@Override
+			protected List<Authorization> load() {
+
+				List<Authorization> recordAuths = new ArrayList<>();
+
+				recordAuths.addAll(getSolrAuthorizationDetailss(record.getId()));
+				for (String ancestorId : record.<String>getList(Schemas.ATTACHED_ANCESTORS)) {
+					recordAuths.addAll(getSolrAuthorizationDetailss(ancestorId));
+				}
+
+				return recordAuths;
+			}
+
+			private List<Authorization> getSolrAuthorizationDetailss(String id) {
+				if (!types.hasType(SolrAuthorizationDetails.SCHEMA_TYPE)) {
+					return new ArrayList<>();
+				}
+				MetadataSchemaType authType = types.getSchemaType(SolrAuthorizationDetails.SCHEMA_TYPE);
+				LogicalSearchQuery recordAuthsQuery = new LogicalSearchQuery().setCondition(from(authType)
+						.where(authType.getDefaultSchema().getMetadata(SolrAuthorizationDetails.TARGET)).isEqualTo(id));
+
+				List<Record> records = null;
+				if (caches != null && caches.getCache(record.getCollection()) != null) {
+					RecordsCache cache = caches.getCache(record.getCollection());
+					records = cache.getQueryResults(recordAuthsQuery);
+				}
+				if (records == null) {
+					records = searchServices.search(recordAuthsQuery);
+				}
+
+				List<Authorization> recordAuths = new ArrayList<>();
+				for (Record record : records) {
+					SolrAuthorizationDetails auth = new SolrAuthorizationDetails(record, types, taxoSchemaTypes);
+					if (!auth.isConceptAuth() && !removedAuths.contains(auth.getId())) {
+
+						MetadataSchemaType userSchemaType = types.getSchemaType(User.SCHEMA_TYPE);
+						MetadataSchemaType groupSchemaType = types.getSchemaType(Group.SCHEMA_TYPE);
+
+						List<String> principals = searchServices.searchRecordIds(from(userSchemaType, groupSchemaType)
+								.where(Schemas.AUTHORIZATIONS).isEqualTo(auth));
+						recordAuths.add(new Authorization(auth, principals));
+					}
+				}
+				return recordAuths;
+			}
+		};
+		values.put(dependency, new RecordAuthsDependencyValue(taxoSchemaTypes.contains(record.getTypeCode()), auths));
+		return true;
 	}
 
 	boolean addValueForTaxonomyDependency(RecordImpl record, RecordProvider recordProvider, Map<Dependency, Object> values,

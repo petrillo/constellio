@@ -131,6 +131,15 @@ public class UserAuthorizationsUtils {
 		}
 	};
 
+	public static AuthorizationDetailsFilter READ_ACCESS_ON_CONCEPTS = new AuthorizationDetailsFilter() {
+
+		@Override
+		public boolean isIncluded(AuthorizationDetails details) {
+			return (details.getRoles().contains(READ) || details.getRoles().contains(WRITE)
+					|| details.getRoles().contains(DELETE)) && details.isConceptAuth();
+		}
+	};
+
 	private static boolean isAccessRole(String role) {
 		return role.equals(READ) || role.equals(WRITE) || role.equals(DELETE);
 	}
@@ -143,11 +152,27 @@ public class UserAuthorizationsUtils {
 		}
 	};
 
+	public static AuthorizationDetailsFilter WRITE_ACCESS_ON_CONCEPTS = new AuthorizationDetailsFilter() {
+
+		@Override
+		public boolean isIncluded(AuthorizationDetails details) {
+			return details.getRoles().contains(WRITE) && details.isConceptAuth();
+		}
+	};
+
 	public static AuthorizationDetailsFilter DELETE_ACCESS = new AuthorizationDetailsFilter() {
 
 		@Override
 		public boolean isIncluded(AuthorizationDetails details) {
 			return details.getRoles().contains(DELETE);
+		}
+	};
+
+	public static AuthorizationDetailsFilter DELETE_ACCESS_ON_CONCEPTS = new AuthorizationDetailsFilter() {
+
+		@Override
+		public boolean isIncluded(AuthorizationDetails details) {
+			return details.getRoles().contains(DELETE) && details.isConceptAuth();
 		}
 	};
 

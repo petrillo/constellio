@@ -792,7 +792,7 @@ public class RecordServicesImpl extends BaseRecordServices {
 	public RecordAutomaticMetadataServices newAutomaticMetadataServices() {
 		return new RecordAutomaticMetadataServices(modelFactory.getMetadataSchemasManager(), modelFactory.getTaxonomiesManager(),
 				modelFactory.getSystemConfigurationsManager(), modelFactory.getModelLayerLogger(),
-				modelFactory.newSearchServices());
+				modelFactory.newSearchServices(), this);
 	}
 
 	public RecordValidationServices newRecordValidationServices(RecordProvider recordProvider) {

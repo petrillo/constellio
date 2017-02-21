@@ -85,7 +85,9 @@ public class AuthorizationsServicesAcceptanceTest extends BaseAuthorizationsServ
 
 	@After
 	public void checkIfARecordHasAnInvalidAuthorization() {
-		ensureNoRecordsHaveAnInvalidAuthorization();
+		if (schemas != null) {
+			ensureNoRecordsHaveAnInvalidAuthorization();
+		}
 	}
 
 	@After
@@ -1841,8 +1843,6 @@ public class AuthorizationsServicesAcceptanceTest extends BaseAuthorizationsServ
 
 		givenRecordIsLogicallyThenPhysicallyDeleted(FOLDER1);
 		givenRecordIsLogicallyThenPhysicallyDeleted(FOLDER2);
-
-
 
 		assertThatAllAuthorizations().isEmpty();
 

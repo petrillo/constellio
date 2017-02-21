@@ -3,10 +3,13 @@ package com.constellio.model.services.records;
 import static com.constellio.model.services.records.RecordUtils.changeSchemaTypeAccordingToTypeLinkedSchema;
 import static com.constellio.model.services.search.query.logical.LogicalSearchQueryOperators.from;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.constellio.model.entities.Taxonomy;
 import com.constellio.model.entities.records.Record;
 import com.constellio.model.entities.records.wrappers.RecordWrapper;
+import com.constellio.model.entities.records.wrappers.SolrAuthorizationDetails;
 import com.constellio.model.entities.schemas.Metadata;
 import com.constellio.model.entities.schemas.MetadataSchema;
 import com.constellio.model.entities.schemas.MetadataSchemaType;
@@ -159,6 +162,24 @@ public class BaseSchemasRecordsServices {
 	public Record getByCode(MetadataSchemaType schemaType, String code) {
 		Metadata metadata = schemaType.getDefaultSchema().getMetadata(Schemas.CODE.getLocalCode());
 		return modelLayerFactory.newRecordServices().getRecordByMetadata(metadata, code);
+	}
+
+	public final SolrAuthorizationDetails wrapSolrAuthorizationDetails(Record record) {
+		if (record == null) {
+			return null;
+		}
+		Taxonomy taxonomy = modelLayerFactory.getTaxonomiesManager().getPrincipalTaxonomy(record.getCollection());
+
+		return new SolrAuthorizationDetails(record, getTypes(),
+				taxonomy == null ? new ArrayList<String>() : taxonomy.getSchemaTypes());
+	}
+
+	public final List<SolrAuthorizationDetails> wrapSolrAuthorizationDetailss(List<Record> records) {
+		List<SolrAuthorizationDetails> wrapped = new ArrayList<>();
+		for (Record record : records) {
+			wrapped.add(wrapSolrAuthorizationDetails(record));
+		}
+		return wrapped;
 	}
 
 	public static abstract class AbstractSchemaTypeShortcuts {

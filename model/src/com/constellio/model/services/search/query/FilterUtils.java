@@ -68,7 +68,7 @@ public class FilterUtils {
 		}
 
 		UserTokens tokens = securityTokenManager.getTokens(user);
-		addAuthsTokens(stringBuilder, user, UserAuthorizationsUtils.WRITE_ACCESS);
+		addAuthsTokens(stringBuilder, user, UserAuthorizationsUtils.WRITE_ACCESS_ON_CONCEPTS);
 		addTokens(stringBuilder, tokens.getAllowTokens(), 'w');
 		addTokens(stringBuilder, tokens.getShareAllowTokens(), 'w');
 		addPublicTypes(stringBuilder, securityTokenManager.getSchemaTypesWithoutSecurity());
@@ -99,7 +99,7 @@ public class FilterUtils {
 		}
 
 		UserTokens tokens = securityTokenManager.getTokens(user);
-		addAuthsTokens(stringBuilder, user, UserAuthorizationsUtils.READ_ACCESS);
+		addAuthsTokens(stringBuilder, user, UserAuthorizationsUtils.READ_ACCESS_ON_CONCEPTS);
 		addTokens(stringBuilder, tokens.getAllowTokens(), 'r');
 		addTokens(stringBuilder, tokens.getShareAllowTokens(), 'r');
 		addPublicTypes(stringBuilder, securityTokenManager.getSchemaTypesWithoutSecurity());
@@ -146,7 +146,7 @@ public class FilterUtils {
 		}
 
 		UserTokens tokens = securityTokenManager.getTokens(user);
-		addAuthsTokens(stringBuilder, user, UserAuthorizationsUtils.DELETE_ACCESS);
+		addAuthsTokens(stringBuilder, user, UserAuthorizationsUtils.DELETE_ACCESS_ON_CONCEPTS);
 		addTokens(stringBuilder, tokens.getAllowTokens(), 'd');
 		addTokens(stringBuilder, tokens.getShareAllowTokens(), 'd');
 		addPublicTypes(stringBuilder, securityTokenManager.getSchemaTypesWithoutSecurity());

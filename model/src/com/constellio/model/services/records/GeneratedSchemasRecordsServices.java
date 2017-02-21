@@ -1,18 +1,25 @@
 package com.constellio.model.services.records;
 
+import static com.constellio.model.services.search.query.logical.LogicalSearchQueryOperators.from;
+import static java.util.Arrays.asList;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import com.constellio.model.entities.records.Record;
-import com.constellio.model.entities.records.wrappers.*;
+import com.constellio.model.entities.records.wrappers.Collection;
+import com.constellio.model.entities.records.wrappers.EmailToSend;
+import com.constellio.model.entities.records.wrappers.Event;
+import com.constellio.model.entities.records.wrappers.Facet;
+import com.constellio.model.entities.records.wrappers.Group;
+import com.constellio.model.entities.records.wrappers.SolrAuthorizationDetails;
+import com.constellio.model.entities.records.wrappers.User;
+import com.constellio.model.entities.records.wrappers.UserDocument;
 import com.constellio.model.entities.schemas.Metadata;
 import com.constellio.model.entities.schemas.MetadataSchemaType;
 import com.constellio.model.services.factories.ModelLayerFactory;
 import com.constellio.model.services.search.query.logical.LogicalSearchQuery;
 import com.constellio.model.services.search.query.logical.condition.LogicalSearchCondition;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.constellio.model.services.search.query.logical.LogicalSearchQueryOperators.from;
-import static java.util.Arrays.asList;
 
 public class GeneratedSchemasRecordsServices extends BaseSchemasRecordsServices {
 	public GeneratedSchemasRecordsServices(String collection,
@@ -653,19 +660,6 @@ public class GeneratedSchemasRecordsServices extends BaseSchemasRecordsServices 
 		}
 	}
 
-	public SolrAuthorizationDetails wrapSolrAuthorizationDetails(Record record) {
-		return record == null ? null : new SolrAuthorizationDetails(record, getTypes());
-	}
-
-	public List<SolrAuthorizationDetails> wrapSolrAuthorizationDetailss(List<Record> records) {
-		List<SolrAuthorizationDetails> wrapped = new ArrayList<>();
-		for (Record record : records) {
-			wrapped.add(new SolrAuthorizationDetails(record, getTypes()));
-		}
-
-		return wrapped;
-	}
-
 	public List<SolrAuthorizationDetails> searchSolrAuthorizationDetailss(LogicalSearchQuery query) {
 		return wrapSolrAuthorizationDetailss(modelLayerFactory.newSearchServices().search(query));
 	}
@@ -685,7 +679,7 @@ public class GeneratedSchemasRecordsServices extends BaseSchemasRecordsServices 
 	}
 
 	public SolrAuthorizationDetails getSolrAuthorizationDetailsWithLegacyId(String legacyId) {
-		return wrapSolrAuthorizationDetails(getByLegacyId(authorizationDetails.schemaType(),  legacyId));
+		return wrapSolrAuthorizationDetails(getByLegacyId(authorizationDetails.schemaType(), legacyId));
 	}
 
 	public SolrAuthorizationDetails newSolrAuthorizationDetails() {
@@ -698,6 +692,7 @@ public class GeneratedSchemasRecordsServices extends BaseSchemasRecordsServices 
 
 	public final SchemaTypeShortcuts_authorizationDetails_default authorizationDetails
 			= new SchemaTypeShortcuts_authorizationDetails_default("authorizationDetails_default");
+
 	public class SchemaTypeShortcuts_authorizationDetails_default extends SchemaTypeShortcuts {
 		protected SchemaTypeShortcuts_authorizationDetails_default(String schemaCode) {
 			super(schemaCode);

@@ -135,7 +135,7 @@ public class RecordAutomaticMetadataServices_TaxonomiesRealTest extends Constell
 
 		services = new RecordAutomaticMetadataServices(schemaManager, getModelLayerFactory().getTaxonomiesManager(),
 				getModelLayerFactory().getSystemConfigurationsManager(), getModelLayerFactory().getModelLayerLogger(),
-				getModelLayerFactory().newSearchServices());
+				getModelLayerFactory().newSearchServices(), getModelLayerFactory().newRecordServices());
 
 		records.mockRecordProviderToReturnRecordsById(recordProvider);
 		records.mockRecordProviderToReturnRecordById(recordProvider, rootFolderWithTaxonomy);

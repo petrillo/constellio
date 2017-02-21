@@ -1,8 +1,8 @@
 package com.constellio.model.entities.security.global;
 
-import org.joda.time.LocalDate;
-
 import java.util.List;
+
+import org.joda.time.LocalDate;
 
 /**
  * Created by Constellio on 2016-12-21.
@@ -26,6 +26,8 @@ public interface AuthorizationDetails {
 	boolean isFutureAuthorization();
 
 	boolean isActiveAuthorization();
+
+	boolean isConceptAuth();
 
 	String getTarget();
 }

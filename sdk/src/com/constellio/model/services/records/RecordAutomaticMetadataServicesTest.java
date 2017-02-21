@@ -57,6 +57,7 @@ public class RecordAutomaticMetadataServicesTest extends ConstellioTest {
 
 	RecordAutomaticMetadataServices services;
 	@Mock RecordProvider recordProvider;
+	@Mock RecordServices recordServices;
 	@Mock MetadataSchemasManager schemasManager;
 	Set<Metadata> automaticMetadatas;
 	List<Metadata> sortedMetadatas;
@@ -113,7 +114,7 @@ public class RecordAutomaticMetadataServicesTest extends ConstellioTest {
 		sortedMetadatas.add(zeSchema.dateCopiedFromSecondReferenceDateMeta());
 
 		services = spy(new RecordAutomaticMetadataServices(schemasManager, taxonomiesManager, systemConfigurationsManager,
-				modelLayerLogger, searchServices));
+				modelLayerLogger, searchServices, recordServices));
 
 		createOtherSchemaRecordsWithSingleValueMetadata();
 

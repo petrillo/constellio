@@ -1,16 +1,17 @@
 package com.constellio.app.services.migrations.scripts;
 
-import static com.constellio.model.services.search.query.logical.LogicalSearchQueryOperators.from;
+import static com.constellio.model.entities.schemas.MetadataValueType.STRING;
 
-import com.constellio.app.modules.reports.wrapper.Printable;
-import com.constellio.model.entities.schemas.MetadataValueType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.constellio.app.entities.modules.MetadataSchemasAlterationHelper;
 import com.constellio.app.entities.modules.MigrationResourcesProvider;
 import com.constellio.app.entities.modules.MigrationScript;
+import com.constellio.app.modules.reports.wrapper.Printable;
 import com.constellio.app.services.factories.AppLayerFactory;
+import com.constellio.model.entities.records.wrappers.SolrAuthorizationDetails;
+import com.constellio.model.entities.schemas.MetadataValueType;
 import com.constellio.model.services.schemas.builders.MetadataSchemaBuilder;
 import com.constellio.model.services.schemas.builders.MetadataSchemaTypesBuilder;
 
@@ -43,6 +44,9 @@ public class CoreMigrationTo_7_1 implements MigrationScript {
             MetadataSchemaBuilder builder = typesBuilder.createNewSchemaType(Printable.SCHEMA_TYPE).getDefaultSchema();
             builder.create(Printable.JASPERFILE).setType(MetadataValueType.CONTENT).setUndeletable(true).setEssential(true).defineDataEntry().asManual();
             builder.create(Printable.ISDELETABLE).setType(MetadataValueType.BOOLEAN).setUndeletable(true).setDefaultValue(true).defineDataEntry().asManual();
+
+            builder = typesBuilder.getSchema(SolrAuthorizationDetails.DEFAULT_SCHEMA);
+            builder.create(SolrAuthorizationDetails.TARGET_SCHEMA_TYPE).setType(STRING);
         }
     }
 }

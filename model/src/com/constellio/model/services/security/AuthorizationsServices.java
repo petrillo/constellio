@@ -7,7 +7,9 @@ import static com.constellio.model.entities.schemas.Schemas.AUTHORIZATIONS;
 import static com.constellio.model.entities.schemas.Schemas.IDENTIFIER;
 import static com.constellio.model.entities.schemas.Schemas.IS_DETACHED_AUTHORIZATIONS;
 import static com.constellio.model.entities.schemas.Schemas.REMOVED_AUTHORIZATIONS;
+import static com.constellio.model.entities.schemas.Schemas.TOKENS;
 import static com.constellio.model.entities.security.global.AuthorizationDeleteRequest.authorizationDeleteRequest;
+import static com.constellio.model.services.search.query.logical.LogicalSearchQuery.query;
 import static com.constellio.model.services.search.query.logical.LogicalSearchQueryOperators.from;
 import static com.constellio.model.services.search.query.logical.LogicalSearchQueryOperators.fromAllSchemasExcept;
 import static com.constellio.model.services.search.query.logical.LogicalSearchQueryOperators.fromAllSchemasIn;
@@ -22,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.constellio.data.dao.services.idGenerator.UniqueIdGenerator;
+import com.constellio.data.utils.ImpossibleRuntimeException;
 import com.constellio.data.utils.LangUtils;
 import com.constellio.data.utils.LangUtils.ListComparisonResults;
 import com.constellio.data.utils.TimeProvider;
@@ -38,6 +42,7 @@ import com.constellio.model.entities.Taxonomy;
 import com.constellio.model.entities.records.Record;
 import com.constellio.model.entities.records.RecordUpdateOptions;
 import com.constellio.model.entities.records.Transaction;
+import com.constellio.model.entities.records.TransactionRecordsReindexation;
 import com.constellio.model.entities.records.wrappers.Group;
 import com.constellio.model.entities.records.wrappers.RecordWrapper;
 import com.constellio.model.entities.records.wrappers.SolrAuthorizationDetails;
@@ -58,6 +63,7 @@ import com.constellio.model.services.factories.ModelLayerFactory;
 import com.constellio.model.services.logging.LoggingServices;
 import com.constellio.model.services.records.RecordProvider;
 import com.constellio.model.services.records.RecordServices;
+import com.constellio.model.services.records.RecordServicesException;
 import com.constellio.model.services.records.RecordServicesRuntimeException;
 import com.constellio.model.services.records.RecordUtils;
 import com.constellio.model.services.records.SchemasRecordsServices;
@@ -267,26 +273,23 @@ public class AuthorizationsServices {
 		return searchServices.search(new LogicalSearchQuery(condition));
 	}
 
-	/**
-	 * Add an authorization on a record
-	 * @param authorization
-	 * @return
-	 */
 	public String add(AuthorizationAddRequest request) {
 
 		if (request.getTarget() == null) {
 			throw new CannotAddUpdateWithoutPrincipalsAndOrTargetRecords();
 		}
 
+		Record target = null;
 		try {
-			Record record = recordServices.getDocumentById(request.getTarget());
-			validateCanAssignAuthorization(record);
+			target = recordServices.getDocumentById(request.getTarget());
+			validateCanAssignAuthorization(target);
 		} catch (RecordServicesRuntimeException.NoSuchRecordWithId e) {
 			throw new InvalidTargetRecordId(request.getTarget());
 		}
 
-		SolrAuthorizationDetails details = newAuthorizationDetails(request.getCollection(), request.getId(), request.getRoles(),
-				request.getStart(), request.getEnd()).setTarget(request.getTarget());
+		SolrAuthorizationDetails details = newAuthorizationDetails(request.getCollection(), request.getId(),
+				request.getRoles(), request.getStart(), request.getEnd()).setTarget(request.getTarget())
+				.setTargetSchemaType(target.getTypeCode());
 		return add(new Authorization(details, request.getPrincipals()), request.getExecutedBy());
 	}
 
@@ -315,6 +318,8 @@ public class AuthorizationsServices {
 		addAuthorizationToPrincipals(principals, authId);
 		transaction.addAll(principals);
 
+		reindexRecordTokensIfRequired(transaction, authorizationDetail);
+
 		executeTransaction(transaction);
 
 		if (userAddingTheAuth != null) {
@@ -322,6 +327,21 @@ public class AuthorizationsServices {
 		}
 
 		return authId;
+	}
+
+	private void reindexRecordTokensIfRequired(AuthTransaction transaction, SolrAuthorizationDetails auth) {
+		if (!auth.isConceptAuth()) {
+			transaction.getRecordUpdateOptions().setForcedReindexationOfMetadatas(new TransactionRecordsReindexation(TOKENS));
+			transaction.setRecordRequiringTokensCalculation(recordServices.getDocumentById(auth.getTarget()));
+			//			transaction.add(recordServices.getDocumentById(auth.getTarget()));
+			//			for (Record record : searchServices.search(query(fromAllSchemasIn(transaction.getCollection())
+			//					.where(ATTACHED_ANCESTORS).isEqualTo(auth.getTarget())))) {
+			//
+			//				if (!transaction.getRecordIds().contains(record.getId())) {
+			//					transaction.setRecordRequiringTokensCalculation(record);
+			//				}
+			//			}
+		}
 	}
 
 	public void execute(AuthorizationDeleteRequest request) {
@@ -336,6 +356,8 @@ public class AuthorizationsServices {
 
 		List<SolrAuthorizationDetails> authsDetailsToDelete = new ArrayList<>();
 
+		private Record recordRequiringTokensCalculation;
+
 		@Override
 		public Record add(Record addUpdateRecord) {
 			if (getRecordIds().contains(addUpdateRecord.getId())) {
@@ -347,6 +369,17 @@ public class AuthorizationsServices {
 			} else {
 				return super.add(addUpdateRecord);
 			}
+		}
+
+		public void setRecordRequiringTokensCalculation(Record record) {
+			if (recordRequiringTokensCalculation != null) {
+				throw new ImpossibleRuntimeException("recordRequiringTokensCalculation is already setted");
+			}
+			this.recordRequiringTokensCalculation = record;
+		}
+
+		public Record getRecordsRequiringTokensCalculation() {
+			return recordRequiringTokensCalculation;
 		}
 	}
 
@@ -387,7 +420,9 @@ public class AuthorizationsServices {
 				if (request.isReattachIfLastAuthDeleted() && Boolean.TRUE == target.get(Schemas.IS_DETACHED_AUTHORIZATIONS)) {
 					transaction.recordsToResetIfNoAuths.add(target.getId());
 				}
-			} catch(RecordServicesRuntimeException.NoSuchRecordWithId e) {
+
+				reindexRecordTokensIfRequired(transaction, (SolrAuthorizationDetails) details);
+			} catch (RecordServicesRuntimeException.NoSuchRecordWithId e) {
 				//Record does not exist. So nothing to do
 			}
 		} catch (NoSuchAuthorizationWithId e) {
@@ -503,7 +538,7 @@ public class AuthorizationsServices {
 
 			}
 		}
-
+		reindexRecordTokensIfRequired(transaction, (SolrAuthorizationDetails) authorization.getDetail());
 		executeTransaction(transaction);
 		return response;
 	}
@@ -623,6 +658,29 @@ public class AuthorizationsServices {
 			recordServices.executeHandlingImpactsAsync(transaction2);
 		} catch (com.constellio.model.services.records.RecordServicesException e) {
 			throw new AuthServices_RecordServicesException(e);
+		}
+
+		if (transaction.getRecordsRequiringTokensCalculation() != null) {
+			TransactionRecordsReindexation onlyReindexTokens = new TransactionRecordsReindexation(TOKENS);
+			Record record = transaction.getRecordsRequiringTokensCalculation();
+			String collection = record.getCollection();
+
+			LogicalSearchQuery query = query(fromAllSchemasIn(collection).where(ATTACHED_ANCESTORS).isEqualTo(record));
+
+			try {
+				Transaction tokensTransaction = new Transaction();
+				tokensTransaction.getRecordUpdateOptions().setForcedReindexationOfMetadatas(onlyReindexTokens);
+				tokensTransaction.add(transaction.getRecordsRequiringTokensCalculation());
+
+				long childrenCount = searchServices.getResultsCount(query);
+				if (childrenCount < 1000) {
+					recordServices.execute(tokensTransaction);
+				} else {
+					recordServices.executeHandlingImpactsAsync(tokensTransaction);
+				}
+			} catch (com.constellio.model.services.records.RecordServicesException e) {
+				throw new RuntimeException(e);
+			}
 		}
 	}
 

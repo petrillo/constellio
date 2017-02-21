@@ -54,11 +54,12 @@ public class RecordAutomaticMetadataServicesCalculationAcceptanceTest extends Co
 
 		record = new TestRecord(zeSchema);
 
+		recordServices = spy((RecordServicesImpl) getModelLayerFactory().newCachelessRecordServices());
 		services = new RecordAutomaticMetadataServices(getModelLayerFactory().getMetadataSchemasManager(),
 				getModelLayerFactory().getTaxonomiesManager(), getModelLayerFactory().getSystemConfigurationsManager(),
-				getModelLayerFactory().getModelLayerLogger(), getModelLayerFactory().newSearchServices());
+				getModelLayerFactory().getModelLayerLogger(), getModelLayerFactory().newSearchServices(), recordServices);
 
-		recordServices = spy((RecordServicesImpl) getModelLayerFactory().newCachelessRecordServices());
+
 		recordProvider = recordServices.newRecordProvider(null, new Transaction());
 
 		DaysBetweenSingleLocalDateAndAnotherSchemaRequiredDateCalculator.invokationCounter.set(0);

@@ -78,4 +78,21 @@ public class ZeroPaddedSequentialUniqueIdGenerator implements StatefulService, U
 		}
 		return "" + idReservedByInstance.next();
 	}
+
+    public static String removePaddedZeros(String str) {
+		if (str == null) {
+			return null;
+		} else {
+			int index = 0;
+			while( index < str.length() &&  str.charAt(index) == '0') {
+				index++;
+			}
+
+			if (index == str.length()) {
+				return str;
+			} else {
+				return str.substring(index);
+			}
+		}
+    }
 }
