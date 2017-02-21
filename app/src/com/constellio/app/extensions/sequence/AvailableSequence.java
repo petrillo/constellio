@@ -14,9 +14,16 @@ public class AvailableSequence {
 
 	Map<Language, String> titles;
 
+	long currentValue;
+
 	public AvailableSequence(String code, Map<Language, String> titles) {
+		this(code, titles, 0);
+	}
+
+	public AvailableSequence(String code, Map<Language, String> titles, long currentValue) {
 		this.code = code;
 		this.titles = titles;
+		this.currentValue = currentValue;
 	}
 
 	public String getCode() {
@@ -25,6 +32,14 @@ public class AvailableSequence {
 
 	public Map<Language, String> getTitles() {
 		return titles;
+	}
+
+	public void setCurrentValue(long value) {
+		this.currentValue = value;
+	}
+
+	public long getCurrentValue() {
+		return this.currentValue;
 	}
 
 	@Override
