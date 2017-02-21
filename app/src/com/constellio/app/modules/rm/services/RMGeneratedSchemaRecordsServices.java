@@ -6,17 +6,8 @@ import static java.util.Arrays.asList;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.constellio.app.modules.rm.wrappers.AdministrativeUnit;
-import com.constellio.app.modules.rm.wrappers.Cart;
-import com.constellio.app.modules.rm.wrappers.Category;
-import com.constellio.app.modules.rm.wrappers.ContainerRecord;
-import com.constellio.app.modules.rm.wrappers.DecommissioningList;
-import com.constellio.app.modules.rm.wrappers.Document;
-import com.constellio.app.modules.rm.wrappers.Email;
-import com.constellio.app.modules.rm.wrappers.Folder;
-import com.constellio.app.modules.rm.wrappers.RetentionRule;
-import com.constellio.app.modules.rm.wrappers.StorageSpace;
-import com.constellio.app.modules.rm.wrappers.UniformSubdivision;
+import com.constellio.app.modules.reports.wrapper.Printable;
+import com.constellio.app.modules.rm.wrappers.*;
 import com.constellio.app.modules.rm.wrappers.type.DocumentType;
 import com.constellio.app.modules.rm.wrappers.type.FolderType;
 import com.constellio.model.entities.records.Record;
@@ -38,8 +29,9 @@ public class RMGeneratedSchemaRecordsServices extends SchemasRecordsServices {
 
 	/** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** **/
 	// Auto-generated methods by GenerateHelperClassAcceptTest -- start
-
 	/** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** **/
+
+
 
 	public AdministrativeUnit wrapAdministrativeUnit(Record record) {
 		return record == null ? null : new AdministrativeUnit(record, getTypes());
@@ -178,7 +170,6 @@ public class RMGeneratedSchemaRecordsServices extends SchemasRecordsServices {
 
 	public final SchemaTypeShortcuts_cart_default cart
 			= new SchemaTypeShortcuts_cart_default("cart_default");
-
 	public class SchemaTypeShortcuts_cart_default extends SchemaTypeShortcuts {
 		protected SchemaTypeShortcuts_cart_default(String schemaCode) {
 			super(schemaCode);
@@ -1041,6 +1032,70 @@ public class RMGeneratedSchemaRecordsServices extends SchemasRecordsServices {
 		}
 	}
 
+	public Printable wrapReportConfig(Record record) {
+		return record == null ? null : new Printable(record, getTypes());
+	}
+
+	public List<Printable> wrapReportConfigs(List<Record> records) {
+		List<Printable> wrapped = new ArrayList<>();
+		for (Record record : records) {
+			wrapped.add(new Printable(record, getTypes()));
+		}
+
+		return wrapped;
+	}
+
+	public List<Printable> searchReportConfigs(LogicalSearchQuery query) {
+		return wrapReportConfigs(modelLayerFactory.newSearchServices().search(query));
+	}
+
+	public List<Printable> searchReportConfigs(LogicalSearchCondition condition) {
+		MetadataSchemaType type = reportsrecords.schemaType();
+		LogicalSearchQuery query = new LogicalSearchQuery(from(type).whereAllConditions(asList(condition)));
+		return wrapReportConfigs(modelLayerFactory.newSearchServices().search(query));
+	}
+
+	public Printable getReportConfig(String id) {
+		return wrapReportConfig(get(id));
+	}
+
+	public List<Printable> getReportConfigs(List<String> ids) {
+		return wrapReportConfigs(get(ids));
+	}
+
+	public Printable getReportConfigWithLegacyId(String legacyId) {
+		return wrapReportConfig(getByLegacyId(reportsrecords.schemaType(), legacyId));
+	}
+
+	public Printable newReportConfig() {
+		return wrapReportConfig(create(reportsrecords.schema()));
+	}
+
+	public Printable newReportConfigWithId(String id) {
+		return wrapReportConfig(create(reportsrecords.schema(), id));
+	}
+
+	public final SchemaTypeShortcuts_reportsrecords_default reportsrecords
+			= new SchemaTypeShortcuts_reportsrecords_default("reportsrecords_default");
+
+	public class SchemaTypeShortcuts_reportsrecords_default extends SchemaTypeShortcuts {
+		protected SchemaTypeShortcuts_reportsrecords_default(String schemaCode) {
+			super(schemaCode);
+		}
+
+		public Metadata NULL() {
+			return metadata("NULL");
+		}
+
+		public Metadata Height() {
+			return metadata("192");
+		}
+
+		public Metadata Width() {
+			return metadata("384");
+		}
+	}
+
 	public Folder wrapFolder(Record record) {
 		return record == null ? null : new Folder(record, getTypes());
 	}
@@ -1086,7 +1141,6 @@ public class RMGeneratedSchemaRecordsServices extends SchemasRecordsServices {
 
 	public final SchemaTypeShortcuts_folder_default folder
 			= new SchemaTypeShortcuts_folder_default("folder_default");
-
 	public class SchemaTypeShortcuts_folder_default extends SchemaTypeShortcuts {
 		protected SchemaTypeShortcuts_folder_default(String schemaCode) {
 			super(schemaCode);
@@ -1390,7 +1444,6 @@ public class RMGeneratedSchemaRecordsServices extends SchemasRecordsServices {
 
 	public final SchemaTypeShortcuts_retentionRule_default retentionRule
 			= new SchemaTypeShortcuts_retentionRule_default("retentionRule_default");
-
 	public class SchemaTypeShortcuts_retentionRule_default extends SchemaTypeShortcuts {
 		protected SchemaTypeShortcuts_retentionRule_default(String schemaCode) {
 			super(schemaCode);
@@ -1488,7 +1541,6 @@ public class RMGeneratedSchemaRecordsServices extends SchemasRecordsServices {
 			return metadata("secondaryDefaultDocumentCopyRetentionRule");
 		}
 	}
-
 	public StorageSpace wrapStorageSpace(Record record) {
 		return record == null ? null : new StorageSpace(record, getTypes());
 	}
@@ -1538,7 +1590,6 @@ public class RMGeneratedSchemaRecordsServices extends SchemasRecordsServices {
 
 	public final SchemaTypeShortcuts_storageSpace_default storageSpace
 			= new SchemaTypeShortcuts_storageSpace_default("storageSpace_default");
-
 	public class SchemaTypeShortcuts_storageSpace_default extends SchemaTypeShortcuts {
 		protected SchemaTypeShortcuts_storageSpace_default(String schemaCode) {
 			super(schemaCode);
@@ -1572,7 +1623,6 @@ public class RMGeneratedSchemaRecordsServices extends SchemasRecordsServices {
 			return metadata("type");
 		}
 	}
-
 	public UniformSubdivision wrapUniformSubdivision(Record record) {
 		return record == null ? null : new UniformSubdivision(record, getTypes());
 	}
@@ -1622,7 +1672,6 @@ public class RMGeneratedSchemaRecordsServices extends SchemasRecordsServices {
 
 	public final SchemaTypeShortcuts_uniformSubdivision_default uniformSubdivision
 			= new SchemaTypeShortcuts_uniformSubdivision_default("uniformSubdivision_default");
-
 	public class SchemaTypeShortcuts_uniformSubdivision_default extends SchemaTypeShortcuts {
 		protected SchemaTypeShortcuts_uniformSubdivision_default(String schemaCode) {
 			super(schemaCode);
@@ -1644,8 +1693,80 @@ public class RMGeneratedSchemaRecordsServices extends SchemasRecordsServices {
 			return metadata("retentionRule");
 		}
 	}
-	/** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** **/
+
+	public PrintableLabel wrapRMReport(Record record) {
+		return record == null ? null : new PrintableLabel(record, getTypes());
+	}
+
+	public List<PrintableLabel> wrapRMReports(List<Record> records) {
+		List<PrintableLabel> wrapped = new ArrayList<>();
+		for (Record record : records) {
+			wrapped.add(new PrintableLabel(record, getTypes()));
+		}
+
+		return wrapped;
+	}
+
+	public List<PrintableLabel> searchRMReports(LogicalSearchQuery query) {
+		return wrapRMReports(modelLayerFactory.newSearchServices().search(query));
+	}
+
+	public List<PrintableLabel> searchRMReports(LogicalSearchCondition condition) {
+		MetadataSchemaType type = reportsrecords.schemaType();
+		LogicalSearchQuery query = new LogicalSearchQuery(from(type).whereAllConditions(asList(condition)));
+		return wrapRMReports(modelLayerFactory.newSearchServices().search(query));
+	}
+
+	public PrintableLabel getRMReport(String id) {
+		return wrapRMReport(get(id));
+	}
+
+	public List<PrintableLabel> getRMReports(List<String> ids) {
+		return wrapRMReports(get(ids));
+	}
+
+	public PrintableLabel getRMReportWithLegacyId(String legacyId) {
+		return wrapRMReport(getByLegacyId(reportsrecords.schemaType(), legacyId));
+	}
+
+	public PrintableLabel newRMReport() {
+		return wrapRMReport(create(reportsrecords_label.schema()));
+	}
+
+	public PrintableLabel newRMReportWithId(String id) {
+		return wrapRMReport(create(reportsrecords_label.schema(), id));
+	}
+
+	public final SchemaTypeShortcuts_reportsrecords_label reportsrecords_label
+			= new SchemaTypeShortcuts_reportsrecords_label(PrintableLabel.SCHEMA_NAME);
+
+	public class SchemaTypeShortcuts_reportsrecords_label extends SchemaTypeShortcuts_reportsrecords_default {
+		protected SchemaTypeShortcuts_reportsrecords_label(String schemaCode) {
+			super(schemaCode);
+		}
+
+		public Metadata colonne() {
+			return metadata("colonne");
+		}
+
+		public Metadata height() {
+			return metadata("height");
+		}
+
+		public Metadata ligne() {
+			return metadata("ligne");
+		}
+
+		public Metadata typelabel() {
+			return metadata("typelabel");
+		}
+
+		public Metadata width() {
+			return metadata("width");
+		}
+	}
+/** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** **/
 	// Auto-generated methods by GenerateHelperClassAcceptTest -- end
-	/** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** **/
+/** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** **/
 
 }
