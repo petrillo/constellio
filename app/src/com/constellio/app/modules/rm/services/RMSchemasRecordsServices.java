@@ -25,6 +25,8 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.MimeUtility;
 
+import com.constellio.app.modules.reports.wrapper.Printable;
+import com.constellio.app.modules.rm.wrappers.*;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -43,12 +45,6 @@ import com.auxilii.msgparser.Message;
 import com.auxilii.msgparser.MsgParser;
 import com.auxilii.msgparser.attachment.Attachment;
 import com.auxilii.msgparser.attachment.FileAttachment;
-import com.constellio.app.modules.rm.wrappers.Cart;
-import com.constellio.app.modules.rm.wrappers.Document;
-import com.constellio.app.modules.rm.wrappers.Email;
-import com.constellio.app.modules.rm.wrappers.FilingSpace;
-import com.constellio.app.modules.rm.wrappers.Folder;
-import com.constellio.app.modules.rm.wrappers.RMObject;
 import com.constellio.app.modules.rm.wrappers.type.ContainerRecordType;
 import com.constellio.app.modules.rm.wrappers.type.DocumentType;
 import com.constellio.app.modules.rm.wrappers.type.FolderType;
@@ -1037,4 +1033,32 @@ public class RMSchemasRecordsServices extends RMGeneratedSchemaRecordsServices {
 		return document;
 	}
 
+
+	public MetadataSchemaType printableLabelSchemaType() {
+		return getTypes().getSchemaType(PrintableLabel.SCHEMA_TYPE);
+	}
+
+	public MetadataSchema printableLabelSchema() {
+		return getTypes().getSchema(PrintableLabel.DEFAULT_SCHEMA);
+	}
+
+	public PrintableLabel wrapPrintableLabel(Record record) {
+		return record == null ? null : new PrintableLabel(record, getTypes());
+	}
+
+	public List<PrintableLabel> wrapPrintableLabels(List<Record> records) {
+		List<PrintableLabel> printableLabels = new ArrayList<>();
+		for (Record record : records) {
+			printableLabels.add(wrapPrintableLabel(record));
+		}
+		return printableLabels;
+	}
+
+	public PrintableLabel newPrintableLabel() {
+		return new PrintableLabel(create(printableLabelSchema()), getTypes());
+	}
+
+	public PrintableLabel newPrintableLabelwithId(String id) {
+		return new PrintableLabel(create(printableLabelSchema(), id), getTypes());
+	}
 }

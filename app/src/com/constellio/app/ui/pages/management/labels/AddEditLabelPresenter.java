@@ -128,7 +128,7 @@ public class AddEditLabelPresenter extends SingleSchemaBasePresenter<AddEditLabe
     protected Record newRecord() {
         super.setSchemaCode(PrintableLabel.SCHEMA_NAME);
         Record record = super.newRecord();
-        PrintableLabel report = rmSchemasRecordsServices.wrapRMReport(record);
+        PrintableLabel report = rmSchemasRecordsServices.wrapPrintableLabel(record);
         return record;
     }
 

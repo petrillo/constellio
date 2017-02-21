@@ -125,8 +125,8 @@ public class GetXMLButton extends WindowButton {
     }
 
     public List<PrintableLabel> getTemplates(String type) {
-        LogicalSearchCondition condition = from(rm.newRMReport().getSchema()).where(rm.newRMReport().getSchema().getMetadata(PrintableLabel.TYPE_LABEL)).isEqualTo(type);
-        return rm.wrapRMReports(ss.search(new LogicalSearchQuery(condition)));
+        LogicalSearchCondition condition = from(rm.newPrintableLabel().getSchema()).where(rm.newPrintableLabel().getSchema().getMetadata(PrintableLabel.TYPE_LABEL)).isEqualTo(type);
+        return rm.wrapPrintableLabels(ss.search(new LogicalSearchQuery(condition)));
     }
 
     public static interface RecordSelector extends Serializable {

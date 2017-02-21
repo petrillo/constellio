@@ -515,48 +515,6 @@ public class GeneratedSchemasRecordsServices extends BaseSchemasRecordsServices 
 			return metadata("title");
 		}
 	}
-	public Printable wrapPrintable(Record record) {
-		return record == null ? null : null;//new Printable(record, getTypes());
-	}
-
-	public List<Printable> wrapPrintables(List<Record> records) {
-		List<Printable> wrapped = new ArrayList<>();
-		for (Record record : records) {
-//			wrapped.add(new Printable(record, getTypes()));
-		}
-
-		return wrapped;
-	}
-
-	public List<Printable> searchPrintables(LogicalSearchQuery query) {
-		return wrapPrintables(modelLayerFactory.newSearchServices().search(query));
-	}
-
-	public List<Printable> searchPrintables(LogicalSearchCondition condition) {
-		MetadataSchemaType type = printable.schemaType();
-		LogicalSearchQuery query = new LogicalSearchQuery(from(type).whereAllConditions(asList(condition)));
-		return wrapPrintables(modelLayerFactory.newSearchServices().search(query));
-	}
-
-	public Printable getPrintable(String id) {
-		return wrapPrintable(get(id));
-	}
-
-	public List<Printable> getPrintables(List<String> ids) {
-		return wrapPrintables(get(ids));
-	}
-
-	public Printable getPrintableWithLegacyId(String legacyId) {
-		return wrapPrintable(getByLegacyId(printable.schemaType(),  legacyId));
-	}
-
-	public Printable newPrintable() {
-		return wrapPrintable(create(printable.schema()));
-	}
-
-	public Printable newPrintableWithId(String id) {
-		return wrapPrintable(create(printable.schema(), id));
-	}
 
 	public final SchemaTypeShortcuts_printable_default printable
 			= new SchemaTypeShortcuts_printable_default("printable_default");
