@@ -3,12 +3,16 @@ package com.constellio.app.modules.es.connectors.smb.service;
 import static com.constellio.model.services.search.query.logical.LogicalSearchQueryOperators.from;
 import static com.constellio.model.services.search.query.logical.LogicalSearchQueryOperators.where;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
+import com.constellio.app.modules.es.constants.ESTaxonomies;
+import com.constellio.data.dao.dto.records.FacetValue;
+import com.constellio.model.entities.records.Record;
 import com.constellio.model.entities.schemas.Metadata;
+import com.constellio.model.services.search.SPEQueryResponse;
+import com.constellio.model.services.search.query.ReturnedMetadatasFilter;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.solr.common.params.ModifiableSolrParams;
 import org.joda.time.LocalDateTime;
 
 import com.constellio.app.modules.es.connectors.smb.utils.ConnectorSmbUtils;
@@ -45,7 +49,7 @@ public class SmbRecordService {
 				.isEqualTo(url));
 	}
 
-	private List<ConnectorSmbFolder> getFolders(String url) {
+	public List<ConnectorSmbFolder> getFolders(String url) {
 		return es.searchConnectorSmbFolders(es.fromConnectorSmbFolderWhereConnectorIs(connectorInstance)
 				.andWhere(es.connectorSmbFolder.url())
 				.isEqualTo(url));
@@ -151,4 +155,41 @@ public class SmbRecordService {
 		return es.iterateConnectorSmbDocuments(where(Schemas.PATH).isStartingWithText(path));
 	}
 
+	public Set<String> duplicateDocuments() {
+		LogicalSearchQuery query = new LogicalSearchQuery(es.fromAllDocumentsOf(connectorInstance.getId()))
+			.addFieldFacet(Schemas.URL.getDataStoreCode())
+			.setFieldFacetLimit(10_000)
+			.setReturnedMetadatas(ReturnedMetadatasFilter.onlyMetadatas(Schemas.URL))
+			.setNumberOfRows(0);
+		Map<String, String[]> solrParams = new HashMap<>();
+		solrParams.put("facet.mincount", new String[]{"2"});
+		query.setOverridedQueryParams(solrParams);
+
+		Set<String> urls = new HashSet<>();
+		SPEQueryResponse response = es.getAppLayerFactory().getModelLayerFactory().newSearchServices().query(query);
+		for (FacetValue facetValue : response.getFieldFacetValues(Schemas.URL.getDataStoreCode())) {
+			urls.add(facetValue.getValue());
+		}
+
+		return urls;
+	}
+
+	public Set<String> misplacedUrls() {
+		List<String> seeds = connectorInstance.getSeeds();
+
+		LogicalSearchQuery query = new LogicalSearchQuery(es.fromAllDocumentsOf(connectorInstance.getId())
+			.andWhere(Schemas.PARENT_PATH).is("/" + ESTaxonomies.SMB_FOLDERS))
+			.setReturnedMetadatas(ReturnedMetadatasFilter.onlyMetadatas(Schemas.URL))
+			.setNumberOfRows(10_000);
+
+		Set<String> urls = new HashSet<>();
+		SPEQueryResponse response = es.getAppLayerFactory().getModelLayerFactory().newSearchServices().query(query);
+		for (Record record : response.getRecords()) {
+			urls.add(record.get(Schemas.URL).toString());
+		}
+
+		urls.removeAll(seeds);
+
+		return urls;
+	}
 }

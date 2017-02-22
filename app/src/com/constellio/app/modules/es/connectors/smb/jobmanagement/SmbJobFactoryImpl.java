@@ -12,7 +12,7 @@ import com.constellio.app.modules.es.connectors.spi.ConnectorEventObserver;
 import com.constellio.app.modules.es.model.connectors.smb.ConnectorSmbDocument;
 import com.constellio.app.modules.es.model.connectors.smb.ConnectorSmbFolder;
 import com.constellio.app.modules.es.model.connectors.smb.ConnectorSmbInstance;
-import org.apache.commons.codec.binary.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -79,11 +79,20 @@ public class SmbJobFactoryImpl implements SmbJobFactory {
 					if (contextIndicator == null) {
 						job = new SmbNewDocumentRetrievalJob(params);
 					} else {
-						if (connectorInstance.isForceSyncTree()) {
-							List<ConnectorSmbDocument> documents = params.getSmbRecordService().getDocuments(url);
-							if (documents.size() > 1) {
-								job = new SmbDeleteJob(params);
-								break;
+						//Duplicates
+						if (connectorInstance.isForceSyncTree() && this.connector.getDuplicateUrls().contains(url)) {
+							if (smbUtils.isFolder(url)) {
+								if (params.getSmbRecordService().getFolders(url).size() > 1) {
+									System.out.println("#Duplicate folder found, deleting : " + url);
+									job = new SmbDeleteJob(params);
+									break;
+								}
+							} else {
+								if (params.getSmbRecordService().getDocuments(url).size() > 1) {
+									System.out.println("#Duplicate document found, deleting : " + url);
+									job = new SmbDeleteJob(params);
+									break;
+								}
 							}
 						}
 						SmbModificationIndicator shareIndicator = smbShareService.getModificationIndicator(url);
@@ -94,10 +103,12 @@ public class SmbJobFactoryImpl implements SmbJobFactory {
 							//Misplaced document or document modified
 							job = new SmbNewDocumentRetrievalJob(params);
 						} else {
-							if (connectorInstance.isForceSyncTree()) {
+							//Misplaced
+							if (connectorInstance.isForceSyncTree() && this.connector.getMisplaced().contains(url)) {
 								ConnectorSmbFolder parentFolder = params.getSmbRecordService().getFolder(params.getParentUrl());
 								String parentId = SmbRecordService.getSafeId(parentFolder);
 								if (!StringUtils.equals(parentId, contextIndicator.getParentId())) {
+									System.out.println("#Misplaced found, fixing : " + url);
 									job = new SmbNewDocumentRetrievalJob(params);
 								}
 							}

@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.*;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import static java.util.Arrays.asList;
 
@@ -74,6 +75,9 @@ public class ConnectorSmb extends Connector {
 	private String connectorId;
 	private SmbConnectorContext context;
 	private SmbConnectorContextServices contextServices;
+
+	private final Set<String> duplicateUrls = new ConcurrentSkipListSet<>();
+	private final Set<String> misplaced = new ConcurrentSkipListSet<>();
 
 	private DateTime lastSave;
 
@@ -112,6 +116,14 @@ public class ConnectorSmb extends Connector {
 
 		smbJobFactory = new SmbJobFactoryImpl(this, connectorInstance, eventObserver, smbShareService, smbUtils, smbRecordService,
 				updater);
+	}
+
+	public Set<String> getMisplaced() {
+		return misplaced;
+	}
+
+	public Set<String> getDuplicateUrls() {
+		return duplicateUrls;
 	}
 
 	@Override
@@ -213,10 +225,24 @@ public class ConnectorSmb extends Connector {
 				jobs.add(deleteJob);
 			}
 
+			cleanupInconsistencies();
 			changeTraversalCodeToMarkEndOfTraversal();
 			queueSeeds();
 		}
 		return jobs;
+	}
+
+	private void cleanupInconsistencies() {
+		if (connectorInstance.isForceSyncTree()) {
+			try {
+				this.misplaced.clear();
+				this.misplaced.addAll(this.smbRecordService.duplicateDocuments());
+				this.duplicateUrls.clear();
+				this.duplicateUrls.addAll(this.smbRecordService.misplacedUrls());
+			} catch (Exception e) {
+				logger.errorUnexpected(e);
+			}
+		}
 	}
 
 	public void queueJob(SmbConnectorJob job) {
