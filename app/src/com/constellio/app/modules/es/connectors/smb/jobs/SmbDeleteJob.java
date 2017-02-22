@@ -54,12 +54,12 @@ public class SmbDeleteJob extends SmbConnectorJob {
 	private void deleteRecords() {
 		String url = jobParams.getUrl();
 		if (jobParams.getSmbUtils().isFolder(url)) {
-			ConnectorSmbFolder folderToDelete = jobParams.getSmbRecordService().getFolder(url);
-			if (folderToDelete != null) {
+			List<ConnectorSmbFolder> foldersToDelete = jobParams.getSmbRecordService().getFolders(url);
+			if (!foldersToDelete.isEmpty()) {
 				DeleteEventOptions options = new DeleteEventOptions();
 				options.getPhysicalDeleteOptions().setBehaviorForRecordsAttachedToTaxonomy(PHYSICALLY_DELETE_THEM);
 				options.getLogicalDeleteOptions().setBehaviorForRecordsAttachedToTaxonomy(LOGICALLY_DELETE_THEM);
-				jobParams.getEventObserver().deleteEvents(options, folderToDelete);
+				jobParams.getEventObserver().deleteEvents(options, foldersToDelete.toArray(new ConnectorSmbFolder[0]));
 			}
 		} else {
 			List<ConnectorSmbDocument> documentsToDelete = jobParams.getSmbRecordService().getDocuments(url);
