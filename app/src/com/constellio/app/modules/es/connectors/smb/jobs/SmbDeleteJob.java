@@ -28,31 +28,6 @@ public class SmbDeleteJob extends SmbConnectorJob {
 	@Override
 	public void execute(Connector connector) {
 		String url = jobParams.getUrl();
-		if (jobParams.getSmbUtils().isAccepted(url, jobParams.getConnectorInstance())) {
-			SmbFileDTO smbFileDTO = jobParams.getSmbShareService().getSmbFileDTO(url, false);
-			SmbFileDTOStatus status = smbFileDTO.getStatus();
-			switch (status) {
-			case DELETE_DTO:
-				deleteRecords();
-				break;
-			case FAILED_DTO:
-				// Do nothing
-				break;
-			case FULL_DTO:
-				// Do nothing
-				break;
-			default:
-				connector.getLogger()
-						.error("Unexpected DTO status when deleting : " + url, "", new LinkedHashMap<String, String>());
-				break;
-			}
-		} else {
-			deleteRecords();
-		}
-	}
-
-	private void deleteRecords() {
-		String url = jobParams.getUrl();
 		if (jobParams.getSmbUtils().isFolder(url)) {
 			List<ConnectorSmbFolder> foldersToDelete = jobParams.getSmbRecordService().getFolders(url);
 			if (!foldersToDelete.isEmpty()) {
