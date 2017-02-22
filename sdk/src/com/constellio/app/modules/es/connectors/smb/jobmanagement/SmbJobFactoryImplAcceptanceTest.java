@@ -242,6 +242,65 @@ public class SmbJobFactoryImplAcceptanceTest extends ConstellioTest {
 		assertThat(job).isInstanceOf(SmbSeedJob.class);
 	}
 
+	@Test
+	public void givenDuplicatesFoldersThenGetDeleteJob()
+			throws RecordServicesException {
+		String url = SmbTestParams.EXISTING_SHARE + "test/";
+		String permissionsHash = "someHash";
+		long lastModified = System.currentTimeMillis();
+
+		context.traverseModified(url, new SmbModificationIndicator(permissionsHash, 0, lastModified), "001", "code");
+		when(connector.getDuplicateUrls()).thenReturn(Collections.singleton(url));
+
+		ConnectorSmbFolder folder = es.newConnectorSmbFolder(connectorInstance);
+		folder.setUrl(url);
+		folder.setLastModified(new LocalDateTime(lastModified));
+
+		ConnectorSmbFolder folder2 = es.newConnectorSmbFolder(connectorInstance);
+		folder2.setUrl(url);
+		folder2.setLastModified(new LocalDateTime(lastModified));
+
+		es.getRecordServices()
+				.update(folder.getWrappedRecord());
+		es.getRecordServices()
+				.update(folder2.getWrappedRecord());
+		es.getRecordServices()
+				.flush();
+
+		ConnectorJob job = jobFactory.get(SmbJobCategory.RETRIEVAL, url, "");
+
+		assertThat(job).isInstanceOf(SmbDeleteJob.class);
+	}
+
+	@Test
+	public void givenAMisplacedFolderThenGetNewRetrievalJob()
+			throws RecordServicesException {
+		String url = SmbTestParams.EXISTING_SHARE + "test/";
+		String permissionsHash = "someHash";
+		long lastModified = System.currentTimeMillis();
+
+		connectorInstance.setForceSyncTree(true);
+
+		SmbModificationIndicator modInfo = new SmbModificationIndicator(permissionsHash, 0, lastModified);
+		context.traverseModified(url, modInfo, "001", "code");
+		when(connector.getMisplaced()).thenReturn(Collections.singleton(url));
+
+		when(smbService.getModificationIndicator(anyString())).thenReturn(modInfo);
+
+		ConnectorSmbFolder folder = es.newConnectorSmbFolder(connectorInstance);
+		folder.setUrl(url);
+		folder.setLastModified(new LocalDateTime(lastModified));
+
+		es.getRecordServices()
+				.update(folder.getWrappedRecord());
+		es.getRecordServices()
+				.flush();
+
+		ConnectorJob job = jobFactory.get(SmbJobCategory.RETRIEVAL, url, "");
+
+		assertThat(job).isInstanceOf(SmbNewFolderRetrievalJob.class);
+	}
+
 	@After
 	public void after() {
 		eventObserver.close();

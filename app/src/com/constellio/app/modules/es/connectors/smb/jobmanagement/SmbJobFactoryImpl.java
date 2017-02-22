@@ -68,11 +68,29 @@ public class SmbJobFactoryImpl implements SmbJobFactory {
 					if (contextIndicator == null) {
 						job = new SmbNewFolderRetrievalJob(params);
 					} else {
+						//Duplicates
+						if (connectorInstance.isForceSyncTree() && this.connector.getDuplicateUrls().contains(url)) {
+							if (params.getSmbRecordService().getFolders(url).size() > 1) {
+								System.out.println("#Duplicate folder found, deleting : " + url);
+								job = new SmbDeleteJob(params);
+								break;
+							}
+						}
 						SmbModificationIndicator shareIndicator = smbShareService.getModificationIndicator(url);
 						if (shareIndicator == null) {
 							job = new SmbDeleteJob(params);
 						} else if (contextIndicator.getParentId() == null || !contextIndicator.equals(shareIndicator)) {
 							job = new SmbNewFolderRetrievalJob(params);
+						} else {
+							//Misplaced
+							if (connectorInstance.isForceSyncTree() && this.connector.getMisplaced().contains(url)) {
+								ConnectorSmbFolder parentFolder = params.getSmbRecordService().getFolder(params.getParentUrl());
+								String parentId = SmbRecordService.getSafeId(parentFolder);
+								if (!StringUtils.equals(parentId, contextIndicator.getParentId())) {
+									System.out.println("#Misplaced folder found, fixing : " + url);
+									job = new SmbNewFolderRetrievalJob(params);
+								}
+							}
 						}
 					}
 				} else {
@@ -81,18 +99,10 @@ public class SmbJobFactoryImpl implements SmbJobFactory {
 					} else {
 						//Duplicates
 						if (connectorInstance.isForceSyncTree() && this.connector.getDuplicateUrls().contains(url)) {
-							if (smbUtils.isFolder(url)) {
-								if (params.getSmbRecordService().getFolders(url).size() > 1) {
-									System.out.println("#Duplicate folder found, deleting : " + url);
-									job = new SmbDeleteJob(params);
-									break;
-								}
-							} else {
-								if (params.getSmbRecordService().getDocuments(url).size() > 1) {
-									System.out.println("#Duplicate document found, deleting : " + url);
-									job = new SmbDeleteJob(params);
-									break;
-								}
+							if (params.getSmbRecordService().getDocuments(url).size() > 1) {
+								System.out.println("#Duplicate document found, deleting : " + url);
+								job = new SmbDeleteJob(params);
+								break;
 							}
 						}
 						SmbModificationIndicator shareIndicator = smbShareService.getModificationIndicator(url);
@@ -108,7 +118,7 @@ public class SmbJobFactoryImpl implements SmbJobFactory {
 								ConnectorSmbFolder parentFolder = params.getSmbRecordService().getFolder(params.getParentUrl());
 								String parentId = SmbRecordService.getSafeId(parentFolder);
 								if (!StringUtils.equals(parentId, contextIndicator.getParentId())) {
-									System.out.println("#Misplaced found, fixing : " + url);
+									System.out.println("#Misplaced document found, fixing : " + url);
 									job = new SmbNewDocumentRetrievalJob(params);
 								}
 							}
