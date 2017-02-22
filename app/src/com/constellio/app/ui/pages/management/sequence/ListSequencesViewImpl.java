@@ -1,15 +1,18 @@
 package com.constellio.app.ui.pages.management.sequence;
 
 import static com.constellio.app.ui.i18n.i18n.$;
+import static org.codehaus.groovy.runtime.InvokerHelper.asList;
 
 import java.util.Collection;
 import java.util.List;
 
+import com.constellio.app.ui.entities.RecordVO;
 import com.constellio.app.ui.entities.SequenceVO;
 import com.constellio.app.ui.framework.buttons.BaseButton;
 import com.constellio.app.ui.framework.buttons.SaveButton;
 import com.constellio.app.ui.framework.components.fields.number.BaseLongField;
 import com.constellio.app.ui.pages.base.BaseViewImpl;
+import com.constellio.model.entities.records.Record;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.MethodProperty;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
@@ -27,6 +30,8 @@ import com.vaadin.ui.themes.ValoTheme;
 public class ListSequencesViewImpl extends BaseViewImpl implements ListSequencesView {
 	
 	private String recordId;
+
+	private RecordVO recordVO;
 	
 	private List<SequenceVO> sequenceVOs;
 	
@@ -37,14 +42,30 @@ public class ListSequencesViewImpl extends BaseViewImpl implements ListSequences
 		presenter = new ListSequencesPresenter(this);
 	}
 
+	public ListSequencesViewImpl(SequenceVO recordVO) {
+		this.setSequenceVOs(asList(recordVO));
+		this.recordId = recordVO.getSequenceId();
+		presenter = new ListSequencesPresenter(this);
+	}
+
 	@Override
 	public String getRecordId() {
 		return recordId;
 	}
 
 	@Override
+	public RecordVO getRecordVO() {
+		return this.recordVO;
+	}
+
+	@Override
 	public void setSequenceVOs(List<SequenceVO> sequenceVOs) {
 		this.sequenceVOs = sequenceVOs;
+	}
+
+	@Override
+	public List<SequenceVO> getSequanceVOs() {
+		return this.sequenceVOs;
 	}
 
 	@SuppressWarnings("unchecked")

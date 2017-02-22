@@ -24,18 +24,21 @@ public class ListSequencesPresenter implements Serializable {
 	public ListSequencesPresenter(ListSequencesView view) {
 		this.view = view;
 		initTransientObjects();
-
-		Language sequenceLanguage = getSequenceLanguage();
-		sequenceVOs = new ArrayList<>();
-		List<AvailableSequence> availableSequences = getAvailableSequences();
-		for (AvailableSequence availableSequence : availableSequences) {
-			String sequenceId = availableSequence.getCode();
-			String sequenceTitle = availableSequence.getTitles().get(sequenceLanguage);
-			Long sequenceValue = sequenceServices.getLastSequenceValue(sequenceId);
-			SequenceVO sequenceVO = new SequenceVO(sequenceId, sequenceTitle, sequenceValue);
-			sequenceVOs.add(sequenceVO);
+		if (view.getSequanceVOs() == null || view.getSequanceVOs().size() == 0) {
+			Language sequenceLanguage = getSequenceLanguage();
+			sequenceVOs = new ArrayList<>();
+			List<AvailableSequence> availableSequences = getAvailableSequences();
+			for (AvailableSequence availableSequence : availableSequences) {
+				String sequenceId = availableSequence.getCode();
+				String sequenceTitle = availableSequence.getTitles().get(sequenceLanguage);
+				Long sequenceValue = sequenceServices.getLastSequenceValue(sequenceId);
+				SequenceVO sequenceVO = new SequenceVO(sequenceId, sequenceTitle, sequenceValue);
+				sequenceVOs.add(sequenceVO);
+			}
+			view.setSequenceVOs(sequenceVOs);
+		} else {
+			this.sequenceVOs = view.getSequanceVOs();
 		}
-		view.setSequenceVOs(sequenceVOs);
 	}
 	
 	private void readObject(java.io.ObjectInputStream stream)
@@ -65,7 +68,7 @@ public class ListSequencesPresenter implements Serializable {
 	private List<AvailableSequence> getAvailableSequences() {
 		List<AvailableSequence> availableSequences;
 		String recordId = view.getRecordId();
-		if (recordId != null) {
+		if (recordId != null && view.getRecordVO() == null) {
 			availableSequences = sequenceServices.getAvailableSequences(recordId);
 		} else {
 			throw new IllegalArgumentException("recordId is required");

@@ -6,6 +6,9 @@ import com.constellio.app.ui.entities.SequenceVO;
 import com.constellio.app.ui.entities.TaxonomyVO;
 import com.constellio.app.ui.framework.buttons.DisplayButton;
 import com.constellio.app.ui.framework.buttons.EditButton;
+import com.constellio.app.ui.framework.buttons.ListSequencesButton;
+import com.constellio.app.ui.framework.buttons.WindowButton;
+import com.constellio.app.ui.framework.components.BaseWindow;
 import com.constellio.app.ui.framework.components.table.BaseTable;
 import com.constellio.app.ui.framework.containers.ButtonsContainer;
 import com.constellio.app.ui.pages.base.BaseView;
@@ -17,6 +20,7 @@ import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 import java.util.List;
@@ -42,10 +46,10 @@ public class SequenceManagementViewImpl extends BaseViewImpl implements Sequence
         addButtons(buttonsContainer);
         elements = buttonsContainer;
 
-        BaseTable table = new BaseTable("ListTaxonomyView.tableTitle", $("ListTaxonomyView.tableTitle", elements.size()), elements);
+        BaseTable table = new BaseTable("SequenceListView.tableTitle", $("SequenceListView.tableTitle", elements.size()), elements);
         table.setPageLength(elements.size());
-        table.setVisibleColumns("title", "buttons");
-        table.setColumnHeader("title", $("ListTaxonomyView.titleColumn"));
+        table.setVisibleColumns("sequenceTitle", "buttons");
+        table.setColumnHeader("sequenceTitle", $("ListTaxonomyView.titleColumn"));
         table.setColumnHeader("buttons", "");
         table.setColumnWidth("buttons", 88);
         table.setWidth("100%");
@@ -66,25 +70,26 @@ public class SequenceManagementViewImpl extends BaseViewImpl implements Sequence
         buttonsContainer.addButton(new ButtonsContainer.ContainerButton() {
             @Override
             protected Button newButtonInstance(final Object itemId) {
-                return new DisplayButton() {
-                    @Override
-                    protected void buttonClick(ClickEvent event) {
-                        presenter.displayButtonClicked((SequenceVO) itemId);
-                    }
-                };
-            }
-        });
-
-        buttonsContainer.addButton(new ButtonsContainer.ContainerButton() {
-            @Override
-            protected Button newButtonInstance(final Object itemId) {
                 return new EditButton() {
                     @Override
                     protected void buttonClick(ClickEvent event) {
-                        TaxonomyVO taxonomyVO = (TaxonomyVO) itemId;
-                        String taxonomyCode = taxonomyVO.getCode();
-                        presenter.editButtonClicked(taxonomyCode);
-
+                        SequenceVO sequenceVO = (SequenceVO) itemId;
+                        ListSequencesViewImpl view = new ListSequencesViewImpl(sequenceVO);
+                        System.out.println("button Click");
+                        BaseWindow window = new BaseWindow(view.getCaption());
+                        window.setId(WindowButton.WINDOW_STYLE_NAME);
+                        window.addStyleName(WindowButton.WINDOW_STYLE_NAME);
+                        window.setModal(true);
+                        window.setResizable(false);
+                        window.setWidth("800");
+                        window.setHeight("500");
+                        Component windowContent = view.buildMainComponent(null);
+                        windowContent.addStyleName(WindowButton.WINDOW_CONTENT_STYLE_NAME);
+                        if (windowContent instanceof BaseViewImpl) {
+                            ((BaseViewImpl) windowContent).enter(null);
+                        }
+                        window.setContent(windowContent);
+                        UI.getCurrent().addWindow(window);
                     }
                 };
             }
