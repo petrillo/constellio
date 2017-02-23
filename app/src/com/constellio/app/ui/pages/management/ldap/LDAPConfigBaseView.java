@@ -6,7 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.constellio.app.ui.framework.buttons.AddButton;
+import com.vaadin.event.MouseEvents;
 import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.ui.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,17 +24,8 @@ import com.constellio.model.conf.ldap.config.LDAPUserSyncConfiguration;
 import com.constellio.model.services.users.sync.LDAPUserSyncManager.LDAPSynchProgressionInfo;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Field;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Panel;
-import com.vaadin.ui.TextArea;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
+import org.vaadin.dialogs.ConfirmDialog;
 
 public abstract class LDAPConfigBaseView extends BaseViewImpl implements LDAPConfigManagementView {
 	private static final Logger LOGGER = LoggerFactory.getLogger(LDAPConfigBaseView.class);
@@ -52,7 +45,7 @@ public abstract class LDAPConfigBaseView extends BaseViewImpl implements LDAPCon
 	protected Button saveButton;
 	private BaseButton forceUsersSynchronization;
 
-	protected Button deleteUnusedUserButton, activateLDAPButton;
+	protected Button deleteUnusedUserButton, activateLDAPButton, deleteUnusedGroupButton;
 
 	private boolean isLDAPactive = false;
 
@@ -217,7 +210,48 @@ public abstract class LDAPConfigBaseView extends BaseViewImpl implements LDAPCon
 		deleteUnusedUserButton = new AddButton($("ldap.authentication.deleteUnusedUser")) {
 			@Override
 			protected void buttonClick(ClickEvent event) {
-				presenter.deleteUsedUserButtonClick();
+				ConfirmDialog confirmDialog = ConfirmDialog.getFactory().create(
+						$("ldap.authentication.deleteUnusedUser.caption"),
+						$("ldap.authentication.deleteUnusedUser.message"),
+						$("OK"),
+						$("cancel"),
+						null);
+				confirmDialog.getOkButton().addClickListener(new ClickListener() {
+					@Override
+					public void buttonClick(ClickEvent event) {
+						presenter.deleteUnusedUserButtonClick();
+					}
+				});
+				confirmDialog.show(UI.getCurrent(), new ConfirmDialog.Listener() {
+					@Override
+					public void onClose(ConfirmDialog dialog) {
+
+					}
+				}, true);
+			}
+		};
+
+		deleteUnusedGroupButton = new AddButton($("ldap.authentication.deleteUnusedGroup")) {
+			@Override
+			protected void buttonClick(ClickEvent event) {
+				ConfirmDialog confirmDialog = ConfirmDialog.getFactory().create(
+						$("ldap.authentication.deleteUnusedGroup.caption"),
+						$("ldap.authentication.deleteUnusedGroup.message"),
+						$("OK"),
+						$("cancel"),
+						null);
+				confirmDialog.getOkButton().addClickListener(new ClickListener() {
+					@Override
+					public void buttonClick(ClickEvent event) {
+						presenter.deleteUnusedGroupButtonClick();
+					}
+				});
+				confirmDialog.show(UI.getCurrent(), new ConfirmDialog.Listener() {
+					@Override
+					public void onClose(ConfirmDialog dialog) {
+
+					}
+				}, true);
 			}
 		};
 
@@ -229,6 +263,7 @@ public abstract class LDAPConfigBaseView extends BaseViewImpl implements LDAPCon
 			}
 		};
 		actionMenuButtons.add(deleteUnusedUserButton);
+		actionMenuButtons.add(deleteUnusedGroupButton);
 		actionMenuButtons.add(activateLDAPButton);
 		return actionMenuButtons;
 	}

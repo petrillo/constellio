@@ -6,6 +6,7 @@ import java.util.List;
 import com.constellio.model.entities.records.Record;
 import com.constellio.model.entities.records.wrappers.RecordWrapper;
 import com.constellio.model.entities.schemas.MetadataSchemaTypes;
+import com.constellio.model.entities.schemas.Schemas;
 
 public class SolrGlobalGroup extends RecordWrapper implements GlobalGroup {
 	public static final String SCHEMA_TYPE = "globalGroup";
@@ -70,6 +71,7 @@ public class SolrGlobalGroup extends RecordWrapper implements GlobalGroup {
 
 	public SolrGlobalGroup setStatus(GlobalGroupStatus status) {
 		set(STATUS, status);
+		set(Schemas.LOGICALLY_DELETED_STATUS, true);
 		return this;
 	}
 

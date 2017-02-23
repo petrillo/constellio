@@ -17,10 +17,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.constellio.app.modules.rm.RMTestRecords;
 import com.constellio.app.modules.rm.services.RMSchemasRecordsServices;
 import com.constellio.app.modules.rm.wrappers.Cart;
 import com.constellio.app.modules.rm.wrappers.Document;
+import com.constellio.model.entities.security.global.*;
 import com.constellio.model.services.records.RecordServicesException;
+import com.constellio.sdk.tests.TestUtils;
 import com.constellio.sdk.tests.annotations.InDevelopmentTest;
 import com.constellio.sdk.tests.setups.Users;
 import org.joda.time.LocalDateTime;
@@ -40,11 +43,6 @@ import com.constellio.model.entities.records.wrappers.Group;
 import com.constellio.model.entities.records.wrappers.User;
 import com.constellio.model.entities.schemas.Schemas;
 import com.constellio.model.entities.security.Role;
-import com.constellio.model.entities.security.global.GlobalGroup;
-import com.constellio.model.entities.security.global.GlobalGroupStatus;
-import com.constellio.model.entities.security.global.UserCredential;
-import com.constellio.model.entities.security.global.UserCredentialStatus;
-import com.constellio.model.entities.security.global.XmlUserCredential;
 import com.constellio.model.services.encrypt.EncryptionKeyFactory;
 import com.constellio.model.services.encrypt.EncryptionServices;
 import com.constellio.model.services.factories.ModelLayerFactoryUtils;
@@ -90,12 +88,13 @@ public class UserServicesAcceptanceTest extends ConstellioTest {
 	@Mock Factory<EncryptionServices> encryptionServicesFactory;
 	AuthenticationService authenticationService;
 	List<String> msExchDelegateListBL = new ArrayList<>();
+	RMTestRecords records = new RMTestRecords(zeCollection);
 
 	@Before
 	public void setUp()
 			throws Exception {
 		prepareSystem(withZeCollection().withConstellioRMModule().withConstellioESModule()
-				.withAllTestUsers());
+				.withAllTestUsers().withAllTestUsers().withRMTest(records));
 		givenBackgroundThreadsEnabled();
 		withSpiedServices(ModelLayerConfiguration.class);
 		configure(new ModelLayerConfigurationAlteration() {
@@ -1005,6 +1004,66 @@ public class UserServicesAcceptanceTest extends ConstellioTest {
 		}
 
 		assertThat(userServices.safePhysicalDeleteAllUnusedUser()).extracting("username").containsExactly(chuck.getUsername());
+	}
+
+	@Test
+	@InDevelopmentTest
+	public void tryingToDeleteUsedGroup() throws Exception {
+		userServices = getModelLayerFactory().newUserServices();
+		userCredentialsManager = getModelLayerFactory().getUserCredentialsManager();
+		globalGroupsManager = getModelLayerFactory().getGlobalGroupsManager();
+
+		GlobalGroup group1 = userServices.createGlobalGroup("G1 ", "Group 1", asList(zeCollection), null, GlobalGroupStatus.INACTIVE, true);
+		GlobalGroup group2 = userServices.createGlobalGroup("G2 ", "Group 2", asList(zeCollection), null, GlobalGroupStatus.INACTIVE, true);
+		GlobalGroup group3 = userServices.createGlobalGroup("G3 ", "Group 3", asList(zeCollection), null, GlobalGroupStatus.INACTIVE, true);
+		GlobalGroup group4 = userServices.createGlobalGroup("G4 ", "Group 4", asList(zeCollection), null, GlobalGroupStatus.INACTIVE, true);
+		GlobalGroup group5 = userServices.createGlobalGroup("G5 ", "Group 5", asList(zeCollection), null, GlobalGroupStatus.INACTIVE, true);
+		GlobalGroup group6 = userServices.createGlobalGroup("G6 ", "Group 6", asList(zeCollection), null, GlobalGroupStatus.INACTIVE, true);
+		GlobalGroup group7 = userServices.createGlobalGroup("G7 ", "Group 7", asList(zeCollection), null, GlobalGroupStatus.INACTIVE, true);
+		GlobalGroup group8 = userServices.createGlobalGroup("G8 ", "Group 8", asList(zeCollection), null, GlobalGroupStatus.INACTIVE, true);
+		GlobalGroup group9 = userServices.createGlobalGroup("G9 ", "Group 9", asList(zeCollection), null, GlobalGroupStatus.INACTIVE, true);
+		GlobalGroup group10 = userServices.createGlobalGroup("G10 ", "Group 10", asList(zeCollection), null, GlobalGroupStatus.INACTIVE, true);
+		GlobalGroup group11 = userServices.createGlobalGroup("G11 ", "Group 11", asList(zeCollection), null, GlobalGroupStatus.INACTIVE, true);
+		Transaction t = new Transaction();
+		t.addAll(asList(group1, group2, group3, group4, group5, group6, group7, group8, group9, group10, group11));
+		getModelLayerFactory().newRecordServices().execute(t);
+
+		SolrUserCredential aliceCredential = (SolrUserCredential) userCredentialsManager.getUserCredential(records.getAlice().getUsername());
+		SolrUserCredential chuckCredential = (SolrUserCredential) userCredentialsManager.getUserCredential(records.getChuckNorris().getUsername());
+		SolrUserCredential bobCredential = (SolrUserCredential) userCredentialsManager.getUserCredential(records.getBob_userInAC().getUsername());
+		SolrUserCredential dakotaCredential = (SolrUserCredential) userCredentialsManager.getUserCredential(records.getDakota_managerInA_userInB().getUsername());
+		SolrUserCredential adminCredential = (SolrUserCredential) userCredentialsManager.getUserCredential(records.getAdmin().getUsername());
+		SolrUserCredential edouardCredential = (SolrUserCredential) userCredentialsManager.getUserCredential(records.getEdouard_managerInB_userInC().getUsername());
+		SolrUserCredential gandalfCredential = (SolrUserCredential) userCredentialsManager.getUserCredential(records.getGandalf_managerInABC().getUsername());
+
+		aliceCredential.setGlobalGroups(asList(group1.getCode(), group2.getCode(), group3.getCode()));
+		chuckCredential.setGlobalGroups(asList(group2.getCode(), group3.getCode(), group5.getCode(), group10.getCode()));
+		bobCredential.setGlobalGroups(asList(group1.getCode(), group5.getCode(), group8.getCode()));
+		dakotaCredential.setGlobalGroups(asList(group11.getCode()));
+		adminCredential.setGlobalGroups(asList(group9.getCode(), group6.getCode(), group2.getCode()));
+		edouardCredential.setGlobalGroups(asList(group5.getCode(), group1.getCode(), group8.getCode()));
+		gandalfCredential.setGlobalGroups(asList(group1.getCode(), group2.getCode(), group3.getCode()));
+
+		userCredentialsManager.addUpdate(aliceCredential);
+		userCredentialsManager.addUpdate(chuckCredential);
+		userCredentialsManager.addUpdate(bobCredential);
+		userCredentialsManager.addUpdate(dakotaCredential);
+		userCredentialsManager.addUpdate(adminCredential);
+		userCredentialsManager.addUpdate(edouardCredential);
+		userCredentialsManager.addUpdate(gandalfCredential);
+
+		userServices.physicllyRemoveAllUnUsedGroup(GlobalGroupStatus.INACTIVE);
+
+		assertThat(userCredentialsManager.getUserCredential(records.getAlice().getUsername()).getGlobalGroups()).containsExactly(group1.getCode(), group2.getCode(), group3.getCode());
+		assertThat(userCredentialsManager.getUserCredential(records.getChuckNorris().getUsername()).getGlobalGroups()).containsExactly(group2.getCode(), group3.getCode(), group5.getCode(), group10.getCode());
+		assertThat(userCredentialsManager.getUserCredential(records.getBob_userInAC().getUsername()).getGlobalGroups()).containsExactly(group1.getCode(), group5.getCode(), group8.getCode());
+		assertThat(userCredentialsManager.getUserCredential(records.getDakota_managerInA_userInB().getUsername()).getGlobalGroups()).containsExactly(group11.getCode());
+		assertThat(userCredentialsManager.getUserCredential(records.getAdmin().getUsername()).getGlobalGroups()).containsExactly(group9.getCode(), group6.getCode(), group2.getCode());
+		assertThat(userCredentialsManager.getUserCredential(records.getEdouard_managerInB_userInC().getUsername()).getGlobalGroups()).containsExactly(group5.getCode(), group1.getCode(), group8.getCode());
+		assertThat(userCredentialsManager.getUserCredential(records.getGandalf_managerInABC().getUsername()).getGlobalGroups()).containsExactly(group1.getCode(), group2.getCode(), group3.getCode());
+
+		assertThat(globalGroupsManager.getGlobalGroupWithCode(group4.getCode())).isNull();
+		assertThat(globalGroupsManager.getGlobalGroupWithCode(group7.getCode())).isNull();
 	}
 
 

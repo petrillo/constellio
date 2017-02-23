@@ -8,8 +8,10 @@ import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import java.util.*;
 
 import com.constellio.model.entities.schemas.*;
+import com.constellio.model.entities.security.global.*;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
+import jdk.nashorn.internal.objects.Global;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.LocalDateTime;
@@ -29,11 +31,6 @@ import com.constellio.model.entities.records.Transaction;
 import com.constellio.model.entities.records.wrappers.Group;
 import com.constellio.model.entities.records.wrappers.User;
 import com.constellio.model.entities.security.Role;
-import com.constellio.model.entities.security.global.GlobalGroup;
-import com.constellio.model.entities.security.global.GlobalGroupStatus;
-import com.constellio.model.entities.security.global.SolrUserCredential;
-import com.constellio.model.entities.security.global.UserCredential;
-import com.constellio.model.entities.security.global.UserCredentialStatus;
 import com.constellio.model.services.collections.CollectionsListManager;
 import com.constellio.model.services.factories.ModelLayerFactory;
 import com.constellio.model.services.records.RecordServices;
@@ -376,6 +373,24 @@ public class UserServices {
 		removeGroupFromCollectionsWithoutUserValidation(globalGroup.getCode(), collections);
 
 		syncUsersCredentials(users);
+	}
+
+	public List<GlobalGroup> physicllyRemoveAllUnUsedGroup(GlobalGroupStatus status) {
+		return physicallyRemoveGroup(status, globalGroupsManager.getAllGroups().toArray(new GlobalGroup[0]));
+	}
+
+	public List<GlobalGroup> physicallyRemoveGroup(GlobalGroupStatus status, GlobalGroup... globalGroups) {
+		List<GlobalGroup> groupWithUserList = new ArrayList<>();
+		for (GlobalGroup group : globalGroups) {
+			List<UserCredential> userInGroup = this.getGlobalGroupActifUsers(group.getCode());
+			if ((group.getStatus().equals(status) || status == null) && userInGroup.size() == 0) {
+				globalGroupsManager.logicallyRemoveGroup(group);
+				recordServices.physicallyDelete(((SolrGlobalGroup) group).getWrappedRecord(), User.GOD);
+			} else if (userInGroup.size() > 0) {
+				groupWithUserList.add(group);
+			}
+		}
+		return groupWithUserList;
 	}
 
 	public void removeGroupFromCollections(UserCredential userCredential, String group, List<String> collections) {

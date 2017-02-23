@@ -4,6 +4,8 @@ import static com.constellio.app.ui.i18n.i18n.$;
 
 import java.util.List;
 
+import com.constellio.model.entities.security.global.GlobalGroup;
+import com.constellio.model.entities.security.global.GlobalGroupStatus;
 import com.constellio.model.entities.security.global.UserCredential;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -161,12 +163,23 @@ public class LDAPConfigManagementPresenter extends
 				&& (getLDAPUserSyncConfiguration().getDurationBetweenExecution() != null || getLDAPUserSyncConfiguration().getScheduleTime() != null);
 	}
 
-	public void deleteUsedUserButtonClick() {
+	public void deleteUnusedUserButtonClick() {
 		List<UserCredential> nonDeletedUser = userServices().safePhysicalDeleteAllUnusedUser();
 		if (nonDeletedUser.size() > 0) {
 			String message = $("ldap.authentication.unDeletedUser") + "<br>";
 			for (UserCredential userCredential : nonDeletedUser) {
 				message += userCredential.getUsername() + "<br>";
+			}
+			this.view.showMessage(message);
+		}
+	}
+
+	public void deleteUnusedGroupButtonClick() {
+		List<GlobalGroup> nonDeletedGroup = userServices().physicllyRemoveAllUnUsedGroup(GlobalGroupStatus.INACTIVE);
+		if (nonDeletedGroup.size() > 0) {
+			String message = $("ldap.authentication.unDeletedGroup") + "<br>";
+			for (GlobalGroup GlobalGroup : nonDeletedGroup) {
+				message += GlobalGroup.getName() + "<br>";
 			}
 			this.view.showMessage(message);
 		}
